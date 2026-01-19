@@ -6,10 +6,19 @@ on:
     # Run multiple times to cover different game starts (Times in UTC - PST is UTC-8)
     # 11:30 AM PST (19:30 UTC) - Early/Weekend games coverage
     - cron: '30 19 * * *'
-    # 3:30 PM PST (23:30 UTC) - Main Slate (Standard First Game) coverage
+    
+    # PEAK TIME HOURLY RUNS (Covering 4pm, 5pm, 6pm, 7pm, 8pm starts)
+    # 3:30 PM PST (23:30 UTC)
     - cron: '30 23 * * *'
-    # 7:00 PM PST (03:00 UTC) - Late Games coverage
-    - cron: '0 3 * * *'
+    # 4:30 PM PST (00:30 UTC next day)
+    - cron: '30 0 * * *'
+    # 5:30 PM PST (01:30 UTC)
+    - cron: '30 1 * * *'
+    # 6:30 PM PST (02:30 UTC)
+    - cron: '30 2 * * *'
+    # 7:30 PM PST (03:30 UTC)
+    - cron: '30 3 * * *'
+
     # 11:00 PM PST (07:00 UTC) - Next Day Prep
     - cron: '0 7 * * *'
   workflow_dispatch: # Allow manual trigger button

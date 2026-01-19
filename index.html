@@ -600,12 +600,13 @@
                     if (diffMs > 0) {
                         const hrs = Math.floor(diffMs / 3600000);
                         const mins = Math.floor((diffMs % 3600000) / 60000);
-                        countdownStr = `<span style="color:#fcd34d">Starts in ${hrs}h ${mins}m</span>`;
+                        countdownStr = `<span style="color:#fcd34d; font-weight:bold;">Starts in ${hrs}h ${mins}m</span>`;
                     } else {
                         countdownStr = `<span style="color:#ef4444; font-weight:bold;">LIVE / STARTED</span>`;
                     }
 
-                    timeHtml = `<div style="margin-top:5px; font-size:0.9em; border-top:1px solid #334155; padding-top:5px;">
+                    // HEADER Time HTML
+                    timeHtml = `<div style="font-size:0.8em; color:#e2e8f0; margin-top:2px;">
                         ⏰ ${timeStr} • ${countdownStr}
                     </div>`;
                 }
@@ -620,7 +621,6 @@
                     <p><strong>Ease:</strong> ${pick.ease > 0 ? '+' : ''}${pick.ease}</p>
                     <p><strong>Interpretation:</strong> <em style="color:#cbd5e1">${pick.interpretation || 'None'}</em></p>
                     <p><strong>Confidence:</strong> ${(pick.confidence * 100).toFixed(0)}% | <strong>Score:</strong> ${(pick.edge * pick.confidence).toFixed(2)}</p>
-                    ${timeHtml}
                 `;
                 if (!isLock && isElite) {
                     card.style.border = "2px solid #ffd700";
@@ -650,9 +650,12 @@
                     : "linear-gradient(135deg, #2ecc71, #27ae60)"; // Green for Over
 
                 card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px;">
-                        <h3 style="margin:0;">${index + 1}. ${pick.player} <small>(${pick.team} - ${pick.pos})</small></h3>
-                        <div style="background: ${badgeBg}; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px;">
+                        <div style="flex: 1;">
+                            <h3 style="margin:0;">${index + 1}. ${pick.player} <small>(${pick.team} - ${pick.pos})</small></h3>
+                            ${timeHtml}
+                        </div>
+                        <div style="background: ${badgeBg}; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.2); white-space: nowrap; margin-left: 10px;">
                             ${pick.betRating} | 💎 ${pick.score} Rating
                         </div>
                     </div>

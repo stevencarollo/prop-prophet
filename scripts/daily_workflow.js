@@ -19,6 +19,80 @@ const BBM_DATA_URL = 'https://basketballmonster.com/dailyprojections.aspx';
 const EASE_DB_FILE = path.join(__dirname, '../ease_rankings.json');
 const OUTPUT_FILE = path.join(__dirname, '../latest_picks.js');
 
+// --- EASE LOGIC (Ported from Server) ---
+const EASE_CHUNKS = ['ease_raw_chunk1.txt', 'ease_raw_chunk2.txt', 'ease_raw_chunk3.txt', 'ease_raw_chunk_pg_update.txt'];
+let EASE_DB = {};
+
+function rebuildEaseDb() {
+    try {
+        let combined = '';
+        let foundAny = false;
+        const rootDir = path.join(__dirname, '..');
+
+        for (const chunk of EASE_CHUNKS) {
+            const p = path.join(rootDir, chunk);
+            if (fs.existsSync(p)) {
+                combined += fs.readFileSync(p, 'utf8') + '\n';
+                foundAny = true;
+            }
+        }
+
+        if (!foundAny) {
+            console.log('[Ease] No raw data chunks found. Using empty DB.');
+            return;
+        }
+
+        const lines = combined.split('\n');
+        const db = {};
+        let currentPos = null;
+        let currentTime = null;
+
+        for (let line of lines) {
+            line = line.trim();
+            if (!line) continue;
+
+            if (line.includes('Past 1 Week')) currentTime = '1w';
+            if (line.includes('Past 2 Weeks')) currentTime = '2w';
+            if (line.includes('Full Season') || line.includes('full season')) currentTime = 'season';
+
+            if (['All', 'PG', 'SG', 'SF', 'PF', 'C'].includes(line)) {
+                currentPos = line;
+                continue;
+            }
+            if (line.startsWith('vs Team')) continue;
+
+            if (line.startsWith('vs ')) {
+                if (!currentPos || !currentTime) continue;
+                const cleanLine = line.replace('vs ', '').trim();
+                const parts = cleanLine.split(/\s+/);
+                const team = parts[0];
+
+                const stats = {
+                    val: parseFloat(parts[1]),
+                    pV: parseFloat(parts[2]),
+                    '3V': parseFloat(parts[3]),
+                    rV: parseFloat(parts[4]),
+                    aV: parseFloat(parts[5]),
+                    sV: parseFloat(parts[6]),
+                    bV: parseFloat(parts[7]),
+                    toV: parseFloat(parts[9])
+                };
+
+                if (!db[currentPos]) db[currentPos] = {};
+                if (!db[currentPos][currentTime]) db[currentPos][currentTime] = {};
+                db[currentPos][currentTime][team] = stats;
+            }
+        }
+        EASE_DB = db;
+        console.log(`✅ [Ease] Rebuilt DB from chunks.`);
+    } catch (e) {
+        console.error('[Ease] Rebuild failed:', e);
+    }
+}
+
+// Initial Load
+rebuildEaseDb();
+
 // --- UTILS ---
 function normalizeName(n) {
     if (!n) return '';
@@ -394,19 +468,68 @@ function generatePicks(bbmPlayers, oddsData) {
 
             if (weightedEdge < 0.1) return; // Min Edge
 
-            // Ease Logic (Simplified)
-            let ease = player.ease;
-            // In a full implementation, we'd query EASE_DB deeply. 
-            // For now, use BBM's 'ease' column if available, or 0.
-
             // --- PROPHET SCORING ENGINE (Ported from Server) ---
             const SETTINGS = {
                 min_edge: 0.1,
                 rest0_penalty: 0.05,
                 b2b_penalty_young: 0.03,
                 b2b_penalty_vet: 0.08,
-                vet_age_threshold: 30
+                vet_age_threshold: 30,
+                ease_weights: { "1w": 0.50, "2w": 0.30, "season": 0.20 }
             };
+
+            // --- COMPLEX EASE CALCULATION ---
+            let posEaseVal = 0;
+            let teamEaseVal = 0;
+            let activeEaseVal = 0;
+            let easeBreakdown = "No Data";
+
+            const oppTeam = player.opp.replace(/[@vs]/g, '').trim().toUpperCase();
+
+            // Map stat to Ease DB columns
+            const componentStats = {
+                'pr': ['pV', 'rV'],
+                'pa': ['pV', 'aV'],
+                'ra': ['rV', 'aV'],
+                'pra': ['pV', 'rV', 'aV']
+            };
+            const comps = componentStats[stat] || [(stat === '3' ? '3V' : `${stat}V`)];
+
+            if (Object.keys(EASE_DB).length > 0 && oppTeam) {
+                const rawPos = player.pos || 'All';
+                const specificPos = (['PG', 'SG', 'SF', 'PF', 'C'].includes(rawPos)) ? rawPos : null;
+
+                const calcWeighted = (posKey) => {
+                    if (!EASE_DB[posKey]) return 0;
+                    let totalEase = 0;
+                    for (const k of comps) {
+                        const getV = (tf) => (EASE_DB[posKey][tf] && EASE_DB[posKey][tf][oppTeam]) ? EASE_DB[posKey][tf][oppTeam][k] : 0;
+                        totalEase += (getV('1w') * SETTINGS.ease_weights["1w"]) +
+                            (getV('2w') * SETTINGS.ease_weights["2w"]) +
+                            (getV('season') * SETTINGS.ease_weights["season"]);
+                    }
+                    return totalEase / comps.length;
+                };
+
+                // 1. Team Matchup Ease (General Defense)
+                teamEaseVal = calcWeighted('All');
+
+                // 2. Positional Expected Ease
+                if (specificPos) {
+                    posEaseVal = calcWeighted(specificPos);
+                    activeEaseVal = posEaseVal; // Prioritize specific
+                } else {
+                    activeEaseVal = teamEaseVal; // Fallback
+                }
+
+                // Format breakdown for UI
+                easeBreakdown = `Pos: ${posEaseVal.toFixed(2)} | Team: ${teamEaseVal.toFixed(2)}`;
+            } else {
+                // Fallback to BBM Ease if DB missing
+                activeEaseVal = player.ease || 0;
+            }
+
+            let ease = activeEaseVal;
 
             let conf = 0.5 + (weightedEdge / 5);
 
@@ -540,9 +663,9 @@ function generatePicks(bbmPlayers, oddsData) {
                 confidence: conf,
                 confidenceGrade: confGrade,
                 score: prophetPoints,
-                interpretation: `Matchup: ${interpret(ease, stat, side)}`,
+                interpretation: `Matchup: ${interpret(ease, stat, side)} | ${easeBreakdown}`,
                 analysis: deepAnalysis,
-                startTime: player.startTime
+                startTime: (lines && lines.length > 0 && lines[0].startTime) ? lines[0].startTime : player.startTime
             });
         });
     });

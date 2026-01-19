@@ -197,8 +197,8 @@
             <div id="guest-controls" class="hidden" style="text-align: center; margin-bottom: 20px;">
                 <h2>Welcome Guest!</h2>
                 <p class="info-text" style="margin-bottom: 15px;">Viewing latest picks from the Prophet.</p>
-                <button onclick="refreshGuestData()" style="max-width: 300px; background: #0ea5e9;">🔄 Check for
-                    Updates</button>
+                <button onclick="refreshGuestData()" style="max-width: 300px; background: #0ea5e9;">🔄 Refresh Cloud
+                    Data</button>
                 <p style="font-size: 0.8em; color: #94a3b8; margin-top: 5px;">(System updates hourly on game days)</p>
             </div>
 
@@ -217,23 +217,7 @@
         let currentPicks = [];
 
         async function refreshGuestData() {
-            // Priority 1: Try to hit the Live Server (Fresh Odds)
-            showAlert('info', '📡 Attempting to fetch Live Real-Time Odds...');
-            try {
-                // Try to use the generator logic (which fetches server BBM + Market Lines)
-                // We need to ensure generatePicks() handles the UI feedback.
-                await generatePicks();
-
-                if (currentPicks && currentPicks.length > 0) {
-                    showAlert('success', '✅ Success! Viewing Real-Time Market Lines.');
-                    return;
-                }
-            } catch (err) {
-                console.warn('Live Server Unreachable', err);
-            }
-
-            // Priority 2: Fallback to Static File (CDN)
-            showAlert('warning', '⚠️ Live Server Offline. Loading latest static report...');
+            showAlert('info', 'checking cloud storage for latest picks...');
 
             // Remove old script tag if found
             const old = document.querySelector('script[src*="latest_picks.js"]');
@@ -246,12 +230,18 @@
                 if (window.LATEST_PICKS) {
                     currentPicks = window.LATEST_PICKS;
                     displayPicks(window.LATEST_PICKS);
-                    const count = window.LATEST_PICKS.length;
-                    showAlert('success', `Static Data Loaded. Found ${count} picks.`);
+
+                    let msg = `Loaded ${window.LATEST_PICKS.length} picks.`;
+                    if (window.LAST_UPDATED) {
+                        msg += ` (Updated: ${window.LAST_UPDATED})`;
+                    }
+                    showAlert('success', msg);
+                } else {
+                    showAlert('error', 'No data found in cloud file.');
                 }
             };
-            script.onerror = () => showAlert('warning', 'Could not load update.');
-            document.head.appendChild(script);
+            script.onerror = () => showAlert('error', 'Failed to load cloud file.');
+            document.body.appendChild(script);
         }
 
         function login() {
@@ -541,26 +531,18 @@
         }
 
         async function forceUpdate() {
-            if (!confirm('Start the Update Robot? This will open a browser and take control for ~30 seconds.')) return;
+            const btn = document.getElementById('update-lines-btn'); // Assuming button ID
+            if (btn) btn.disabled = true;
 
-            showAlert('info', '🤖 Robot Started... This may take a minute.');
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/force-update`, {
-                    method: 'POST',
-                    headers: { 'Bypass-Tunnel-Reminder': 'true' }
-                });
-                const data = await res.json();
+            showAlert('info', 'Checking for latest cloud data...');
 
-                if (data.success) {
-                    showAlert('success', '✅ Mission Complete! Data is Live on Netlify.');
-                    setTimeout(() => location.reload(), 3000);
-                } else {
-                    showAlert('error', 'Update Failed: ' + (data.details || 'Unknown Error'));
-                }
-            } catch (err) {
-                console.error(err);
-                showAlert('error', 'Failed to trigger robot. Is server running?');
-            }
+            // Artificial delay to feel like it's working (and allow UI to render)
+            await new Promise(r => setTimeout(r, 800));
+
+            // Reload page with cache-busting timestamp
+            const url = new URL(window.location.href);
+            url.searchParams.set('t', Date.now());
+            window.location.href = url.toString();
         }
 
         function displayPicks(picks) {

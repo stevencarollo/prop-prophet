@@ -397,7 +397,8 @@ function generatePicks(bbmPlayers, oddsData) {
         console.log(`✅ Generated ${picks.length} picks.`);
 
         // 5. Save
-        const content = `window.LATEST_PICKS = ${JSON.stringify(picks, null, 2)};`;
+        const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
+        const content = `window.LAST_UPDATED = "${timestamp}";\nwindow.LATEST_PICKS = ${JSON.stringify(picks, null, 2)};`;
         fs.writeFileSync(OUTPUT_FILE, content);
         console.log(`💾 Saved to ${OUTPUT_FILE}`);
 

@@ -1,5 +1,25 @@
-window.LAST_UPDATED = "1/19/2026, 1:41:58 PM";
+window.LAST_UPDATED = "1/19/2026, 1:45:48 PM";
 window.LATEST_PICKS = [
+  {
+    "player": "Devin Booker",
+    "team": "PHO",
+    "pos": "PG",
+    "opp": "BKN",
+    "stat": "p",
+    "side": "UNDER",
+    "line": 24.5,
+    "projection": "20.32",
+    "edge": "4.18",
+    "ease": -0.978,
+    "marketLine": "24.5",
+    "betRating": "💎 DIAMOND BOY",
+    "confidence": 0.99,
+    "confidenceGrade": "A+ 🌟",
+    "score": "10.35",
+    "interpretation": "Matchup: Negative Ease → Environment suppresses stat (Confirms Under). | Pos: <span style=\"color:#f87171\">-0.98</span> | Team: <span style=\"color:#f87171\">-0.33</span>",
+    "analysis": "🎯 **Solid Edge**: Model identifies a **4.18 point gap** vs public perception.<br>🔒 **Defensive Clamp**: BKN ranks elite vs Points. Expect usage to struggle.",
+    "startTime": "2026-01-20T00:40:00Z"
+  },
   {
     "player": "Tyrese Maxey",
     "team": "PHI",
@@ -61,24 +81,24 @@ window.LATEST_PICKS = [
     "startTime": "2026-01-20T00:40:00Z"
   },
   {
-    "player": "Devin Booker",
-    "team": "PHO",
+    "player": "Keyonte George",
+    "team": "UTA",
     "pos": "PG",
-    "opp": "BKN",
-    "stat": "p",
-    "side": "UNDER",
-    "line": 24,
-    "projection": "20.32",
-    "edge": "3.68",
-    "ease": -0.978,
-    "marketLine": "24",
-    "betRating": "🔥 ELITE",
-    "confidence": 0.9629411764705886,
+    "opp": "SAS",
+    "stat": "pr",
+    "side": "OVER",
+    "line": 26.5,
+    "projection": "30.84",
+    "edge": "4.34",
+    "ease": 0.7695000000000001,
+    "marketLine": "26.5",
+    "betRating": "💎 DIAMOND BOY",
+    "confidence": 0.9495294117647066,
     "confidenceGrade": "A+ 🌟",
-    "score": "8.86",
-    "interpretation": "Matchup: Negative Ease → Environment suppresses stat (Confirms Under). | Pos: <span style=\"color:#f87171\">-0.98</span> | Team: <span style=\"color:#f87171\">-0.33</span>",
-    "analysis": "🎯 **Solid Edge**: Model identifies a **3.68 point gap** vs public perception.<br>🔒 **Defensive Clamp**: BKN ranks elite vs Points. Expect usage to struggle.",
-    "startTime": "2026-01-20T00:40:00Z"
+    "score": "9.27",
+    "interpretation": "Matchup: Positive Ease → Environment supports stat accumulation. | Pos: <span style=\"color:#4ade80\">0.77</span> | Team: <span style=\"color:#f87171\">-0.14</span>",
+    "analysis": "🎯 **Solid Edge**: Model identifies a **4.34 point gap** vs public perception.<br>✅ **Smash Spot**: SAS defense is bleeding Pts+Reb to this position (Ease: +0.7695000000000001). High ceiling environment.",
+    "startTime": "2026-01-19T22:10:00Z"
   },
   {
     "player": "Jalen Green",
@@ -141,26 +161,6 @@ window.LATEST_PICKS = [
     "startTime": "2026-01-20T00:40:00Z"
   },
   {
-    "player": "Keyonte George",
-    "team": "UTA",
-    "pos": "PG",
-    "opp": "SAS",
-    "stat": "pr",
-    "side": "OVER",
-    "line": 27,
-    "projection": "30.84",
-    "edge": "3.84",
-    "ease": 0.7695000000000001,
-    "marketLine": "27",
-    "betRating": "💪 STRONG PLAY",
-    "confidence": 0.8965882352941184,
-    "confidenceGrade": "A",
-    "score": "7.75",
-    "interpretation": "Matchup: Positive Ease → Environment supports stat accumulation. | Pos: <span style=\"color:#4ade80\">0.77</span> | Team: <span style=\"color:#f87171\">-0.14</span>",
-    "analysis": "🎯 **Solid Edge**: Model identifies a **3.84 point gap** vs public perception.<br>✅ **Smash Spot**: SAS defense is bleeding Pts+Reb to this position (Ease: +0.7695000000000001). High ceiling environment.",
-    "startTime": "2026-01-19T22:10:00Z"
-  },
-  {
     "player": "Tyrese Maxey",
     "team": "PHI",
     "pos": "PG",
@@ -217,7 +217,7 @@ window.LATEST_PICKS = [
     "confidenceGrade": "A-",
     "score": "7.38",
     "interpretation": "Matchup: Positive Ease → Environment supports stat accumulation. | Pos: <span style=\"color:#4ade80\">0.14</span> | Team: <span style=\"color:#4ade80\">0.42</span>",
-    "analysis": "🎯 **Solid Edge**: Model identifies a **2.30 point gap** vs public perception.<br>⚠️ **Back-to-Back**: Player is on 0 days rest. Fatigue penalty applied.<br>⚠️ **Minute Restrictions**: Player minutes volatile or rookie status. Downgraded to STRONG.",
+    "analysis": "🎯 **Solid Edge**: Model identifies a **2.30 point gap** vs public perception.<br>⚠️ **Back-to-Back**: Player is on 0 days rest. Fatigue penalty applied.",
     "startTime": "2026-01-20T00:40:00Z"
   },
   {
@@ -277,7 +277,7 @@ window.LATEST_PICKS = [
     "confidenceGrade": "A-",
     "score": "6.91",
     "interpretation": "Matchup: Negative Ease → Contradicts Over (check usage). | Pos: <span style=\"color:#f87171\">-0.41</span> | Team: <span style=\"color:#f87171\">-0.12</span>",
-    "analysis": "🎯 **Solid Edge**: Model identifies a **3.88 point gap** vs public perception.<br>⚠️ **Back-to-Back**: Player is on 0 days rest. Fatigue penalty applied.<br>⚠️ **Minute Restrictions**: Player minutes volatile or rookie status. Downgraded to STRONG.",
+    "analysis": "🎯 **Solid Edge**: Model identifies a **3.88 point gap** vs public perception.<br>⚠️ **Back-to-Back**: Player is on 0 days rest. Fatigue penalty applied.",
     "startTime": "2026-01-20T00:40:00Z"
   },
   {
@@ -537,7 +537,7 @@ window.LATEST_PICKS = [
     "confidenceGrade": "B+",
     "score": "5.81",
     "interpretation": "Matchup: Negative Ease → Contradicts Over (check usage). | Pos: <span style=\"color:#f87171\">-0.46</span> | Team: <span style=\"color:#4ade80\">0.11</span>",
-    "analysis": "🎯 **Solid Edge**: Model identifies a **3.25 point gap** vs public perception.<br>⚠️ **Back-to-Back**: Player is on 0 days rest. Fatigue penalty applied.<br>⚠️ **Minute Restrictions**: Player minutes volatile or rookie status. Downgraded to STRONG.",
+    "analysis": "🎯 **Solid Edge**: Model identifies a **3.25 point gap** vs public perception.<br>⚠️ **Back-to-Back**: Player is on 0 days rest. Fatigue penalty applied.",
     "startTime": "2026-01-20T00:40:00Z"
   },
   {
@@ -598,6 +598,26 @@ window.LATEST_PICKS = [
     "score": "5.51",
     "interpretation": "Matchup: Positive Ease → Contradicts Under. | Pos: <span style=\"color:#4ade80\">0.30</span> | Team: <span style=\"color:#4ade80\">1.48</span>",
     "analysis": "🎯 **Solid Edge**: Model identifies a **2.92 point gap** vs public perception.<br>✅ **Smash Spot**: UTA defense is bleeding Pts+Ast to this position (Ease: +0.30399999999999994). High ceiling environment.",
+    "startTime": "2026-01-19T22:10:00Z"
+  },
+  {
+    "player": "Keyonte George",
+    "team": "UTA",
+    "pos": "PG",
+    "opp": "SAS",
+    "stat": "pa",
+    "side": "OVER",
+    "line": 29.5,
+    "projection": "32.47",
+    "edge": "2.97",
+    "ease": -0.6865,
+    "marketLine": "29.5",
+    "betRating": "✅ SOLID PLAY",
+    "confidence": 0.8044705882352947,
+    "confidenceGrade": "B+",
+    "score": "5.38",
+    "interpretation": "Matchup: Negative Ease → Contradicts Over (check usage). | Pos: <span style=\"color:#f87171\">-0.69</span> | Team: <span style=\"color:#f87171\">-1.23</span>",
+    "analysis": "🎯 **Solid Edge**: Model identifies a **2.97 point gap** vs public perception.",
     "startTime": "2026-01-19T22:10:00Z"
   },
   {
@@ -721,6 +741,26 @@ window.LATEST_PICKS = [
     "startTime": "2026-01-20T01:10:00Z"
   },
   {
+    "player": "Jusuf Nurkic",
+    "team": "UTA",
+    "pos": "C",
+    "opp": "SAS",
+    "stat": "pra",
+    "side": "OVER",
+    "line": 26,
+    "projection": "28.86",
+    "edge": "2.86",
+    "ease": 0.561,
+    "marketLine": "26",
+    "betRating": "✅ SOLID PLAY",
+    "confidence": 0.8160000000000001,
+    "confidenceGrade": "B+",
+    "score": "4.96",
+    "interpretation": "Matchup: Positive Ease → Environment supports stat accumulation. | Pos: <span style=\"color:#4ade80\">0.56</span> | Team: <span style=\"color:#f87171\">-0.49</span>",
+    "analysis": "🎯 **Solid Edge**: Model identifies a **2.86 point gap** vs public perception.<br>✅ **Smash Spot**: SAS defense is bleeding Pts+Reb+Ast to this position (Ease: +0.561). High ceiling environment.",
+    "startTime": "2026-01-19T22:10:00Z"
+  },
+  {
     "player": "Cooper Flagg",
     "team": "DAL",
     "pos": "PG",
@@ -737,7 +777,7 @@ window.LATEST_PICKS = [
     "confidenceGrade": "B+",
     "score": "4.93",
     "interpretation": "Matchup: Positive Ease → Environment supports stat accumulation. | Pos: <span style=\"color:#4ade80\">0.51</span> | Team: <span style=\"color:#4ade80\">0.00</span>",
-    "analysis": "🎯 **Solid Edge**: Model identifies a **2.51 point gap** vs public perception.<br>✅ **Smash Spot**: NYK defense is bleeding Points to this position (Ease: +0.514). High ceiling environment.<br>⚠️ **Minute Restrictions**: Player minutes volatile or rookie status. Downgraded to STRONG.",
+    "analysis": "🎯 **Solid Edge**: Model identifies a **2.51 point gap** vs public perception.<br>✅ **Smash Spot**: NYK defense is bleeding Points to this position (Ease: +0.514). High ceiling environment.",
     "startTime": "2026-01-19T22:10:00Z"
   },
   {
@@ -937,7 +977,7 @@ window.LATEST_PICKS = [
     "confidenceGrade": "B+",
     "score": "4.36",
     "interpretation": "Matchup: Negative Ease → Environment suppresses stat (Confirms Under). | Pos: <span style=\"color:#f87171\">-0.35</span> | Team: <span style=\"color:#f87171\">-0.68</span>",
-    "analysis": "🎯 **Solid Edge**: Model identifies a **1.38 point gap** vs public perception.<br>🔒 **Defensive Clamp**: IND ranks elite vs Assists. Expect usage to struggle.<br>⚠️ **Minute Restrictions**: Player minutes volatile or rookie status. Downgraded to STRONG.",
+    "analysis": "🎯 **Solid Edge**: Model identifies a **1.38 point gap** vs public perception.<br>🔒 **Defensive Clamp**: IND ranks elite vs Assists. Expect usage to struggle.",
     "startTime": "2026-01-20T00:10:00Z"
   },
   {
@@ -1121,43 +1161,23 @@ window.LATEST_PICKS = [
     "startTime": "2026-01-20T03:10:00Z"
   },
   {
-    "player": "Keyonte George",
-    "team": "UTA",
-    "pos": "PG",
-    "opp": "SAS",
-    "stat": "pa",
+    "player": "O.G. Anunoby",
+    "team": "NYK",
+    "pos": "SF",
+    "opp": "DAL",
+    "stat": "r",
     "side": "OVER",
-    "line": 30,
-    "projection": "32.47",
-    "edge": "2.47",
-    "ease": -0.6865,
-    "marketLine": "30",
+    "line": 5,
+    "projection": "6.42",
+    "edge": "1.42",
+    "ease": 0.21600000000000003,
+    "marketLine": "5",
     "betRating": "✅ SOLID PLAY",
-    "confidence": 0.7515294117647066,
-    "confidenceGrade": "B",
-    "score": "4.18",
-    "interpretation": "Matchup: Negative Ease → Contradicts Over (check usage). | Pos: <span style=\"color:#f87171\">-0.69</span> | Team: <span style=\"color:#f87171\">-1.23</span>",
-    "analysis": "🎯 **Solid Edge**: Model identifies a **2.47 point gap** vs public perception.",
-    "startTime": "2026-01-19T22:10:00Z"
-  },
-  {
-    "player": "Brandon Williams",
-    "team": "DAL",
-    "pos": "PG",
-    "opp": "NYK",
-    "stat": "pra",
-    "side": "UNDER",
-    "line": 22,
-    "projection": "19.49",
-    "edge": "2.51",
-    "ease": -0.24966666666666668,
-    "marketLine": "22",
-    "betRating": "✅ SOLID PLAY",
-    "confidence": 0.7809999999999999,
+    "confidence": 0.7805882352941176,
     "confidenceGrade": "B+",
-    "score": "4.17",
-    "interpretation": "Matchup: Negative Ease → Environment suppresses stat (Confirms Under). | Pos: <span style=\"color:#f87171\">-0.25</span> | Team: <span style=\"color:#f87171\">-0.27</span>",
-    "analysis": "🎯 **Solid Edge**: Model identifies a **2.51 point gap** vs public perception.<br>🔒 **Defensive Clamp**: NYK ranks elite vs Pts+Reb+Ast. Expect usage to struggle.",
+    "score": "4.16",
+    "interpretation": "Matchup: Positive Ease → Environment supports stat accumulation. | Pos: <span style=\"color:#4ade80\">0.22</span> | Team: <span style=\"color:#4ade80\">0.73</span>",
+    "analysis": "🎯 **Solid Edge**: Model identifies a **1.42 point gap** vs public perception.<br>✅ **Smash Spot**: DAL defense is bleeding Rebounds to this position (Ease: +0.21600000000000003). High ceiling environment.",
     "startTime": "2026-01-19T22:10:00Z"
   },
   {
@@ -1177,7 +1197,7 @@ window.LATEST_PICKS = [
     "confidenceGrade": "B",
     "score": "4.13",
     "interpretation": "Matchup: Positive Ease → Environment supports stat accumulation. | Pos: <span style=\"color:#4ade80\">0.22</span> | Team: <span style=\"color:#f87171\">-0.34</span>",
-    "analysis": "🎯 **Solid Edge**: Model identifies a **2.45 point gap** vs public perception.<br>✅ **Smash Spot**: NYK defense is bleeding Pts+Ast to this position (Ease: +0.22). High ceiling environment.<br>⚠️ **Minute Restrictions**: Player minutes volatile or rookie status. Downgraded to STRONG.",
+    "analysis": "🎯 **Solid Edge**: Model identifies a **2.45 point gap** vs public perception.<br>✅ **Smash Spot**: NYK defense is bleeding Pts+Ast to this position (Ease: +0.22). High ceiling environment.",
     "startTime": "2026-01-19T22:10:00Z"
   },
   {

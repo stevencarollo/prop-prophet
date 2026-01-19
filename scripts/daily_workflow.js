@@ -559,29 +559,8 @@ function generatePicks(bbmPlayers, oddsData) {
             }
 
             // General Form (Last 5 Games Bonus/Deduction)
-            const v3 = player.val_3 || 0;
-            const v5 = player.val_5 || 0;
-            const maxVal = Math.max(v3, v5);
-            const minVal = Math.min(v3, v5);
-
-            // "How many times" proxy: High V5 = High Hit Rate
-            if (maxVal >= 1.0) {
-                if (side === 'OVER') {
-                    conf += 0.08; // BIG Bonus for Hot Hand (L5 Over)
-                    easeBreakdown += " [L5 HIT: 🔥]";
-                } else {
-                    conf -= 0.05; // Betting Under a Hot Player
-                }
-            }
-            else if (minVal <= -1.0) {
-                if (side === 'UNDER') {
-                    conf += 0.08; // BIG Bonus for Slump (L5 Under)
-                    easeBreakdown += " [L5 HIT: ❄️]";
-                } else {
-                    conf -= 0.08; // Betting Over a Cold Player (Deduction)
-                    easeBreakdown += " [L5 WARN]";
-                }
-            }
+            // REMOVED: User Feedback confirmed 'Val L5' is generic fantasy value, not specific to the prop stat.
+            // avoiding misleading "Hit Rate" bonuses based on generic value.
 
             // Value C (Global Impact)
             const valC = player.valueC || 0;
@@ -631,7 +610,7 @@ function generatePicks(bbmPlayers, oddsData) {
             let capAtStrong = false;
 
             if (min < 23) capAtStrong = true;
-            if (status.includes('rookie') && (v5 < 1.0 || min < 23)) capAtStrong = true;
+            if (status.includes('rookie') && (min < 23)) capAtStrong = true;
 
             if (capAtStrong) {
                 if (betRating.includes("LOCK") || betRating.includes("DIAMOND") || betRating.includes("ELITE")) {
@@ -655,11 +634,6 @@ function generatePicks(bbmPlayers, oddsData) {
             if (activeEaseVal >= 0.20) narrative.push(`✅ **Smash Spot**: ${oppTeam} defense is bleeding ${displayStat} to this position (Ease: +${activeEaseVal}). High ceiling environment.`);
             else if (activeEaseVal <= -0.20 && side === 'UNDER') narrative.push(`🔒 **Defensive Clamp**: ${oppTeam} ranks elite vs ${displayStat}. Expect usage to struggle.`);
             else if (Math.abs(activeEaseVal) < 0.10) narrative.push(`⚖️ **Neutral Spot**: Matchup is average, but the volume projection (${proj.toFixed(1)}) carries the play.`);
-
-            // 3. THE FORM & CONSISTENCY (Last 5 Games)
-            if (v5 >= 1.0) narrative.push(`🔥 **Last 5 Games**: Player is scorching hot (L5 Val: ${v5}). <span style="color:#4ade80; font-weight:bold;">(+8% Score Bonus)</span>`);
-            else if (v5 <= -1.0 && side === 'UNDER') narrative.push(`❄️ **Last 5 Games**: Player is cold/slumping (L5 Val: ${v5}). <span style="color:#4ade80; font-weight:bold;">(+8% Score Bonus)</span>`);
-            else if (player.pc > 65) narrative.push(`🛡️ **Consistency King**: Hits this metric at a ${player.pc}% clip, offering a high floor.`);
 
             // 4. THE RISKS & SHARP SIGNALS
             if (Math.abs(gameSpread) >= 10) narrative.push(`⚠️ **Game Script**: ${gameSpread}pt spread implies a blowout. Size down slightly for 4th qtr sitting risk.`);

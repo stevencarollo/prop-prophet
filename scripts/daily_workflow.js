@@ -368,7 +368,7 @@ function generatePicks(bbmPlayers, oddsData) {
                 marketLine: `${line}`,
                 betRating: weightedEdge > 2.0 ? "DIAMOND" : (weightedEdge > 1.0 ? "ELITE" : "SOLID"),
                 confidence: Math.min(0.99, 0.5 + (weightedEdge / 5)),
-                score: (weightedEdge * 10).toFixed(1),
+                score: weightedEdge.toFixed(2),
                 interpretation: `Auto-generated via Cloud. Edge: ${edge.toFixed(2)}`,
                 startTime: player.startTime
             });

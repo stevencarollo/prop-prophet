@@ -426,7 +426,7 @@ function generatePicks(bbmPlayers, oddsData) {
 
     // Iterate Players
     bbmPlayers.forEach(player => {
-        if (player.min < 20) return; // Min Minutes
+        if (player.min <= 22) return; // Strict Minute Filter (<= 22m)
         if (player.injury && player.injury.toLowerCase().includes('out')) return;
 
         Object.keys(player.projections).forEach(stat => {

@@ -656,9 +656,9 @@ function generatePicks(bbmPlayers, oddsData) {
             else if (activeEaseVal <= -0.20 && side === 'UNDER') narrative.push(`🔒 **Defensive Clamp**: ${oppTeam} ranks elite vs ${displayStat}. Expect usage to struggle.`);
             else if (Math.abs(activeEaseVal) < 0.10) narrative.push(`⚖️ **Neutral Spot**: Matchup is average, but the volume projection (${proj.toFixed(1)}) carries the play.`);
 
-            // 3. THE FORM & CONSISTENCY
-            if (v5 >= 1.0) narrative.push(`🔥 **Current Form**: Player is scorching hot, crushing this number recently (Val: ${v5}). Ride the wave.`);
-            else if (v5 <= -1.0 && side === 'UNDER') narrative.push(`❄️ **Fade Mode**: Player is in a slump, failing to clear this line consistently. Valid fade.`);
+            // 3. THE FORM & CONSISTENCY (Last 5 Games)
+            if (v5 >= 1.0) narrative.push(`🔥 **Last 5 Games**: Player is scorching hot (L5 Val: ${v5}). <span style="color:#4ade80; font-weight:bold;">(+8% Score Bonus)</span>`);
+            else if (v5 <= -1.0 && side === 'UNDER') narrative.push(`❄️ **Last 5 Games**: Player is cold/slumping (L5 Val: ${v5}). <span style="color:#4ade80; font-weight:bold;">(+8% Score Bonus)</span>`);
             else if (player.pc > 65) narrative.push(`🛡️ **Consistency King**: Hits this metric at a ${player.pc}% clip, offering a high floor.`);
 
             // 4. THE RISKS & SHARP SIGNALS

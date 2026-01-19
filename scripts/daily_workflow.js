@@ -134,7 +134,7 @@ function parseBBM(buffer) {
     const teamKey = findKey(['team']);
     const posKey = findKey(['pos']);
     const oppKey = findKey(['opp']);
-    const minKey = findKey(['min', 'mp', 'm/g']); // Added m/g
+    const minKey = findKey(['min', 'mp', 'm/g']);
     const injKey = findKey(['inj']);
     const dateKey = findKey(['date', 'dt']);
     const timeKey = findKey(['time']);
@@ -150,7 +150,20 @@ function parseBBM(buffer) {
     const easeKey = findKey(['ease']);
     const statusKey = findKey(['status']);
 
-    console.log(`[DEBUG] Keys Found: P=${pKey}, Min=${minKey}, Name=${nameKey}, Team=${teamKey}`);
+    // Extended Context (For Scoring Engine)
+    const restKey = findKey(['rest']);
+    const b2bKey = findKey(['b2b']);
+    const ageKey = findKey(['age']);
+    const l3Key = findKey(['3gg', 'l3', 'last 3']);
+    const l5Key = findKey(['5gg', 'l5', 'last 5']);
+    const valCKey = findKey(['valuec', 'val c', 'value c']);
+    const pcKey = findKey(['pc', 'p cons', 'consistency']);
+    const joshKey = findKey(['josh', 'joshg', 'josh g']);
+    const jMinKey = findKey(['jming', 'jmin', 'josh min']);
+    const jMaxKey = findKey(['jmaxg', 'jmax', 'josh max']);
+    const lastMinKey = findKey(['last min', 'last mp', 'min last', 'prev min', 'lmin']);
+
+    console.log(`[DEBUG] Keys Found: P=${pKey}, Min=${minKey}, Name=${nameKey}, Rest=${restKey}, B2B=${b2bKey}, Josh=${joshKey}`);
 
     const players = [];
 
@@ -196,7 +209,19 @@ function parseBBM(buffer) {
             injury: injKey ? String(row[injKey]) : '',
             opp: oppKey ? String(row[oppKey]).replace('@ ', '') : '',
             startTime: startTs,
-            projections: proj
+            projections: proj,
+            // Extended Fields
+            rest: restKey ? Number(row[restKey]) || 0 : 0,
+            b2b: b2bKey ? Number(row[b2bKey]) || 0 : 0,
+            age: ageKey ? (Number(row[ageKey]) || 25) : 25,
+            val_3: l3Key ? Number(row[l3Key]) || 0 : 0,
+            val_5: l5Key ? Number(row[l5Key]) || 0 : 0,
+            valueC: valCKey ? Number(row[valCKey]) || 0 : 0,
+            pc: pcKey ? Number(row[pcKey]) || 0 : 0,
+            josh: joshKey ? Number(row[joshKey]) || 0 : 0,
+            jMin: jMinKey ? Number(row[jMinKey]) || 0 : 0,
+            jMax: jMaxKey ? Number(row[jMaxKey]) || 0 : 0,
+            lastMin: lastMinKey ? Number(row[lastMinKey]) || 0 : 0
         });
     });
 
@@ -374,9 +399,66 @@ function generatePicks(bbmPlayers, oddsData) {
             // In a full implementation, we'd query EASE_DB deeply. 
             // For now, use BBM's 'ease' column if available, or 0.
 
-            // Confidence Logic
+            // --- PROPHET SCORING ENGINE (Ported from Server) ---
+            const SETTINGS = {
+                min_edge: 0.1,
+                rest0_penalty: 0.05,
+                b2b_penalty_young: 0.03,
+                b2b_penalty_vet: 0.08,
+                vet_age_threshold: 30
+            };
+
             let conf = 0.5 + (weightedEdge / 5);
-            if (conf >= 0.99) conf = 0.99;
+
+            // Penalties (Rest, Age, B2B)
+            if (player.rest === 0) conf -= SETTINGS.rest0_penalty;
+            if (player.b2b >= 1) {
+                if ((player.age || 25) >= SETTINGS.vet_age_threshold) {
+                    conf -= SETTINGS.b2b_penalty_vet;
+                } else {
+                    conf -= SETTINGS.b2b_penalty_young;
+                }
+            }
+
+            // Blowout Risk Logic (Spread >= 10.0)
+            // (Assuming gameSpread is available in lines[0] or we skip it if missing)
+            const gameSpread = (lines && lines.length > 0) ? (lines[0].gameSpread || 0) : 0;
+            if (Math.abs(gameSpread) >= 10.0 && side === 'OVER') {
+                conf -= 0.20; // HEAVY Penalty (-20%)
+                if ((player.age || 25) >= SETTINGS.vet_age_threshold) {
+                    conf -= 0.10; // Vets sit earlier
+                }
+            }
+
+            // General Form (L3/L5 Value)
+            const v3 = player.val_3 || 0;
+            const v5 = player.val_5 || 0;
+            const maxVal = Math.max(v3, v5);
+            const minVal = Math.min(v3, v5);
+
+            if (maxVal >= 1.0 && side === 'OVER') conf += 0.05;
+            else if (minVal <= -1.0) {
+                if (side === 'UNDER') conf += 0.05; // Fade slump
+                else conf -= 0.05; // Betting Over cold player
+            }
+
+            // Value C (Global Impact)
+            const valC = player.valueC || 0;
+            if (valC >= 1.5 && side === 'OVER') conf += 0.04;
+            else if (valC <= -1.5 && side === 'OVER') conf -= 0.04;
+
+            // Josh G (Sharp Input)
+            const josh = player.josh || 0;
+            const jMin = player.jMin || 0;
+            const jMax = player.jMax || 0;
+            if (josh >= 1.5 && side === 'OVER') conf += 0.06;
+            else if (josh <= -1.5 && side === 'UNDER') conf += 0.06;
+
+            if (side === 'OVER' && jMin > -1.0) conf += 0.03;
+            if (side === 'UNDER' && jMax < 1.0) conf += 0.03;
+
+            // Clamp Confidence
+            conf = Math.max(0.01, Math.min(0.99, conf));
 
             // Confidence Grading
             let confGrade = "D";
@@ -386,6 +468,35 @@ function generatePicks(bbmPlayers, oddsData) {
             else if (conf >= 0.75) confGrade = "B+";
             else if (conf >= 0.70) confGrade = "B";
             else if (conf >= 0.60) confGrade = "C";
+
+            // Final Prophet Points Calculation
+            // Using 2.5 multiplier akin to server logic (approximate)
+            const prophetPoints = (weightedEdge * conf * 2.5).toFixed(2);
+
+            // Tier Logic
+            const ppt = parseFloat(prophetPoints);
+            // Relax filter slightly to allow testing
+            if (ppt < 4.0) return;
+
+            let betRating = "✅ SOLID PLAY";
+            if (ppt >= 10.5) betRating = "🔒 PROPHET LOCK";
+            else if (ppt >= 9.0) betRating = "💎 DIAMOND BOY";
+            else if (ppt >= 8.0) betRating = "🔥 ELITE";
+            else if (ppt >= 7.0) betRating = "💪 STRONG PLAY";
+
+            // Gates (Minutes/Rookie)
+            const min = player.min || 0;
+            const status = (player.status || '').toLowerCase();
+            let capAtStrong = false;
+
+            if (min < 23) capAtStrong = true;
+            if (status.includes('rookie') && (v5 < 1.0 || min < 23)) capAtStrong = true;
+
+            if (capAtStrong) {
+                if (betRating.includes("LOCK") || betRating.includes("DIAMOND") || betRating.includes("ELITE")) {
+                    betRating = "💪 STRONG PLAY";
+                }
+            }
 
             // Narrative Generation
             let narrative = [];
@@ -404,6 +515,12 @@ function generatePicks(bbmPlayers, oddsData) {
             else if (ease <= -0.20 && side === 'UNDER') narrative.push(`🔒 **Defensive Clamp**: ${player.opp} ranks elite vs ${displayStat}. Expect usage to struggle.`);
             else if (Math.abs(ease) < 0.10) narrative.push(`⚖️ **Neutral Spot**: Matchup is average, but the volume projection (${proj.toFixed(1)}) carries the play.`);
 
+            // 3. THE RISKS
+            if (Math.abs(gameSpread) >= 10) narrative.push(`⚠️ **Game Script**: ${gameSpread}pt spread implies a blowout. Size down slightly for 4th qtr sitting risk.`);
+            if (player.b2b >= 1) narrative.push(`⚠️ **Back-to-Back**: Player is on 0 days rest. Fatigue penalty applied.`);
+            if (capAtStrong) narrative.push(`⚠️ **Minute Restrictions**: Player minutes volatile or rookie status. Downgraded to STRONG.`);
+
+
             const deepAnalysis = narrative.join('<br>');
 
             // Construct Pick
@@ -419,10 +536,10 @@ function generatePicks(bbmPlayers, oddsData) {
                 edge: edge.toFixed(2),
                 ease: ease,
                 marketLine: `${line}`,
-                betRating: weightedEdge > 2.0 ? "DIAMOND" : (weightedEdge > 1.0 ? "ELITE" : "SOLID"),
+                betRating: betRating,
                 confidence: conf,
                 confidenceGrade: confGrade,
-                score: weightedEdge.toFixed(2),
+                score: prophetPoints,
                 interpretation: `Matchup: ${interpret(ease, stat, side)}`,
                 analysis: deepAnalysis,
                 startTime: player.startTime

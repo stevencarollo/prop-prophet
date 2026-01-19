@@ -1,0 +1,39 @@
+name: Daily Prophet Automation
+
+on:
+  schedule:
+    # Run at 10:00 AM PST (18:00 UTC) every day
+    - cron: '0 18 * * *'
+  workflow_dispatch: # Allow manual trigger button
+
+jobs:
+  run-daily-picks:
+    runs-on: ubuntu-latest
+
+    env:
+      BBM_USER: ${{ secrets.BBM_USER }}
+      BBM_PASS: ${{ secrets.BBM_PASS }}
+      MARKET_API_KEY: ${{ secrets.MARKET_API_KEY }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Prop Prophet Dependencies
+        run: npm install
+
+      - name: Run Daily Workflow (Scrape + Generate)
+        run: node scripts/daily_workflow.js
+
+      - name: Commit and Push Results
+        run: |
+          git config --global user.name "Prophet Bot"
+          git config --global user.email "bot@prop-prophet.com"
+          git add latest_picks.js
+          git commit -m "🤖 Daily Picks Update: $(date +'%Y-%m-%d')" || echo "No changes to commit"
+          git push origin main

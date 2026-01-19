@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Prop Prophet v3.0</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: #1e293b;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #10b981;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .login-box {
+            max-width: 400px;
+            margin: 5rem auto;
+            background: #1e293b;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #10b981;
+            color: black;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #059669;
+        }
+
+        .pick-card {
+            background: #1e293b;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-badge {
+            background: #10b981;
+            color: black;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .edge {
+            font-size: 1.8rem;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .alert {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+
+        .alert-success {
+            background: #10b98120;
+            border: 1px solid #10b981;
+        }
+
+        .alert-error {
+            background: #ef444420;
+            border: 1px solid #ef4444;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin: 0;
+        }
+
+        .user-greeting {
+            font-size: 1.2rem;
+        }
+
+        .info-text {
+            font-size: 0.9em;
+            color: #94a3b8;
+            margin-top: 20px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #334155;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+    <script src="latest_picks.js"></script>
+</head>
+
+<body>
+    <!-- LOGIN PAGE -->
+    <div id="login-page" class="login-box">
+        <h2>🏀 Prop Prophet v3.0</h2>
+        <h3 style="margin-bottom: 1.5rem;">Login</h3>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <div class="info-text">
+            <strong>Guest:</strong> guest / Guest2024!
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard-page" class="hidden">
+        <div class="navbar">
+            <h1>Prop Prophet Dashboard</h1>
+            <div>
+                <span class="user-greeting">Hi, <span id="username-display"></span></span>
+                <button onclick="logout()" style="margin-left: 20px; width: auto; padding: 8px 20px;">Logout</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- OWNER-ONLY BBM INPUT -->
+            <div id="owner-only" class="hidden">
+                <h2>📊 Step 1: Upload BBM File or Paste Data</h2>
+
+                <!-- File Upload -->
+                <div class="file-upload-area">
+                    <input type="file" id="bbm-file" accept=".xls,.xlsx,.csv" style="padding: 5px;">
+                    <button onclick="uploadFile()" style="width: auto; margin-left: 10px;">Upload File</button>
+                </div>
+
+                <!-- OR Paste -->
+                <div style="margin: 10px 0; font-size: 0.9em; color: #94a3b8; text-align: center;">— OR paste manually
+                    below —</div>
+
+                <textarea id="bbm-data" rows="12"
+                    placeholder="Copy your entire BBM table (Ctrl+A, Ctrl+C) and paste here..."></textarea>
+
+                <button onclick="generatePicks()" style="margin-top: 10px;">Step 2: Generate Picks</button>
+                <button id="publish-btn" onclick="publishPicks()" style="background: #8e44ad; margin-top: 10px;">Step 3:
+                    Publish to Netlify 🚀</button>
+
+                <!-- AUTOMATION CONTROLS -->
+                <div style="margin-top: 20px; border-top: 1px solid #334155; padding-top: 15px;">
+                    <button onclick="forceUpdate()" style="background: #0ea5e9; width: 100%;">🔄 Force Live Update
+                        (Robot)</button>
+                    <p style="font-size: 0.8em; color: #94a3b8; text-align: center; margin-top: 5px;">Downloads Fresh
+                        Data & Deploys to Netlify automatically.</p>
+                </div>
+                <button onclick="clearData()" style="background: #ef4444; margin-top: 10px;">Clear Data</button>
+            </div>
+
+            <!-- GUEST CONTROLS -->
+            <div id="guest-controls" class="hidden" style="text-align: center; margin-bottom: 20px;">
+                <h2>Welcome Guest!</h2>
+                <p class="info-text" style="margin-bottom: 15px;">Viewing latest picks from the Prophet.</p>
+                <button onclick="refreshGuestData()" style="max-width: 300px; background: #0ea5e9;">🔄 Check for
+                    Updates</button>
+                <p style="font-size: 0.8em; color: #94a3b8; margin-top: 5px;">(System updates hourly on game days)</p>
+            </div>
+
+            <!-- PICKS DISPLAY -->
+            <h2>🎯 Today's Top Picks <span style="font-size: 0.6em;">(<span id="pick-count">0</span> qualifying)</span>
+            </h2>
+            <div id="alerts"></div>
+            <div id="picks-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // Login System
+        const API_BASE_URL = 'http://localhost:3000';
+        let currentUser = null;
+        let currentPicks = [];
+
+        async function refreshGuestData() {
+            // Priority 1: Try to hit the Live Server (Fresh Odds)
+            showAlert('info', '📡 Attempting to fetch Live Real-Time Odds...');
+            try {
+                // Try to use the generator logic (which fetches server BBM + Market Lines)
+                // We need to ensure generatePicks() handles the UI feedback.
+                await generatePicks();
+
+                if (currentPicks && currentPicks.length > 0) {
+                    showAlert('success', '✅ Success! Viewing Real-Time Market Lines.');
+                    return;
+                }
+            } catch (err) {
+                console.warn('Live Server Unreachable', err);
+            }
+
+            // Priority 2: Fallback to Static File (CDN)
+            showAlert('warning', '⚠️ Live Server Offline. Loading latest static report...');
+
+            // Remove old script tag if found
+            const old = document.querySelector('script[src*="latest_picks.js"]');
+            if (old) old.remove();
+
+            // Add new script with cache buster
+            const script = document.createElement('script');
+            script.src = 'latest_picks.js?t=' + Date.now();
+            script.onload = () => {
+                if (window.LATEST_PICKS) {
+                    currentPicks = window.LATEST_PICKS;
+                    displayPicks(window.LATEST_PICKS);
+                    const count = window.LATEST_PICKS.length;
+                    showAlert('success', `Static Data Loaded. Found ${count} picks.`);
+                }
+            };
+            script.onerror = () => showAlert('warning', 'Could not load update.');
+            document.head.appendChild(script);
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if ((username === 'owner' && password === 'Reempicks1!') ||
+                (username === 'guest' && password === 'Guest2024!')) {
+                currentUser = username;
+                document.getElementById('login-page').classList.add('hidden');
+                document.getElementById('dashboard-page').classList.remove('hidden');
+                document.getElementById('username-display').textContent = username;
+
+                if (username === 'owner') {
+                    document.getElementById('owner-only').classList.remove('hidden');
+                } else if (username === 'guest') {
+                    document.getElementById('guest-controls').classList.remove('hidden');
+
+                    // CRITICAL: Guests cannot generate (Server is offline for them). Hide inputs.
+                    const inputSec = document.getElementById('input-section');
+                    if (inputSec) inputSec.style.display = 'none';
+
+                    // GUEST LOGIC: Auto-load static picks
+                    if (typeof window.LATEST_PICKS !== 'undefined' && window.LATEST_PICKS.length > 0) {
+                        displayPicks(window.LATEST_PICKS);
+                        showAlert('success', 'Viewing latest published picks.');
+                    } else {
+                        showAlert('warning', 'Picks have not been published yet. Please check back later. (v4.0)');
+                    }
+                }
+
+                showAlert('success', `Welcome, ${username}!`);
+            } else {
+                showAlert('error', 'Invalid username or password');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('dashboard-page').classList.add('hidden');
+            document.getElementById('login-page').classList.remove('hidden');
+            document.getElementById('owner-only').classList.add('hidden');
+            document.getElementById('guest-controls').classList.add('hidden');
+            document.getElementById('picks-container').innerHTML = '';
+            document.getElementById('pick-count').textContent = '0';
+        }
+
+        function showAlert(type, message) {
+            const alerts = document.getElementById('alerts');
+            alerts.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => { alerts.innerHTML = ''; }, 5000);
+        }
+
+        function clearData() {
+            document.getElementById('bbm-data').value = '';
+            document.getElementById('picks-container').innerHTML = '';
+            document.getElementById('pick-count').textContent = '0';
+            showAlert('success', 'Data cleared');
+        }
+
+        // Upload file to server (owner)
+        async function uploadFile() {
+            const fileInput = document.getElementById('bbm-file');
+            const file = fileInput.files[0];
+            if (!file) {
+                showAlert('error', 'Please select a file first');
+                return;
+            }
+
+            const form = new FormData();
+            form.append('bbmfile', file, file.name);
+
+            showAlert('success', 'Uploading BBM to server...');
+            try {
+                const resp = await fetch(`${API_BASE_URL}/api/upload-bbm`, {
+                    method: 'POST',
+                    headers: { 'Bypass-Tunnel-Reminder': 'true' },
+                    body: form
+                });
+                const data = await resp.json();
+                if (!resp.ok) {
+                    console.warn(data);
+                    showAlert('error', 'Upload failed');
+                    return;
+                }
+                showAlert('success', `Upload successful — ${data.count} players saved.`);
+            } catch (err) {
+                console.error(err);
+                showAlert('error', 'Upload failed: ' + err.message);
+            }
+        }
+
+        async function publishPicks() {
+            if (!currentPicks || currentPicks.length === 0) {
+                showAlert('error', 'Generate picks first!');
+                return;
+            }
+            try {
+                showAlert('success', 'Publishing to latest_picks.js...');
+                const resp = await fetch(`${API_BASE_URL}/api/publish`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ picks: currentPicks })
+                });
+                if (resp.ok) showAlert('success', 'Saved! Now drag your folder to Netlify.');
+                else showAlert('error', 'Publish failed.');
+            } catch (e) { showAlert('error', 'Error: ' + e.message); }
+        }
+
+        // BBM Data Parser & Pick Generator
+        async function generatePicks() {
+            // First try to load server BBM if available (owner workflow)
+            let players = [];
+
+            try {
+                const resp = await fetch(`${API_BASE_URL}/api/bbm`, {
+                    headers: { 'Bypass-Tunnel-Reminder': 'true' }
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data && data.players && data.players.length > 0) {
+                        players = data.players;
+                        console.log('Using server-stored BBM', players.length);
+                    }
+                }
+            } catch (err) {
+                console.warn('Failed to fetch server BBM', err);
+            }
+
+            // If no server BBM, fall back to pasted textarea
+            // If no server BBM, fall back to pasted textarea
+            if (players.length === 0) {
+                const bbmText = document.getElementById('bbm-data').value.trim();
+                // If just owner-pasting
+                if (bbmText) {
+                    players = parseBBMFromText(bbmText);
+                } else if (!bbmText && currentUser === 'guest') {
+                    // Guest tries to generate but server has no data
+                    showAlert('error', 'No data loaded by Owner yet.');
+                    return;
+                } else if (!bbmText) {
+                    showAlert('error', 'Please upload or paste BBM data.');
+                    return;
+                }
+            }
+
+            // Build market-line requests
+            const requests = [];
+            players.forEach(player => {
+                if (player.injury && String(player.injury).toLowerCase().includes('out')) return;
+
+                Object.entries(player.projections || {}).forEach(([stat, proj]) => {
+                    // FIX: Allow Steals/Blocks/TO < 1.0 (e.g. 0.8 proj vs 0.5 line is huge value)
+                    if (proj < 1.0 && stat !== 's' && stat !== 'b' && stat !== 'to') return;
+                    requests.push({ player: player.name, team: player.team || '', stat });
+                });
+            });
+
+            if (requests.length === 0) {
+                showAlert('error', 'No valid players/projections found.');
+                return;
+            }
+
+            // Query backend for market lines (batch)
+            let marketLinesMap = {}; // Key: "Player_stat" -> line
+
+            try {
+                showAlert('success', 'Fetching market lines from Prop Prophet API...');
+                const resp = await fetch(`${API_BASE_URL}/api/market-lines`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Bypass-Tunnel-Reminder': 'true'
+                    },
+                    body: JSON.stringify({ requests })
+                });
+
+                if (!resp.ok) {
+                    console.warn('Market lines API responded with', resp.status);
+                    showAlert('error', 'Failed to fetch market lines.');
+                } else {
+                    const data = await resp.json();
+                    // Server now does ALL math. We just display results.
+                    const serverPicks = data.results || [];
+                    currentPicks = serverPicks;
+                    displayPicks(serverPicks);
+                }
+            } catch (err) {
+                console.warn('Failed to fetch market lines', err);
+                showAlert('error', 'Network error fetching lines.');
+            }
+        }
+
+        // Removed client-side CalculatePicks - Logic moved to server v1.0 spec
+
+        function displayPicks(picks) {
+            const container = document.getElementById('picks-container');
+            const count = document.getElementById('pick-count');
+
+            // Guest restrictions
+            if (currentUser === 'guest') {
+                picks = picks.slice(0, 5); // Max 5 for guest
+            }
+
+            container.innerHTML = '';
+            count.textContent = picks.length;
+
+            if (picks.length === 0) {
+                container.innerHTML = '<div class="alert alert-error">No +EV picks found. (Check terminal logs for matching details).</div>';
+                return;
+            }
+
+            picks.forEach((pick, index) => {
+                const card = document.createElement('div');
+                card.className = 'pick-card';
+                card.innerHTML = `
+                    <h3>${index + 1}. ${pick.player} - ${pick.stat.toUpperCase()} ${pick.side}</h3>
+                    <p style="margin: 10px 0;">
+                        <span class="stat-badge">${pick.marketLine}</span>
+                        <span class="edge">+${pick.edge} units</span>
+                    </p>
+                    <p><strong>Proj:</strong> ${pick.projection} | <strong>Line:</strong> ${pick.marketLine}</p>
+                    <p><strong>Ease:</strong> ${pick.ease > 0 ? '+' : ''}${pick.ease}</p>
+                    <p><strong>Interpretation:</strong> <em style="color:#cbd5e1">${pick.interpretation || 'None'}</em></p>
+                    <p><strong>Confidence:</strong> ${(pick.confidence * 100).toFixed(0)}% | <strong>Score:</strong> ${(pick.edge * pick.confidence).toFixed(2)}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Simple parser for pasted BBM text client-side fallback
+        function parseBBMFromText(bbmText) {
+            const lines = bbmText.split('\n');
+            // Try to find header line
+            let headerIdx = -1;
+
+            // Look for standard BBM pipe format
+            headerIdx = lines.findIndex(line => line.includes('|Own|') || (line.includes('|') && line.includes('Name') && line.includes('Team')));
+
+            if (headerIdx === -1) {
+                showAlert('error', 'Could not parse text format. Ensure you copy the table with headers.');
+                return [];
+            }
+
+            const headers = lines[headerIdx].split('|').map(h => h.trim()).filter(Boolean);
+            const colIdx = {};
+            headers.forEach((h, i) => colIdx[h] = i);
+
+            const players = [];
+            for (let i = headerIdx + 1; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line.includes('|')) continue;
+                // Re-split strictly 
+                const strictValues = line.split('|').map(v => v.trim());
+                const actualValues = strictValues.filter(v => v !== '');
+
+                if (actualValues.length < 5) continue;
+
+                const getVal = (name) => {
+                    const idx = colIdx[name] !== undefined ? colIdx[name] : -1;
+                    if (idx === -1) return null;
+                    return actualValues[idx];
+                };
+
+                const name = getVal('Name');
+                if (!name || name === 'Name') continue;
+
+                players.push({
+                    name: name,
+                    team: getVal('Team'),
+                    pos: (getVal('Pos') || '').split('/')[0],
+                    projections: {
+                        p: parseFloat(getVal('p')) || 0,
+                        '3': parseFloat(getVal('3')) || 0,
+                        r: parseFloat(getVal('r')) || 0,
+                        a: parseFloat(getVal('a')) || 0,
+                        s: parseFloat(getVal('s')) || 0,
+                        b: parseFloat(getVal('b')) || 0,
+                        to: parseFloat(getVal('to')) || 0
+                    },
+                    ease: parseFloat(getVal('Ease')) || 0,
+                    injury: getVal('Inj') || '',
+                    opp: (getVal('Opp') || '').replace('@ ', '')
+                });
+            }
+            return players;
+        }
+
+        async function forceUpdate() {
+            if (!confirm('Start the Update Robot? This will open a browser and take control for ~30 seconds.')) return;
+
+            showAlert('info', '🤖 Robot Started... This may take a minute.');
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/force-update`, {
+                    method: 'POST',
+                    headers: { 'Bypass-Tunnel-Reminder': 'true' }
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showAlert('success', '✅ Mission Complete! Data is Live on Netlify.');
+                    setTimeout(() => location.reload(), 3000);
+                } else {
+                    showAlert('error', 'Update Failed: ' + (data.details || 'Unknown Error'));
+                }
+            } catch (err) {
+                console.error(err);
+                showAlert('error', 'Failed to trigger robot. Is server running?');
+            }
+        }
+
+        function displayPicks(picks) {
+            const container = document.getElementById('picks-container');
+            const count = document.getElementById('pick-count');
+
+            // Guest restrictions (REMOVED - Full Access)
+            // if (currentUser === 'guest') {
+            //    picks = picks.slice(0, 5);
+            // }
+
+            // Filter out games that have already started (Smart Expire)
+            picks = picks.filter(p => {
+                if (!p.startTime) return true; // Legacy/Manual entries
+                return new Date(p.startTime) > new Date();
+            });
+
+            container.innerHTML = '';
+            count.textContent = picks.length;
+
+            if (picks.length === 0) {
+                container.innerHTML = '<div class="alert alert-error">No +EV picks found. Try adjusting filters or ensure server has data.</div>';
+                return;
+            }
+
+            picks.forEach((pick, index) => {
+                const card = document.createElement('div');
+                card.className = 'pick-card';
+
+                // Elite/Lock Styling Check
+                const isLock = pick.betRating.includes("LOCK");
+                const isElite = pick.interpretation && pick.interpretation.includes('[ELITE]');
+
+                if (isLock) {
+                    card.style.border = "3px solid #e056fd"; // Neon Purple
+                    card.style.boxShadow = "0 0 25px rgba(224, 86, 253, 0.6)";
+                }
+                else if (isElite) {
+                    card.style.border = "2px solid #ffd700";
+                    card.style.boxShadow = "0 0 15px rgba(255, 215, 0, 0.3)";
+                }
+
+                // Bet Rating Styling
+                let badgeBg = "linear-gradient(135deg, #636e72, #b2bec3)"; // Default Playable (Gray)
+                if (pick.betRating.includes("LOCK")) badgeBg = "linear-gradient(135deg, #8e44ad, #e056fd)"; // Mystic Purple
+                else if (pick.betRating.includes("DIAMOND")) badgeBg = "linear-gradient(135deg, #00cec9, #74b9ff)"; // Cyan/Blue
+                else if (pick.betRating.includes("ELITE")) badgeBg = "linear-gradient(135deg, #f1c40f, #e67e22)"; // Gold/Orange
+                else if (pick.betRating.includes("STRONG")) badgeBg = "linear-gradient(135deg, #2ecc71, #27ae60)"; // Green
+                else if (pick.betRating.includes("SOLID")) badgeBg = "linear-gradient(135deg, #3498db, #2980b9)"; // Blue
+
+                // Stat Name Mapping
+                // Stat Name Mapping
+                const statMap = {
+                    'p': 'Points', 'r': 'Rebounds', 'a': 'Assists', '3': 'Threes', 's': 'Steals', 'b': 'Blocks', 'to': 'Turnovers',
+                    'pr': 'Pts+Reb', 'pa': 'Pts+Ast', 'ra': 'Reb+Ast', 'pra': 'Pts+Reb+Ast'
+                };
+                const statLabel = statMap[pick.stat] || pick.stat.toUpperCase();
+
+                // Side Color Coding (Red for Under)
+                const isUnder = pick.side === 'UNDER';
+                const sideBg = isUnder
+                    ? "linear-gradient(135deg, #e74c3c, #c0392b)" // Red for Under
+                    : "linear-gradient(135deg, #2ecc71, #27ae60)"; // Green for Over
+
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px;">
+                        <h3 style="margin:0;">${index + 1}. ${pick.player} <small>(${pick.team} - ${pick.pos})</small></h3>
+                        <div style="background: ${badgeBg}; color: white; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                            ${pick.betRating} | 🔮 ${pick.score} Pts
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 10px;">
+                         <span style="background: ${sideBg}; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 1.1em;">
+                            ${statLabel} ${pick.side}
+                         </span>
+                         <span style="margin-left: 10px; font-size: 1.1em; font-weight: bold;">${pick.line}</span>
+                         <span style="color: #666;"> (Proj: ${pick.projection})</span>
+                         <span style="color: #28a745; font-weight: bold; margin-left: 5px;">+${pick.edge} Edge</span>
+                    </div>
+                    
+
+
+                    <div style="background: #2b2b2b; color: #ecf0f1; padding: 12px; border-radius: 8px; font-size: 0.95em; border: 1px solid #444; box-shadow: inset 0 0 5px rgba(0,0,0,0.5);">
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between;">
+                            <strong>⚔️ VS ${pick.opp}</strong> 
+                            <span style="color: ${pick.ease > 0 ? '#00e676' : '#ff5252'}; font-weight: bold;">Ease: ${pick.ease}</span>
+                        </div>
+                        <p style="margin: 0; font-style: italic; opacity: 0.9;">${pick.interpretation}</p>
+                        
+                        <!-- DEEP INSIGHTS -->
+                         <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #555; font-size: 0.9em; line-height: 1.5; color: #d1d5db;">
+                             <div style="color: #60a5fa; font-weight:bold; margin-bottom:4px; font-size: 1.0em;">💡 Prophet's Breakdown:</div>
+                             ${pick.analysis || 'No specific insights available.'}
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #666; display: flex; align-items: center;">
+                        <span style="margin-right: 5px;">Confidence:</span>
+                        <span style="font-weight: bold; color: #2d3436; font-size: 1.1em;">${pick.confidenceGrade || 'N/A'}</span>
+                        <small style="margin-left: 5px; opacity: 0.7;">(${pick.confidence.toFixed(2)})</small>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+
+    <div style="text-align: center; color: #475569; font-size: 0.8em; margin-top: 50px; cursor: pointer;"
+        onclick="secretAdminUpdate()">
+        Prop Prophet v4.0 - © 2026
+    </div>
+
+    <script>
+        // ... previous code ...
+
+        function secretAdminUpdate() {
+            const pass = prompt("🔐 Admin Override: Enter Password to Force Update:");
+            if (pass === 'Reempicks1!') {
+                // Bypass the confirm inside forceUpdate by calling logic directly or just handle the confirm
+                // Actually forceUpdate has a confirm.
+                // Let's modify forceUpdate to accept a 'skipConfirm' arg, or just let him confirm again.
+                forceUpdate();
+            } else if (pass) {
+                alert("❌ Access Denied");
+            }
+        }
+    </script>
+</body>
+
+</html>

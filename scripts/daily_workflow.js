@@ -522,8 +522,11 @@ function generatePicks(bbmPlayers, oddsData) {
                     activeEaseVal = teamEaseVal; // Fallback
                 }
 
-                // Format breakdown for UI
-                easeBreakdown = `Pos: ${posEaseVal.toFixed(2)} | Team: ${teamEaseVal.toFixed(2)}`;
+                // Format breakdown for UI (Color Coded - User Request)
+                const pColor = posEaseVal > 0 ? '#4ade80' : (posEaseVal < 0 ? '#f87171' : '#cbd5e1');
+                const tColor = teamEaseVal > 0 ? '#4ade80' : (teamEaseVal < 0 ? '#f87171' : '#cbd5e1');
+
+                easeBreakdown = `Pos: <span style="color:${pColor}">${posEaseVal.toFixed(2)}</span> | Team: <span style="color:${tColor}">${teamEaseVal.toFixed(2)}</span>`;
             } else {
                 // Fallback to BBM Ease if DB missing
                 activeEaseVal = player.ease || 0;
@@ -531,7 +534,9 @@ function generatePicks(bbmPlayers, oddsData) {
 
             let ease = activeEaseVal;
 
-            let conf = 0.5 + (weightedEdge / 5);
+            // Dampened Confidence Formula (Per User Feedback)
+            // Was /5 (Too aggressive -> Many A+). Now /8.5
+            let conf = 0.5 + (weightedEdge / 8.5);
 
             // Penalties (Rest, Age, B2B)
             if (player.rest === 0) conf -= SETTINGS.rest0_penalty;
@@ -596,12 +601,12 @@ function generatePicks(bbmPlayers, oddsData) {
             // Clamp Confidence
             conf = Math.max(0.01, Math.min(0.99, conf));
 
-            // Confidence Grading
+            // Confidence Grading (Stricter Thresholds)
             let confGrade = "D";
-            if (conf >= 0.90) confGrade = "A+ 🌟";
-            else if (conf >= 0.85) confGrade = "A";
-            else if (conf >= 0.80) confGrade = "A-";
-            else if (conf >= 0.75) confGrade = "B+";
+            if (conf >= 0.94) confGrade = "A+ 🌟"; // Was 0.90
+            else if (conf >= 0.88) confGrade = "A"; // Was 0.85
+            else if (conf >= 0.82) confGrade = "A-"; // Was 0.80
+            else if (conf >= 0.76) confGrade = "B+"; // Was 0.75
             else if (conf >= 0.70) confGrade = "B";
             else if (conf >= 0.60) confGrade = "C";
 

@@ -580,7 +580,49 @@
                     card.style.border = "3px solid #e056fd"; // Neon Purple
                     card.style.boxShadow = "0 0 25px rgba(224, 86, 253, 0.6)";
                 }
-                else if (isElite) {
+
+                // Time Logic
+                let timeHtml = '';
+                if (pick.startTime) {
+                    const start = new Date(pick.startTime);
+                    const now = new Date();
+                    const diffMs = start - now;
+
+                    // Format PST Time
+                    const timeStr = start.toLocaleTimeString('en-US', {
+                        timeZone: 'America/Los_Angeles',
+                        hour: 'numeric',
+                        minute: '2-digit'
+                    }) + ' PST';
+
+                    // Countdown
+                    let countdownStr = '';
+                    if (diffMs > 0) {
+                        const hrs = Math.floor(diffMs / 3600000);
+                        const mins = Math.floor((diffMs % 3600000) / 60000);
+                        countdownStr = `<span style="color:#fcd34d">Starts in ${hrs}h ${mins}m</span>`;
+                    } else {
+                        countdownStr = `<span style="color:#ef4444; font-weight:bold;">LIVE / STARTED</span>`;
+                    }
+
+                    timeHtml = `<div style="margin-top:5px; font-size:0.9em; border-top:1px solid #334155; padding-top:5px;">
+                        ⏰ ${timeStr} • ${countdownStr}
+                    </div>`;
+                }
+
+                card.innerHTML = `
+                    <h3>${index + 1}. ${pick.player} - ${pick.stat.toUpperCase()} ${pick.side}</h3>
+                    <p style="margin: 10px 0;">
+                        <span class="stat-badge">${pick.marketLine}</span>
+                        <span class="edge">+${pick.edge} units</span>
+                    </p>
+                    <p><strong>Proj:</strong> ${pick.projection} | <strong>Line:</strong> ${pick.marketLine}</p>
+                    <p><strong>Ease:</strong> ${pick.ease > 0 ? '+' : ''}${pick.ease}</p>
+                    <p><strong>Interpretation:</strong> <em style="color:#cbd5e1">${pick.interpretation || 'None'}</em></p>
+                    <p><strong>Confidence:</strong> ${(pick.confidence * 100).toFixed(0)}% | <strong>Score:</strong> ${(pick.edge * pick.confidence).toFixed(2)}</p>
+                    ${timeHtml}
+                `;
+                if (!isLock && isElite) {
                     card.style.border = "2px solid #ffd700";
                     card.style.boxShadow = "0 0 15px rgba(255, 215, 0, 0.3)";
                 }

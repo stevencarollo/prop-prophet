@@ -682,11 +682,12 @@
                         </div>
                     </div>
                     
-                    <div style="margin-top: 10px; font-size: 0.9em; color: #666; display: flex; align-items: center;">
-                        <span style="margin-right: 5px;">Confidence:</span>
-                        <span style="font-weight: bold; color: #2d3436; font-size: 1.1em;">${pick.confidenceGrade || 'N/A'}</span>
-                        <small style="margin-left: 5px; opacity: 0.7;">(${pick.confidence.toFixed(2)})</small>
-                    </div>
+                         <div style="margin-top: 10px; font-size: 0.9em; display: flex; justify-content: space-between;">
+                             <span>Confidence:</span>
+                             <span style="color: #f1c40f; font-weight: bold;">
+                                ${pick.confidenceGrade || 'B'} <small>(${(pick.confidence * 100).toFixed(0)}%)</small>
+                             </span>
+                         </div>
                 `;
                 container.appendChild(card);
             });

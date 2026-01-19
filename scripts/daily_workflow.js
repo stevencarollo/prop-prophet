@@ -304,6 +304,27 @@ function generatePicks(bbmPlayers, oddsData) {
     const results = [];
     const STAT_WEIGHTS = { 'p': 1.0, 'r': 1.5, 'a': 1.6, '3': 1.7, 's': 3.5, 'b': 3.5, 'to': 2.5, 'pr': 0.9, 'pa': 0.9, 'ra': 1.1, 'pra': 0.85 };
 
+    function interpret(easeVal, propType, direction) {
+        if (propType === 'to') {
+            if (direction === 'UNDER') {
+                if (easeVal < 0) return "Opponent forces fewer TOs (Ease negative) → confirms Under.";
+                return "Opponent pressure neutral/high → Risky Under.";
+            } else {
+                if (easeVal > 0) return "Opponent forces TOs (Ease positive) → supports Over.";
+                return "Opponent passive → Over needs strong edge.";
+            }
+        }
+        if (direction === 'OVER') {
+            if (easeVal > 0.10) return "Positive Ease → Environment supports stat accumulation.";
+            if (easeVal < -0.10) return "Negative Ease → Contradicts Over (check usage).";
+            return "Neutral Ease → Edge drives the bet.";
+        } else {
+            if (easeVal < -0.10) return "Negative Ease → Environment suppresses stat (Confirms Under).";
+            if (easeVal > 0.10) return "Positive Ease → Contradicts Under.";
+            return "Neutral Ease → Edge drives the bet.";
+        }
+    }
+
     // Iterate Players
     bbmPlayers.forEach(player => {
         if (player.min < 20) return; // Min Minutes
@@ -353,6 +374,38 @@ function generatePicks(bbmPlayers, oddsData) {
             // In a full implementation, we'd query EASE_DB deeply. 
             // For now, use BBM's 'ease' column if available, or 0.
 
+            // Confidence Logic
+            let conf = 0.5 + (weightedEdge / 5);
+            if (conf >= 0.99) conf = 0.99;
+
+            // Confidence Grading
+            let confGrade = "D";
+            if (conf >= 0.90) confGrade = "A+ 🌟";
+            else if (conf >= 0.85) confGrade = "A";
+            else if (conf >= 0.80) confGrade = "A-";
+            else if (conf >= 0.75) confGrade = "B+";
+            else if (conf >= 0.70) confGrade = "B";
+            else if (conf >= 0.60) confGrade = "C";
+
+            // Narrative Generation
+            let narrative = [];
+            const displayStat = {
+                'p': 'Points', 'r': 'Rebounds', 'a': 'Assists', '3': 'Threes', 's': 'Steals', 'b': 'Blocks', 'to': 'Turnovers',
+                'pr': 'Pts+Reb', 'pa': 'Pts+Ast', 'ra': 'Reb+Ast', 'pra': 'Pts+Reb+Ast'
+            }[stat] || stat.toUpperCase();
+
+            // 1. THE OPENER
+            if (weightedEdge > 8.0) narrative.push(`💎 **Massive Discrepancy**: The model prices this at ${proj.toFixed(1)}, giving us a massive **${edge.toFixed(2)} unit cushion** vs the market.`);
+            else if (weightedEdge > 5.0) narrative.push(`💰 **Value Play**: We are capturing **${edge.toFixed(2)} points of implied value** here.`);
+            else narrative.push(`🎯 **Solid Edge**: Model identifies a **${edge.toFixed(2)} point gap** vs public perception.`);
+
+            // 2. THE MATCHUP
+            if (ease >= 0.20) narrative.push(`✅ **Smash Spot**: ${player.opp} defense is bleeding ${displayStat} to this position (Ease: +${ease}). High ceiling environment.`);
+            else if (ease <= -0.20 && side === 'UNDER') narrative.push(`🔒 **Defensive Clamp**: ${player.opp} ranks elite vs ${displayStat}. Expect usage to struggle.`);
+            else if (Math.abs(ease) < 0.10) narrative.push(`⚖️ **Neutral Spot**: Matchup is average, but the volume projection (${proj.toFixed(1)}) carries the play.`);
+
+            const deepAnalysis = narrative.join('<br>');
+
             // Construct Pick
             results.push({
                 player: player.name,
@@ -367,9 +420,11 @@ function generatePicks(bbmPlayers, oddsData) {
                 ease: ease,
                 marketLine: `${line}`,
                 betRating: weightedEdge > 2.0 ? "DIAMOND" : (weightedEdge > 1.0 ? "ELITE" : "SOLID"),
-                confidence: Math.min(0.99, 0.5 + (weightedEdge / 5)),
+                confidence: conf,
+                confidenceGrade: confGrade,
                 score: weightedEdge.toFixed(2),
-                interpretation: `Auto-generated via Cloud. Edge: ${edge.toFixed(2)}`,
+                interpretation: `Matchup: ${interpret(ease, stat, side)}`,
+                analysis: deepAnalysis,
                 startTime: player.startTime
             });
         });

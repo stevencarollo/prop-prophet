@@ -553,16 +553,29 @@ function generatePicks(bbmPlayers, oddsData) {
                 }
             }
 
-            // General Form (L3/L5 Value)
+            // General Form (Last 5 Games Bonus/Deduction)
             const v3 = player.val_3 || 0;
             const v5 = player.val_5 || 0;
             const maxVal = Math.max(v3, v5);
             const minVal = Math.min(v3, v5);
 
-            if (maxVal >= 1.0 && side === 'OVER') conf += 0.05;
+            // "How many times" proxy: High V5 = High Hit Rate
+            if (maxVal >= 1.0) {
+                if (side === 'OVER') {
+                    conf += 0.08; // BIG Bonus for Hot Hand (L5 Over)
+                    easeBreakdown += " [L5 HIT: 🔥]";
+                } else {
+                    conf -= 0.05; // Betting Under a Hot Player
+                }
+            }
             else if (minVal <= -1.0) {
-                if (side === 'UNDER') conf += 0.05; // Fade slump
-                else conf -= 0.05; // Betting Over cold player
+                if (side === 'UNDER') {
+                    conf += 0.08; // BIG Bonus for Slump (L5 Under)
+                    easeBreakdown += " [L5 HIT: ❄️]";
+                } else {
+                    conf -= 0.08; // Betting Over a Cold Player (Deduction)
+                    easeBreakdown += " [L5 WARN]";
+                }
             }
 
             // Value C (Global Impact)
@@ -634,14 +647,21 @@ function generatePicks(bbmPlayers, oddsData) {
             else narrative.push(`🎯 **Solid Edge**: Model identifies a **${edge.toFixed(2)} point gap** vs public perception.`);
 
             // 2. THE MATCHUP
-            if (ease >= 0.20) narrative.push(`✅ **Smash Spot**: ${player.opp} defense is bleeding ${displayStat} to this position (Ease: +${ease}). High ceiling environment.`);
-            else if (ease <= -0.20 && side === 'UNDER') narrative.push(`🔒 **Defensive Clamp**: ${player.opp} ranks elite vs ${displayStat}. Expect usage to struggle.`);
-            else if (Math.abs(ease) < 0.10) narrative.push(`⚖️ **Neutral Spot**: Matchup is average, but the volume projection (${proj.toFixed(1)}) carries the play.`);
+            if (activeEaseVal >= 0.20) narrative.push(`✅ **Smash Spot**: ${oppTeam} defense is bleeding ${displayStat} to this position (Ease: +${activeEaseVal}). High ceiling environment.`);
+            else if (activeEaseVal <= -0.20 && side === 'UNDER') narrative.push(`🔒 **Defensive Clamp**: ${oppTeam} ranks elite vs ${displayStat}. Expect usage to struggle.`);
+            else if (Math.abs(activeEaseVal) < 0.10) narrative.push(`⚖️ **Neutral Spot**: Matchup is average, but the volume projection (${proj.toFixed(1)}) carries the play.`);
 
-            // 3. THE RISKS
+            // 3. THE FORM & CONSISTENCY
+            if (v5 >= 1.0) narrative.push(`🔥 **Current Form**: Player is scorching hot, crushing this number recently (Val: ${v5}). Ride the wave.`);
+            else if (v5 <= -1.0 && side === 'UNDER') narrative.push(`❄️ **Fade Mode**: Player is in a slump, failing to clear this line consistently. Valid fade.`);
+            else if (player.pc > 65) narrative.push(`🛡️ **Consistency King**: Hits this metric at a ${player.pc}% clip, offering a high floor.`);
+
+            // 4. THE RISKS & SHARP SIGNALS
             if (Math.abs(gameSpread) >= 10) narrative.push(`⚠️ **Game Script**: ${gameSpread}pt spread implies a blowout. Size down slightly for 4th qtr sitting risk.`);
             if (player.b2b >= 1) narrative.push(`⚠️ **Back-to-Back**: Player is on 0 days rest. Fatigue penalty applied.`);
             if (capAtStrong) narrative.push(`⚠️ **Minute Restrictions**: Player minutes volatile or rookie status. Downgraded to STRONG.`);
+
+            if (player.josh > 1.0) narrative.push(`🦈 **Sharp Action**: 'Josh G' indicators signal smart money is backing this play.`);
 
 
             const deepAnalysis = narrative.join('<br>');

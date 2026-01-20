@@ -587,14 +587,17 @@
             //    picks = picks.slice(0, 5);
             // }
 
-            // Filter Logic (User Request: "Important to show games that have already started" -> Disable Filter)
-            // picking logic remains: Show all valid picks from the file.
+            // Filter Logic (User Request: "Important NOT to show games that have already started")
+            picks = picks.filter(p => {
+                if (!p.startTime) return true;
+                return new Date(p.startTime) > new Date();
+            });
 
             container.innerHTML = '';
             count.textContent = picks.length;
 
             if (picks.length === 0) {
-                container.innerHTML = '<div class="alert alert-error">No +EV picks found. Try adjusting filters or ensure server has data.</div>';
+                container.innerHTML = '<div class="alert alert-error">No active picks found. All games may have started.</div>';
                 return;
             }
 

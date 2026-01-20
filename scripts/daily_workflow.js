@@ -998,7 +998,10 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
 
         // 3b. Fetch Game Logs (NEW)
         console.log('🚀 Launching browser for Game Log Scraper...');
-        const browser = await puppeteer.launch({ headless: "new" }); // Fixed: explicit launch
+        const browser = await puppeteer.launch({
+            headless: "new",
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        }); // Fixed: explicit launch with CI args
         const gameLogs = await fetchGameLogs(browser);
         await browser.close();
 

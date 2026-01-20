@@ -588,10 +588,13 @@
             // }
 
             // Filter out games that have already started (Smart Expire)
+            // DISABLED: User wants to see all picks for the day regardless of start time
+            /*
             picks = picks.filter(p => {
                 if (!p.startTime) return true; // Legacy/Manual entries
                 return new Date(p.startTime) > new Date();
             });
+            */
 
             container.innerHTML = '';
             count.textContent = picks.length;

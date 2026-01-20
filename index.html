@@ -203,6 +203,38 @@
                 <p style="font-size: 0.8em; color: #94a3b8; margin-top: 5px;">(System updates hourly on game days)</p>
             </div>
 
+            <!-- RECORD BANNER -->
+            <div id="prophet-record-banner" class="record-banner hidden">
+                <div class="record-item">🏆 Season: <span id="rec-season">0-0 (0%)</span></div>
+                <div class="record-item">🔒 Locks: <span id="rec-locks">0-0 (0%)</span></div>
+                <div class="record-item">💎 Diamonds: <span id="rec-diamond">0-0 (0%)</span></div>
+            </div>
+
+            <style>
+                .record-banner {
+                    display: flex;
+                    justify-content: center;
+                    gap: 20px;
+                    background: linear-gradient(135deg, #1e293b, #0f172a);
+                    padding: 15px;
+                    border-radius: 12px;
+                    margin-bottom: 25px;
+                    border: 1px solid #334155;
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                    flex-wrap: wrap;
+                }
+
+                .record-item {
+                    font-size: 1.1em;
+                    font-weight: bold;
+                    color: #e2e8f0;
+                }
+
+                .record-item span {
+                    color: #4ade80;
+                }
+            </style>
+
             <!-- PICKS DISPLAY -->
             <h2>🎯 Today's Top Picks <span style="font-size: 0.6em;">(<span id="pick-count">0</span> qualifying)</span>
             </h2>
@@ -568,6 +600,9 @@
                 container.innerHTML = '<div class="alert alert-error">No +EV picks found. Try adjusting filters or ensure server has data.</div>';
                 return;
             }
+
+            // Update Record Banner
+            updateRecordDisplay();
 
             picks.forEach((pick, index) => {
                 const card = document.createElement('div');

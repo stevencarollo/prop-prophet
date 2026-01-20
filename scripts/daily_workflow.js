@@ -18,6 +18,143 @@ const BBM_DATA_URL = 'https://basketballmonster.com/dailyprojections.aspx';
 
 const EASE_DB_FILE = path.join(__dirname, '../ease_rankings.json');
 const OUTPUT_FILE = path.join(__dirname, '../latest_picks.js');
+const HISTORY_FILE = path.join(__dirname, '../history/prophet_history.json');
+
+// --- HISTORY & TRACKING FUNCTIONS ---
+
+function loadHistory() {
+    if (fs.existsSync(HISTORY_FILE)) {
+        return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+    }
+    return [];
+}
+
+function resolveHistory(history, gameLogs) {
+    let resolvedCount = 0;
+    history.forEach(pick => {
+        if (pick.result !== 'PENDING') return;
+
+        // Find Player Logs
+        const logKey = Object.keys(gameLogs).find(k => k.toLowerCase() === pick.player.toLowerCase());
+        if (!logKey) return; // Player not found in logs
+
+        const logs = gameLogs[logKey];
+        // Find Game Log matching Pick Date
+        const game = logs.find(g => g.date === pick.date);
+
+        if (game) {
+            // Map Stat
+            const statMap = { 'p': 'pts', 'r': 'reb', 'a': 'ast', '3': 'threes', 's': 'stl', 'b': 'blk', 'to': 'to' };
+            const logStat = statMap[pick.stat];
+
+            // Handle Combo Stats (pra, pr, pa, ra)
+            let actual = 0;
+            if (['pra', 'pr', 'pa', 'ra'].includes(pick.stat)) {
+                if (pick.stat.includes('p')) actual += game.pts;
+                if (pick.stat.includes('r')) actual += game.trb; // trb in B-Ref
+                if (pick.stat.includes('a')) actual += game.ast;
+            } else {
+                actual = game[logStat];
+            }
+
+            if (actual !== undefined) {
+                pick.actual = actual;
+
+                if (pick.side === 'OVER') {
+                    if (actual > pick.line) pick.result = 'WIN';
+                    else if (actual < pick.line) pick.result = 'LOSS';
+                    else pick.result = 'PUSH';
+                } else if (pick.side === 'UNDER') {
+                    if (actual < pick.line) pick.result = 'WIN';
+                    else if (actual > pick.line) pick.result = 'LOSS';
+                    else pick.result = 'PUSH';
+                }
+                resolvedCount++;
+                console.log(`   ✅ Resolved: ${pick.player} ${pick.stat} (${pick.side} ${pick.line}) -> Got ${actual} = ${pick.result}`);
+            }
+        }
+    });
+
+    if (resolvedCount > 0) {
+        fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf8');
+        console.log(`📊 Resolved ${resolvedCount} pending picks.`);
+    }
+    return history;
+}
+
+function updateHistory(history, newPicks) {
+    const today = new Date().toISOString().split('T')[0];
+    let added = 0;
+
+    newPicks.forEach(p => {
+        // Create unique ID
+        const id = `${p.player}-${p.stat}-${today}`.replace(/\s+/g, '');
+
+        // Check if exists
+        if (!history.find(h => h.id === id)) {
+            history.push({
+                id: id,
+                player: p.player,
+                team: p.team,
+                opp: p.opp,
+                stat: p.stat,
+                line: p.line,
+                side: p.side,
+                tier: p.betRating,
+                date: today,
+                result: 'PENDING',
+                actual: null
+            });
+            added++;
+        }
+    });
+
+    if (added > 0) {
+        fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf8');
+        console.log(`📝 Added ${added} new picks to history.`);
+    }
+    return history;
+}
+function generateStats(history) {
+    const stats = {
+        season: { w: 0, l: 0, p: 0, total: 0, pct: 0 },
+        locks: { w: 0, l: 0, p: 0, total: 0, pct: 0 },
+        diamond: { w: 0, l: 0, p: 0, total: 0, pct: 0 },
+        elite: { w: 0, l: 0, p: 0, total: 0, pct: 0 }
+    };
+
+    history.forEach(h => {
+        if (h.result === 'PENDING' || h.result === 'PUSH') return; // Skip pending/push for Win%
+
+        // Global
+        if (h.result === 'WIN') stats.season.w++;
+        if (h.result === 'LOSS') stats.season.l++;
+
+        // Tiers
+        let tierKey = null;
+        if (h.tier.includes('LOCK')) tierKey = 'locks';
+        if (h.tier.includes('DIAMOND')) tierKey = 'diamond';
+        if (h.tier.includes('ELITE')) tierKey = 'elite';
+
+        if (tierKey) {
+            if (h.result === 'WIN') stats[tierKey].w++;
+            if (h.result === 'LOSS') stats[tierKey].l++;
+        }
+    });
+
+    // Calculate Percentages
+    const calc = (obj) => {
+        obj.total = obj.w + obj.l;
+        obj.pct = obj.total > 0 ? Math.round((obj.w / obj.total) * 100) : 0;
+    };
+
+    calc(stats.season);
+    calc(stats.locks);
+    calc(stats.diamond);
+    calc(stats.elite);
+
+    return stats;
+}
 
 // --- EASE LOGIC (Ported from Server) ---
 const EASE_CHUNKS = ['ease_raw_chunk1.txt', 'ease_raw_chunk2.txt', 'ease_raw_chunk3.txt', 'ease_raw_chunk_pg_update.txt'];
@@ -861,9 +998,39 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
 
         console.log(`✅ Generated ${picks.length} picks.`);
 
+        // --- HISTORY TRACKING ---
+        let history = loadHistory();
+        history = resolveHistory(history, gameLogs); // Always resolve/grade existing picks
+
+        // Find earliest start time
+        const earliest = picks.reduce((min, p) => {
+            const t = new Date(p.startTime).getTime();
+            return (t > 0 && t < min) ? t : min;
+        }, Infinity);
+
+        let minutesUntilTip = -1;
+        if (earliest !== Infinity) {
+            const now = new Date().getTime();
+            minutesUntilTip = (earliest - now) / 60000;
+            console.log(`⏱️ Earliest Tip-Off in ${minutesUntilTip.toFixed(1)} mins`);
+        }
+
+        // Logic: Only snapshot (lock in) picks if we are close to tip-off (e.g. 35 mins or less)
+        // User requested "20 mins before". Given hourly trigger, 0-40 mins window is safe.
+        // We also allow negative overlap (e.g. -5 mins) just in case script is slightly late.
+        if (minutesUntilTip <= 40 && minutesUntilTip > -10) {
+            console.log(`🔒 LOCK WINDOW ACTIVE: Snapshotting picks to History...`);
+            history = updateHistory(history, picks);
+        } else {
+            console.log(`⏳ No Commit: Outside Lock Window (Needs to be <= 40m before tip).`);
+        }
+
+        const recordStats = generateStats(history);
+        // ------------------------
+
         // 5. Save
         const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
-        const content = `window.LAST_UPDATED = "${timestamp}";\nwindow.LATEST_PICKS = ${JSON.stringify(picks, null, 2)};`;
+        const content = `window.LAST_UPDATED = "${timestamp}";\nwindow.PROPHET_RECORD = ${JSON.stringify(recordStats, null, 2)};\nwindow.LATEST_PICKS = ${JSON.stringify(picks, null, 2)};`;
         fs.writeFileSync(OUTPUT_FILE, content);
         console.log(`💾 Saved to ${OUTPUT_FILE}`);
 

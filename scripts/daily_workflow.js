@@ -674,25 +674,45 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                     });
 
                     if (validGames >= 3) { // Require at least 3 games
-                        const hitRate = hits / validGames;
                         const avgStr = (values.reduce((a, b) => a + b, 0) / validGames).toFixed(1);
 
-                        if (side === 'OVER') {
-                            if (hitRate >= 0.8) { // 4/5 or 5/5
-                                l5Bonus += 0.08;
-                                l5Narrative = `🔥 **L5 Form**: Player has cleared this line in **${hits}/${validGames}** recent games (Avg: ${avgStr}). <span style='color:#4ade80'>(+8% Bonus)</span>`;
-                            } else if (hitRate <= 0.2) { // 1/5 or 0/5
-                                l5Bonus -= 0.08;
-                                l5Narrative = `⚠️ **Cold Streak**: Player has missed this line in **${validGames - hits}/${validGames}** recent games.`;
-                            }
-                        } else if (side === 'UNDER') {
-                            if (hitRate >= 0.8) { // 4/5 Under (Hitting the Under)
-                                l5Bonus += 0.08;
-                                l5Narrative = `❄️ **L5 Form**: Player has stayed Under in **${hits}/${validGames}** recent games (Avg: ${avgStr}). <span style='color:#4ade80'>(+8% Bonus)</span>`;
-                            } else if (hitRate <= 0.2) { // 1/5 Under (Hitting Over)
-                                l5Bonus -= 0.08;
-                                l5Narrative = `⚠️ **Hot Streak**: Player has gone Over in **${validGames - hits}/${validGames}** recent games. Caution on Under.`;
-                            }
+                        // 0/5 Hits -> Disqualify
+                        if (hits === 0 && validGames === 5) {
+                            return; // DISQUALIFY: User Logic "0 of 5 = not a qualifying pick"
+                        }
+
+                        // Multipliers (Applied to Confidence, which scales Prophet Points directly)
+                        let l5Multiplier = 1.0;
+                        let icon = "";
+                        let sentiment = "";
+
+                        if (hits === 5) {
+                            l5Multiplier = 1.20; // +20%
+                            icon = "🔥";
+                            sentiment = "Perfect Form";
+                        } else if (hits === 4) {
+                            l5Multiplier = 1.15; // +15%
+                            icon = "🔥";
+                            sentiment = "Strong Form";
+                        } else if (hits === 2) {
+                            l5Multiplier = 0.90; // -10%
+                            icon = "⚠️";
+                            sentiment = "Shaky Form";
+                        } else if (hits === 1) {
+                            l5Multiplier = 0.85; // -15%
+                            icon = "❄️";
+                            sentiment = "Cold/Risky";
+                        }
+
+                        // Apply Multiplier
+                        conf *= l5Multiplier;
+
+                        // Narrative
+                        if (l5Multiplier !== 1.0) {
+                            const bonusStr = (l5Multiplier > 1) ? `(+${Math.round((l5Multiplier - 1) * 100)}% Bonus)` : `(${Math.round((l5Multiplier - 1) * 100)}% Penalty)`;
+                            const hitStr = `${hits}/${validGames}`;
+                            const color = (l5Multiplier > 1) ? '#4ade80' : '#f87171'; // Green or Red
+                            l5Narrative = `${icon} **Last 5 Games**: ${sentiment} (${hitStr} Hits). Avg: ${avgStr}. <span style='color:${color}'>${bonusStr}</span>`;
                         }
                     }
                 }

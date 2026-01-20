@@ -738,7 +738,9 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                 // 2. Positional Expected Ease
                 if (specificPos) {
                     posEaseVal = calcWeighted(specificPos);
-                    activeEaseVal = posEaseVal; // Prioritize specific
+                    // activeEaseVal = posEaseVal; // OLD: Prioritize specific
+                    // NEW: Blend 70% Position (Specificity) + 30% Team (Stability/Pace)
+                    activeEaseVal = (posEaseVal * 0.70) + (teamEaseVal * 0.30);
                 } else {
                     activeEaseVal = teamEaseVal; // Fallback
                 }

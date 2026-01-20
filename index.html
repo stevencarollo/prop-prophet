@@ -587,14 +587,8 @@
             //    picks = picks.slice(0, 5);
             // }
 
-            // Filter out games that have already started (Smart Expire)
-            // DISABLED: User wants to see all picks for the day regardless of start time
-            /*
-            picks = picks.filter(p => {
-                if (!p.startTime) return true; // Legacy/Manual entries
-                return new Date(p.startTime) > new Date();
-            });
-            */
+            // Filter Logic (User Request: "Important to show games that have already started" -> Disable Filter)
+            // picking logic remains: Show all valid picks from the file.
 
             container.innerHTML = '';
             count.textContent = picks.length;
@@ -604,8 +598,12 @@
                 return;
             }
 
-            // Update Record Banner
-            updateRecordDisplay();
+            // Update Record Banner (Safe Mode)
+            try {
+                updateRecordDisplay();
+            } catch (e) {
+                console.error("Banner Error:", e);
+            }
 
             picks.forEach((pick, index) => {
                 const card = document.createElement('div');

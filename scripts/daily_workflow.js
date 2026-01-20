@@ -761,6 +761,14 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             // Was /5 (Too aggressive -> Many A+). Now /8.5
             let conf = 0.5 + (weightedEdge / 8.5);
 
+            // --- CONTRADICTION PENALTY (Safety) ---
+            // If betting UNDER into a Smash Spot, or OVER into a Tough Spot
+            if (side === 'UNDER' && activeEaseVal > 0.5) {
+                conf -= 0.12; // -12% Penalty
+            } else if (side === 'OVER' && activeEaseVal < -0.5) {
+                conf -= 0.12; // -12% Penalty
+            }
+
             // Penalties (Rest, Age, B2B)
             if (player.rest === 0) conf -= SETTINGS.rest0_penalty;
             if (player.b2b >= 1) {

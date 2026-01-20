@@ -339,15 +339,99 @@ async function fetchOdds() {
     return allOdds;
 }
 
+// --- STEP 3a: FETCH GAME LOGS (SCORING ENGINE - L5 HIT RATE) ---
+async function fetchGameLogs(browser) {
+    console.log('📅 [Step 3a] Fetching Game Logs (Last 14 Days)...');
+    const logs = {}; // { "Player Name": [ { date, pts, reb, ast, threes, blk, stl, to, min }, ... ] }
+    const page = await browser.newPage();
+    await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+
+    // Helper to format date
+    const formatDate = (date) => {
+        const d = new Date(date);
+        return {
+            M: d.getMonth() + 1,
+            D: d.getDate(),
+            Y: d.getFullYear(),
+            str: d.toISOString().split('T')[0]
+        };
+    };
+
+    // Iterate last 14 days
+    const today = new Date();
+    for (let i = 1; i <= 14; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const { M, D, Y, str } = formatDate(d);
+        const url = `https://www.basketball-reference.com/friv/dailyleaders.fcgi?month=${M}&day=${D}&year=${Y}`;
+
+        try {
+            console.log(`   > Fetching logs for ${str}...`);
+            await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
+
+            // Allow table to render
+            await new Promise(r => setTimeout(r, 1500));
+
+            const dailyStats = await page.evaluate((dateStr) => {
+                const table = document.querySelector('#stats') || document.querySelector('.stats_table') || document.querySelector('table');
+                if (!table) {
+                    return `ERROR: No table found. Content: ${document.body.innerText.slice(0, 300).replace(/\n/g, ' ')}`;
+                }
+                const rows = Array.from(table.querySelectorAll('tbody tr'));
+                const results = [];
+                rows.forEach(row => {
+                    if (row.classList.contains('thead')) return; // Skip headers
+                    const nameEl = row.querySelector('td[data-stat="player"] a');
+                    if (!nameEl) return;
+
+                    const name = nameEl.innerText.trim();
+                    const getVal = (stat) => parseFloat(row.querySelector(`td[data-stat="${stat}"]`)?.innerText || '0');
+
+                    results.push({
+                        name: name,
+                        date: dateStr,
+                        pts: getVal('pts'),
+                        reb: getVal('trb'),
+                        ast: getVal('ast'),
+                        threes: getVal('fg3'),
+                        blk: getVal('blk'),
+                        stl: getVal('stl'),
+                        to: getVal('tov'),
+                        min: row.querySelector('td[data-stat="mp"]')?.innerText || '0:00'
+                    });
+                });
+                return results;
+            }, str);
+
+            if (typeof dailyStats === 'string') {
+                console.warn(`   ⚠️ ${dailyStats}`);
+                continue;
+            }
+
+            console.log(`   > Extracted ${dailyStats.length} stats.`);
+
+            // Merge into DB
+            dailyStats.forEach(stat => {
+                if (!logs[stat.name]) logs[stat.name] = [];
+                logs[stat.name].push(stat);
+            });
+
+        } catch (err) {
+            console.warn(`   ⚠️ Failed to fetch ${str}: ${err.message}`);
+        }
+    }
+
+    await page.close();
+    console.log(`✅ Game Logs Built. Covered ${Object.keys(logs).length} players.`);
+    return logs;
+}
+
 // --- STEP 4: ANALYSIS ENGINE ---
-function generatePicks(bbmPlayers, oddsData) {
+async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
     console.log('🧠 [Step 4] Analyzing Matchups...');
 
-    // Load Ease Data
-    let EASE_DB = {};
-    if (fs.existsSync(EASE_DB_FILE)) {
-        EASE_DB = JSON.parse(fs.readFileSync(EASE_DB_FILE, 'utf8'));
-    }
+    // Use passed Ease DB or fallback (safety)
+    const EASE_DB = easeDb || {};
 
     // Build Odds Map
     const oddsMap = new Map(); // "normName|market" -> { line, price, event }
@@ -558,9 +642,62 @@ function generatePicks(bbmPlayers, oddsData) {
                 }
             }
 
-            // General Form (Last 5 Games Bonus/Deduction)
-            // REMOVED: User Feedback confirmed 'Val L5' is generic fantasy value, not specific to the prop stat.
-            // avoiding misleading "Hit Rate" bonuses based on generic value.
+            // --- L5 HIT RATE LOGIC (NEW) ---
+            let l5Bonus = 0;
+            let l5Narrative = "";
+
+            // Normalize name key for lookup
+            const logKey = Object.keys(gameLogs).find(k => k.toLowerCase() === player.name.toLowerCase()) || player.name;
+            const pLogs = gameLogs[logKey];
+
+            if (pLogs && pLogs.length > 0) {
+                // Sort by date desc just in case
+                const recentLogs = pLogs.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+
+                let hits = 0;
+                let validGames = 0;
+
+                // Stat Mapping
+                const statMap = { 'p': 'pts', 'r': 'reb', 'a': 'ast', '3': 'threes', 's': 'stl', 'b': 'blk', 'to': 'to' };
+                const logStat = statMap[stat];
+
+                if (logStat) {
+                    const values = [];
+                    recentLogs.forEach(g => {
+                        const val = g[logStat];
+                        if (val !== undefined) {
+                            validGames++;
+                            values.push(val);
+                            if (side === 'OVER' && val > line) hits++;
+                            if (side === 'UNDER' && val < line) hits++;
+                        }
+                    });
+
+                    if (validGames >= 3) { // Require at least 3 games
+                        const hitRate = hits / validGames;
+                        const avgStr = (values.reduce((a, b) => a + b, 0) / validGames).toFixed(1);
+
+                        if (side === 'OVER') {
+                            if (hitRate >= 0.8) { // 4/5 or 5/5
+                                l5Bonus += 0.08;
+                                l5Narrative = `🔥 **L5 Form**: Player has cleared this line in **${hits}/${validGames}** recent games (Avg: ${avgStr}). <span style='color:#4ade80'>(+8% Bonus)</span>`;
+                            } else if (hitRate <= 0.2) { // 1/5 or 0/5
+                                l5Bonus -= 0.08;
+                                l5Narrative = `⚠️ **Cold Streak**: Player has missed this line in **${validGames - hits}/${validGames}** recent games.`;
+                            }
+                        } else if (side === 'UNDER') {
+                            if (hitRate >= 0.8) { // 4/5 Under (Hitting the Under)
+                                l5Bonus += 0.08;
+                                l5Narrative = `❄️ **L5 Form**: Player has stayed Under in **${hits}/${validGames}** recent games (Avg: ${avgStr}). <span style='color:#4ade80'>(+8% Bonus)</span>`;
+                            } else if (hitRate <= 0.2) { // 1/5 Under (Hitting Over)
+                                l5Bonus -= 0.08;
+                                l5Narrative = `⚠️ **Hot Streak**: Player has gone Over in **${validGames - hits}/${validGames}** recent games. Caution on Under.`;
+                            }
+                        }
+                    }
+                }
+            }
+            conf += l5Bonus;
 
             // Value C (Global Impact)
             const valC = player.valueC || 0;
@@ -635,6 +772,9 @@ function generatePicks(bbmPlayers, oddsData) {
             else if (activeEaseVal <= -0.20 && side === 'UNDER') narrative.push(`🔒 **Defensive Clamp**: ${oppTeam} ranks elite vs ${displayStat}. Expect usage to struggle.`);
             else if (Math.abs(activeEaseVal) < 0.10) narrative.push(`⚖️ **Neutral Spot**: Matchup is average, but the volume projection (${proj.toFixed(1)}) carries the play.`);
 
+            // 3. THE FORM (L5)
+            if (l5Narrative) narrative.push(l5Narrative);
+
             // 4. THE RISKS & SHARP SIGNALS
             if (Math.abs(gameSpread) >= 10) narrative.push(`⚠️ **Game Script**: ${gameSpread}pt spread implies a blowout. Size down slightly for 4th qtr sitting risk.`);
             if (player.b2b >= 1) narrative.push(`⚠️ **Back-to-Back**: Player is on 0 days rest. Fatigue penalty applied.`);
@@ -686,8 +826,19 @@ function generatePicks(bbmPlayers, oddsData) {
         // 3. Odds
         const odds = await fetchOdds();
 
-        // 4. Generate
-        const picks = generatePicks(players, odds);
+        // 3a. Rebuild Ease DB
+        const easeDb = await rebuildEaseDb();
+
+        // 3b. Fetch Game Logs (NEW)
+        console.log('🚀 Launching browser for Game Log Scraper...');
+        const browser = await puppeteer.launch({ headless: "new" }); // Fixed: explicit launch
+        const gameLogs = await fetchGameLogs(browser);
+        await browser.close();
+
+        // 4. Analyze Matchups
+        console.log('🧠 [Step 4] Starting Analysis Engine...');
+        const picks = await analyzeMatchups(players, odds, easeDb, gameLogs);
+
         console.log(`✅ Generated ${picks.length} picks.`);
 
         // 5. Save

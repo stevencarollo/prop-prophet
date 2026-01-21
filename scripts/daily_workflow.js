@@ -35,8 +35,10 @@ function resolveHistory(history, gameLogs) {
         if (pick.result !== 'PENDING') return;
 
         // SAFEGUARD: Do NOT resolve picks from "Today" (games incomplete)
+        // SAFEGUARD: Do NOT resolve picks from "Today" (games incomplete)
         // Only resolve matches from Yesterday or earlier
-        const today = new Date().toISOString().split('T')[0];
+        // Fix: Use LA Time (User's Timezone) so late night isn't "Tomorrow"
+        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
         if (pick.date === today) return;
 
         // Find Player Logs

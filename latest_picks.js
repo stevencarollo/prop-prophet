@@ -1,4 +1,4 @@
-window.LAST_UPDATED = "1/21/2026, 11:23:17 AM";
+window.LAST_UPDATED = "1/21/2026, 12:25:00 PM";
 window.PROPHET_RECORD = {
   "season": {
     "w": 28,

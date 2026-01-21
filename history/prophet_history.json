@@ -1558,5 +1558,57 @@
     "date": "2026-01-21",
     "result": "PENDING",
     "actual": null
+  },
+  {
+    "id": "JamalShead-pa-2026-01-21",
+    "player": "Jamal Shead",
+    "team": "TOR",
+    "opp": "GSW",
+    "stat": "pa",
+    "line": 15.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "JamesHarden-pa-2026-01-21",
+    "player": "James Harden",
+    "team": "LAC",
+    "opp": "CHI",
+    "stat": "pa",
+    "line": 39.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "DennisSchroder-pra-2026-01-21",
+    "player": "Dennis Schroder",
+    "team": "SAC",
+    "opp": "MIA",
+    "stat": "pra",
+    "line": 16.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "JakeLaRavia-pra-2026-01-21",
+    "player": "Jake LaRavia",
+    "team": "LAL",
+    "opp": "DEN",
+    "stat": "pra",
+    "line": 15.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
   }
 ]

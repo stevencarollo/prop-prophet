@@ -1584,5 +1584,31 @@
     "date": "2026-01-21",
     "result": "PENDING",
     "actual": null
+  },
+  {
+    "id": "KyleFilipowski-pra-2026-01-21",
+    "player": "Kyle Filipowski",
+    "team": "UTA",
+    "opp": "MIN",
+    "stat": "pra",
+    "line": 20.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "KyleFilipowski-p-2026-01-21",
+    "player": "Kyle Filipowski",
+    "team": "UTA",
+    "opp": "MIN",
+    "stat": "p",
+    "line": 11.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
   }
 ]

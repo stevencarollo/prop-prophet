@@ -1558,5 +1558,31 @@
     "date": "2026-01-21",
     "result": "PENDING",
     "actual": null
+  },
+  {
+    "id": "AlperenSengun-pra-2026-01-21",
+    "player": "Alperen Sengun",
+    "team": "HOU",
+    "opp": "SAS",
+    "stat": "pra",
+    "line": 34.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "NormanPowell-p-2026-01-21",
+    "player": "Norman Powell",
+    "team": "MIA",
+    "opp": "SAC",
+    "stat": "p",
+    "line": 24.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
   }
 ]

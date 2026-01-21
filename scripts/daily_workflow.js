@@ -768,6 +768,7 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             let teamEaseVal = 0;
             let activeEaseVal = 0;
             let easeBreakdown = "No Data";
+            let narrative = []; // Initialize logic array
 
             const oppTeam = player.opp.replace(/[@vs]/g, '').trim().toUpperCase();
 
@@ -1031,7 +1032,6 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             }
 
             // Narrative Generation
-            let narrative = [];
             const displayStat = {
                 'p': 'Points', 'r': 'Rebounds', 'a': 'Assists', '3': 'Threes', 's': 'Steals', 'b': 'Blocks', 'to': 'Turnovers',
                 'pr': 'Pts+Reb', 'pa': 'Pts+Ast', 'ra': 'Reb+Ast', 'pra': 'Pts+Reb+Ast'

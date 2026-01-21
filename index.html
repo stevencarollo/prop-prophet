@@ -601,12 +601,7 @@
                 return;
             }
 
-            // Update Record Banner (Safe Mode)
-            try {
-                updateRecordDisplay();
-            } catch (e) {
-                console.error("Banner Error:", e);
-            }
+
 
             picks.forEach((pick, index) => {
                 const card = document.createElement('div');
@@ -734,6 +729,33 @@
                 `;
                 container.appendChild(card);
             });
+        }
+
+        // NEW: Function to update the record banner from window.PROPHET_RECORD
+        function updateRecordDisplay() {
+            const rec = window.PROPHET_RECORD;
+            if (!rec) return;
+
+            // Helper to format record
+            const fmt = (r) => `${r.w}-${r.l}-${r.p} (${r.pct}%)`;
+
+            const setEl = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+
+            setEl('rec-season', fmt(rec.season));
+            setEl('rec-locks', fmt(rec.locks));
+            setEl('rec-diamond', fmt(rec.diamond));
+
+            // Show the banner if it was hidden
+            const banner = document.getElementById('prophet-record-banner');
+            if (banner) banner.classList.remove('hidden');
+        }
+
+        // Call on load if data exists
+        if (typeof window.PROPHET_RECORD !== 'undefined') {
+            updateRecordDisplay();
         }
     </script>
 

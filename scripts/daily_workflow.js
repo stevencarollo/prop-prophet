@@ -1072,6 +1072,8 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                 projection: proj.toFixed(2),
                 edge: edge.toFixed(2),
                 ease: ease,
+                posEase: posEaseVal,
+                teamEase: teamEaseVal,
                 marketLine: `${line}`,
                 betRating: betRating,
                 confidence: conf,

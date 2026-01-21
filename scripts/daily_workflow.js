@@ -34,6 +34,11 @@ function resolveHistory(history, gameLogs) {
     history.forEach(pick => {
         if (pick.result !== 'PENDING') return;
 
+        // SAFEGUARD: Do NOT resolve picks from "Today" (games incomplete)
+        // Only resolve matches from Yesterday or earlier
+        const today = new Date().toISOString().split('T')[0];
+        if (pick.date === today) return;
+
         // Find Player Logs
         const logKey = Object.keys(gameLogs).find(k => k.toLowerCase() === pick.player.toLowerCase());
         if (!logKey) return; // Player not found in logs

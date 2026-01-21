@@ -163,79 +163,121 @@ function generateStats(history) {
     return stats;
 }
 
-// --- EASE LOGIC (Ported from Server) ---
-const EASE_CHUNKS = ['ease_raw_chunk1.txt', 'ease_raw_chunk2.txt', 'ease_raw_chunk3.txt', 'ease_raw_chunk_pg_update.txt'];
-let EASE_DB = {};
-
-function rebuildEaseDb() {
-    try {
-        let combined = '';
-        let foundAny = false;
-        const rootDir = path.join(__dirname, '..');
-
-        for (const chunk of EASE_CHUNKS) {
-            const p = path.join(rootDir, chunk);
-            if (fs.existsSync(p)) {
-                combined += fs.readFileSync(p, 'utf8') + '\n';
-                foundAny = true;
-            }
-        }
-
-        if (!foundAny) {
-            console.log('[Ease] No raw data chunks found. Using empty DB.');
-            return;
-        }
-
-        const lines = combined.split('\n');
-        const db = {};
-        let currentPos = null;
-        let currentTime = null;
-
-        for (let line of lines) {
-            line = line.trim();
-            if (!line) continue;
-
-            if (line.includes('Past 1 Week')) currentTime = '1w';
-            if (line.includes('Past 2 Weeks')) currentTime = '2w';
-            if (line.includes('Full Season') || line.includes('full season')) currentTime = 'season';
-
-            if (['All', 'PG', 'SG', 'SF', 'PF', 'C'].includes(line)) {
-                currentPos = line;
-                continue;
-            }
-            if (line.startsWith('vs Team')) continue;
-
-            if (line.startsWith('vs ')) {
-                if (!currentPos || !currentTime) continue;
-                const cleanLine = line.replace('vs ', '').trim();
-                const parts = cleanLine.split(/\s+/);
-                const team = parts[0];
-
-                const stats = {
-                    val: parseFloat(parts[1]),
-                    pV: parseFloat(parts[2]),
-                    '3V': parseFloat(parts[3]),
-                    rV: parseFloat(parts[4]),
-                    aV: parseFloat(parts[5]),
-                    sV: parseFloat(parts[6]),
-                    bV: parseFloat(parts[7]),
-                    toV: parseFloat(parts[9])
-                };
-
-                if (!db[currentPos]) db[currentPos] = {};
-                if (!db[currentPos][currentTime]) db[currentPos][currentTime] = {};
-                db[currentPos][currentTime][team] = stats;
-            }
-        }
-        EASE_DB = db;
-        console.log(`✅ [Ease] Rebuilt DB from chunks.`);
-    } catch (e) {
-        console.error('[Ease] Rebuild failed:', e);
+// --- STEP 3b: FETCH EASE DATA (BBM SCRAPER) ---
+async function fetchBBMEase() {
+    console.log('🛡️ [Step 3b] Fetching Ease Rankings from BBM...');
+    if (!BBM_USER || !BBM_PASS) {
+        console.warn('⚠️ Missing BBM Creds. Using cached Ease DB if available.');
+        try {
+            if (fs.existsSync(EASE_DB_FILE)) return JSON.parse(fs.readFileSync(EASE_DB_FILE));
+        } catch (e) { return {}; }
+        return {};
     }
-}
 
-// Initial Load
-rebuildEaseDb();
+    const browser = await puppeteer.launch({
+        headless: "new",
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const page = await browser.newPage();
+    const DB = {};
+
+    // Config
+    const POSITIONS = [
+        { name: 'All', value: '0' },
+        { name: 'PG', value: '4' },
+        { name: 'SG', value: '5' },
+        { name: 'SF', value: '6' },
+        { name: 'PF', value: '7' },
+        { name: 'C', value: '3' }
+    ];
+    const RANGES = [
+        { name: 'season', value: 'FullSeason' },
+        { name: '1w', value: 'LastWeek' },
+        { name: '2w', value: 'LastTwoWeeks' },
+        { name: '3w', value: 'LastThreeWeeks' },
+        { name: '1m', value: 'LastMonth' }
+    ];
+
+    try {
+        // 1. Login
+        console.log('   > Logging in...');
+        await page.goto(BBM_LOGIN_URL, { waitUntil: 'domcontentloaded' });
+        await page.type('#UsernameTB', BBM_USER);
+        await page.type('#PasswordTB', BBM_PASS);
+        await Promise.all([
+            page.click('#LoginButton'),
+            page.waitForNavigation({ waitUntil: 'networkidle2' })
+        ]);
+
+        console.log('   > Navigating to Ease Rankings...');
+        const easeUrl = 'https://basketballmonster.com/easerankings.aspx'; // Correct URL
+        await page.goto(easeUrl, { waitUntil: 'networkidle2' });
+
+        // Iterate
+        for (const pos of POSITIONS) {
+            DB[pos.name] = {};
+
+            // Switch Position
+            const currentPos = await page.$eval('#ContentPlaceHolder1_PositionDropDownList', el => el.value);
+            if (currentPos !== pos.value) {
+                await Promise.all([
+                    page.waitForNavigation({ waitUntil: 'networkidle2' }),
+                    page.select('#ContentPlaceHolder1_PositionDropDownList', pos.value)
+                ]);
+            }
+
+            for (const range of RANGES) {
+                DB[pos.name][range.name] = {};
+
+                // Switch Timeframe
+                const currentRange = await page.$eval('#DateFilterControl', el => el.value);
+                if (currentRange !== range.value) {
+                    await Promise.all([
+                        page.waitForNavigation({ waitUntil: 'networkidle2' }),
+                        page.select('#DateFilterControl', range.value)
+                    ]);
+                }
+
+                // Scrape
+                const data = await page.evaluate(() => {
+                    const rows = Array.from(document.querySelectorAll('table.datatable tbody tr'));
+                    const result = {};
+                    rows.forEach(r => {
+                        const teamEl = r.cells[1];
+                        if (!teamEl) return;
+                        const team = teamEl.innerText.trim();
+                        if (!team || team === 'Team') return;
+
+                        const getVal = (idx) => {
+                            const txt = r.cells[idx]?.innerText || '0';
+                            return parseFloat(txt) || 0;
+                        };
+
+                        result[team] = {
+                            pV: getVal(3), '3V': getVal(4), rV: getVal(5),
+                            aV: getVal(6), sV: getVal(7), bV: getVal(8), toV: getVal(9)
+                        };
+                    });
+                    return result;
+                });
+                DB[pos.name][range.name] = data;
+            }
+            console.log(`   ✅ Scraped ${pos.name}`);
+        }
+
+        // Save Cache
+        fs.writeFileSync(EASE_DB_FILE, JSON.stringify(DB, null, 2));
+        console.log(`   💾 Saved updated Ease DB.`);
+
+    } catch (e) {
+        console.error('   ❌ Ease Scrape Failed:', e.message);
+        // Fallback to cache
+        if (fs.existsSync(EASE_DB_FILE)) return JSON.parse(fs.readFileSync(EASE_DB_FILE));
+    } finally {
+        await browser.close();
+    }
+    return DB;
+}
 
 // --- UTILS ---
 function normalizeName(n) {
@@ -1029,8 +1071,8 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
         // 3. Odds
         const odds = await fetchOdds();
 
-        // 3a. Rebuild Ease DB
-        const easeDb = await rebuildEaseDb();
+        // 3a. Rebuild Ease DB (NOW SCRAPED)
+        const easeDb = await fetchBBMEase();
 
         // 3b. Fetch Game Logs (NEW)
         console.log('🚀 Launching browser for Game Log Scraper...');

@@ -410,6 +410,7 @@ function parseBBM(buffer) {
     const easeKey = findKey(['ease']);
     const statusKey = findKey(['status']);
     const startPosKey = findKey(['start', 'start_pos']); // User Request: "Start" column
+    const oddsKey = findKey(['odds']); // Needed for Parsing Totals
 
     // Extended Context (For Scoring Engine)
     const restKey = findKey(['rest']);
@@ -459,6 +460,14 @@ function parseBBM(buffer) {
             }
         }
 
+        // Parse Game Total from Odds (e.g. "O/U 225.0 -10.0")
+        let gameTotal = 0;
+        if (oddsKey) {
+            const oddStr = String(row[oddsKey]);
+            const match = oddStr.match(/O\/U\s+(\d+(\.\d+)?)/i);
+            if (match) gameTotal = parseFloat(match[1]);
+        }
+
         players.push({
             name,
             name_norm: normalizeName(name),
@@ -470,6 +479,7 @@ function parseBBM(buffer) {
             injury: injKey ? String(row[injKey]) : '',
             opp: oppKey ? String(row[oppKey]).replace('@ ', '') : '',
             startTime: startTs,
+            gameTotal: gameTotal, // New Field
             projections: proj,
             // Extended Fields
             rest: restKey ? Number(row[restKey]) || 0 : 0,
@@ -858,12 +868,32 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             }
 
             // Blowout Risk Logic (Spread >= 10.0)
-            // (Assuming gameSpread is available in lines[0] or we skip it if missing)
             const gameSpread = (lines && lines.length > 0) ? (lines[0].gameSpread || 0) : 0;
             if (Math.abs(gameSpread) >= 10.0 && side === 'OVER') {
                 conf -= 0.20; // HEAVY Penalty (-20%)
                 if ((player.age || 25) >= SETTINGS.vet_age_threshold) {
                     conf -= 0.10; // Vets sit earlier
+                }
+            }
+
+            // --- PACE / GAME ENVIRONMENT LOGIC ---
+            // High Total (>232) -> Boost Overs, Penalty Unders
+            // Low Total (<218) -> Boost Unders, Penalty Overs
+            if (player.gameTotal > 0) {
+                if (player.gameTotal >= 232.0) {
+                    if (side === 'OVER') {
+                        conf += 0.05;
+                        narrative.push(`🔥 **Track Meet**: High Vegas Total (${player.gameTotal}) favors scoring environment.`);
+                    } else {
+                        conf -= 0.05;
+                    }
+                } else if (player.gameTotal <= 218.0) {
+                    if (side === 'UNDER') {
+                        conf += 0.05;
+                        narrative.push(`🐌 **Grind-it-out**: Low Vegas Total (${player.gameTotal}) suggests limited opportunities.`);
+                    } else {
+                        conf -= 0.05;
+                    }
                 }
             }
 

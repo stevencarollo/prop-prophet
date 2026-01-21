@@ -58,7 +58,7 @@ function resolveHistory(history, gameLogs) {
             let actual = 0;
             if (['pra', 'pr', 'pa', 'ra'].includes(pick.stat)) {
                 if (pick.stat.includes('p')) actual += game.pts;
-                if (pick.stat.includes('r')) actual += game.trb; // trb in B-Ref
+                if (pick.stat.includes('r')) actual += game.reb; // Fix: 'trb' was wrong, 'reb' is key in logs
                 if (pick.stat.includes('a')) actual += game.ast;
             } else {
                 actual = game[logStat];
@@ -528,7 +528,10 @@ async function fetchGameLogs(browser) {
                     const nameEl = row.querySelector('td[data-stat="player"] a');
                     if (!nameEl) return;
 
-                    const name = nameEl.innerText.trim();
+                    // Normalize Name (Strip Accents)
+                    // e.g. "Nikola Vučević" -> "Nikola Vucevic"
+                    let name = nameEl.innerText.trim();
+                    name = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                     const getVal = (stat) => parseFloat(row.querySelector(`td[data-stat="${stat}"]`)?.innerText || '0');
 
                     results.push({

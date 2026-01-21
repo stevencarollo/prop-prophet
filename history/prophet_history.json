@@ -1493,5 +1493,70 @@
     "date": "2026-01-21",
     "result": "PENDING",
     "actual": null
+  },
+  {
+    "id": "KeyonteGeorge-pr-2026-01-21",
+    "player": "Keyonte George",
+    "team": "UTA",
+    "opp": "MIN",
+    "stat": "pr",
+    "line": 28,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "ScottieBarnes-ra-2026-01-21",
+    "player": "Scottie Barnes",
+    "team": "TOR",
+    "opp": "GSW",
+    "stat": "ra",
+    "line": 15.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "OchaiAgbaji-pr-2026-01-21",
+    "player": "Ochai Agbaji",
+    "team": "TOR",
+    "opp": "GSW",
+    "stat": "pr",
+    "line": 9.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "SandroMamukelashvili-p-2026-01-21",
+    "player": "Sandro Mamukelashvili",
+    "team": "TOR",
+    "opp": "GSW",
+    "stat": "p",
+    "line": 12.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "AyoDosunmu-pa-2026-01-21",
+    "player": "Ayo Dosunmu",
+    "team": "CHI",
+    "opp": "LAC",
+    "stat": "pa",
+    "line": 14.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
   }
 ]

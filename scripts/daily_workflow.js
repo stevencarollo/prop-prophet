@@ -846,34 +846,44 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
 
             let ease = activeEaseVal;
 
-            // Dampened Confidence Formula (Per User Feedback)
-            // Was /5 (Too aggressive -> Many A+). Now /8.5
-            let conf = 0.5 + (weightedEdge / 8.5);
+
+            // Dampened Confidence Formula (Calibrated Jan 21)
+            // Was /8.5 -> Now /12.5 to prevent edge inflation
+            let conf = 0.5 + (weightedEdge / 12.5);
 
             // --- CONTRADICTION PENALTY (Safety) ---
-            // If betting UNDER into a Smash Spot, or OVER into a Tough Spot
             if (side === 'UNDER' && activeEaseVal > 0.5) {
-                conf -= 0.12; // -12% Penalty
+                conf -= 0.12;
             } else if (side === 'OVER' && activeEaseVal < -0.5) {
-                conf -= 0.12; // -12% Penalty
+                conf -= 0.12;
             }
 
-            // Penalties (Rest, Age, B2B)
+            // --- CONFIDENCE CAPS (The "Realism" Ceiling) ---
+            let maxCap = 0.99; // Default Max (A+)
+
+            // 1. Back-to-Back Cap (Max 92% - No Locks)
+            if (player.b2b >= 1) maxCap = Math.min(maxCap, 0.92);
+
+            // 2. Negative Ease Cap (Max 90% - A-)
+            // If betting Over into bad ease, or Under into good ease
+            if ((side === 'OVER' && activeEaseVal < -0.15) || (side === 'UNDER' && activeEaseVal > 0.15)) {
+                maxCap = Math.min(maxCap, 0.90);
+            }
+
+            // 3. Blowout Risk Cap (Max 88% - B+)
+            const gameSpread = (lines && lines.length > 0) ? (lines[0].gameSpread || 0) : 0;
+            if (Math.abs(gameSpread) >= 10.0 && side === 'OVER') {
+                conf -= 0.15; // Still apply penalty
+                maxCap = Math.min(maxCap, 0.88);
+            }
+
+            // Penalties (Rest, Age) - Apply to base confidence
             if (player.rest === 0) conf -= SETTINGS.rest0_penalty;
             if (player.b2b >= 1) {
                 if ((player.age || 25) >= SETTINGS.vet_age_threshold) {
                     conf -= SETTINGS.b2b_penalty_vet;
                 } else {
                     conf -= SETTINGS.b2b_penalty_young;
-                }
-            }
-
-            // Blowout Risk Logic (Spread >= 10.0)
-            const gameSpread = (lines && lines.length > 0) ? (lines[0].gameSpread || 0) : 0;
-            if (Math.abs(gameSpread) >= 10.0 && side === 'OVER') {
-                conf -= 0.20; // HEAVY Penalty (-20%)
-                if ((player.age || 25) >= SETTINGS.vet_age_threshold) {
-                    conf -= 0.10; // Vets sit earlier
                 }
             }
 
@@ -897,6 +907,10 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                     }
                 }
             }
+
+            // --- APPLY CAPS ---
+            if (conf > maxCap) conf = maxCap;
+
 
             // --- L5 HIT RATE LOGIC (NEW) ---
             let l5Bonus = 0;

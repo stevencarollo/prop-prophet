@@ -33,8 +33,25 @@ function runUpdate(label) {
         console.log(stdout);
         console.log(`[${new Date().toLocaleTimeString()}] ✅ ${label} Complete.`);
 
-        // AFTER RUN: Schedule the "Lock Run"
-        scheduleLockRun();
+        // AUTO-PUBLISH to Netlify
+        uploadResults(() => {
+            // AFTER UPLOAD: Schedule the "Lock Run"
+            scheduleLockRun();
+        });
+    });
+}
+
+function uploadResults(callback) {
+    console.log('☁️ Uploading results to Cloud...');
+    const cmd = `git add latest_picks.js history/prophet_history.json && git commit -m "🤖 Auto-Bot: New Picks & History" && git push origin main`;
+
+    exec(cmd, { cwd: __dirname }, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`❌ Upload Failed: ${error.message}`);
+        } else {
+            console.log(`✅ Cloud Sync Complete.`);
+        }
+        if (callback) callback();
     });
 }
 

@@ -367,6 +367,7 @@ function parseBBM(buffer) {
     const toKey = findKey(['to', 'tov']);
     const easeKey = findKey(['ease']);
     const statusKey = findKey(['status']);
+    const startPosKey = findKey(['start', 'start_pos']); // User Request: "Start" column
 
     // Extended Context (For Scoring Engine)
     const restKey = findKey(['rest']);
@@ -439,7 +440,8 @@ function parseBBM(buffer) {
             josh: joshKey ? Number(row[joshKey]) || 0 : 0,
             jMin: jMinKey ? Number(row[jMinKey]) || 0 : 0,
             jMax: jMaxKey ? Number(row[jMaxKey]) || 0 : 0,
-            lastMin: lastMinKey ? Number(row[lastMinKey]) || 0 : 0
+            lastMin: lastMinKey ? Number(row[lastMinKey]) || 0 : 0,
+            startPos: startPosKey ? String(row[startPosKey]).trim() : '' // New Field
         });
     });
 
@@ -742,18 +744,42 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                     return totalEase / comps.length;
                 };
 
+                // User Logic for Positions:
+                // 1. If "Start" column has a position, LOCK it.
+                // 2. If "(V)" is in Start, it is verified exclusive.
+                // 3. If no Start, use POS column. If multiple (PG,SG), AVERAGE them.
+
+                let positionsToTest = [];
+                const startRaw = player.startPos || '';
+
+                if (startRaw) {
+                    // Clean up "(V)" or verify notation
+                    const cleanStart = startRaw.replace('(V)', '').replace('V', '').trim();
+                    if (['PG', 'SG', 'SF', 'PF', 'C'].includes(cleanStart)) {
+                        positionsToTest = [cleanStart];
+                    }
+                }
+
+                if (positionsToTest.length === 0) {
+                    // Fallback to POS column, split by space or comma
+                    const pParts = (player.pos || 'All').split(/[\/, ]+/);
+                    positionsToTest = pParts.filter(p => ['PG', 'SG', 'SF', 'PF', 'C'].includes(p));
+                }
+
+                if (positionsToTest.length === 0) positionsToTest = ['All'];
+
+                // Calculate Positional Ease (Average if multiple)
+                let posEaseSum = 0;
+                positionsToTest.forEach(p => {
+                    posEaseSum += calcWeighted(p);
+                });
+                posEaseVal = posEaseSum / positionsToTest.length;
+
                 // 1. Team Matchup Ease (General Defense)
                 teamEaseVal = calcWeighted('All');
 
-                // 2. Positional Expected Ease
-                if (specificPos) {
-                    posEaseVal = calcWeighted(specificPos);
-                    // activeEaseVal = posEaseVal; // OLD: Prioritize specific
-                    // NEW: Blend 70% Position (Specificity) + 30% Team (Stability/Pace)
-                    activeEaseVal = (posEaseVal * 0.70) + (teamEaseVal * 0.30);
-                } else {
-                    activeEaseVal = teamEaseVal; // Fallback
-                }
+                // NEW WEIGHTING: 85% Position (Far better indicator) + 15% Team
+                activeEaseVal = (posEaseVal * 0.85) + (teamEaseVal * 0.15);
 
                 // Format breakdown for UI (Color Coded - User Request)
                 const pColor = posEaseVal > 0 ? '#4ade80' : (posEaseVal < 0 ? '#f87171' : '#cbd5e1');

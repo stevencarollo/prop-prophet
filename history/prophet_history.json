@@ -1727,5 +1727,44 @@
     "date": "2026-01-21",
     "result": "PENDING",
     "actual": null
+  },
+  {
+    "id": "ImmanuelQuickley-pa-2026-01-21",
+    "player": "Immanuel Quickley",
+    "team": "TOR",
+    "opp": "GSW",
+    "stat": "pa",
+    "line": 22,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "ScottieBarnes-b-2026-01-21",
+    "player": "Scottie Barnes",
+    "team": "TOR",
+    "opp": "GSW",
+    "stat": "b",
+    "line": 0.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "JamalMurray-ra-2026-01-21",
+    "player": "Jamal Murray",
+    "team": "DEN",
+    "opp": "LAL",
+    "stat": "ra",
+    "line": 13,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-21",
+    "result": "PENDING",
+    "actual": null
   }
 ]

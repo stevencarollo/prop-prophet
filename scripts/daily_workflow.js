@@ -92,6 +92,7 @@ function resolveHistory(history, gameLogs) {
 function updateHistory(history, newPicks) {
     const today = new Date().toISOString().split('T')[0];
     let added = 0;
+    let updated = 0;
 
     newPicks.forEach(p => {
         // Use Game Date if available, otherwise Today
@@ -104,7 +105,10 @@ function updateHistory(history, newPicks) {
         const id = `${p.player}-${p.stat}-${pickDate}`.replace(/\s+/g, '');
 
         // Check if exists
-        if (!history.find(h => h.id === id)) {
+        const existingIndex = history.findIndex(h => h.id === id);
+
+        if (existingIndex === -1) {
+            // NEW PICK
             history.push({
                 id: id,
                 player: p.player,
@@ -119,12 +123,28 @@ function updateHistory(history, newPicks) {
                 actual: null
             });
             added++;
+        } else {
+            // EXISTING PICK - Update if still PENDING
+            // This ensures "Diamond" -> "Lock" upgrades are captured in history
+            if (history[existingIndex].result === 'PENDING') {
+                const h = history[existingIndex];
+                // Only log if something important changed to reduce noise
+                if (h.tier !== p.betRating || h.line !== p.line) {
+                    // console.log(`🔄 Updating ${h.player} (${h.stat}): ${h.tier} -> ${p.betRating}`);
+                    updated++;
+                }
+
+                history[existingIndex].tier = p.betRating;
+                history[existingIndex].line = p.line;
+                history[existingIndex].side = p.side; // Just in case
+                // We keep the original ID/Date
+            }
         }
     });
 
-    if (added > 0) {
+    if (added > 0 || updated > 0) {
         fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf8');
-        console.log(`📝 Added ${added} new picks to history.`);
+        console.log(`📝 History: Added ${added} new, Updated ${updated} existing picks.`);
     }
     return history;
 }

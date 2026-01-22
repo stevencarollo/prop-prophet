@@ -8,18 +8,18 @@ window.PROPHET_RECORD = {
         "pct": 59
     },
     "locks": {
-        "w": 11,
+        "w": 15,
         "l": 2,
         "p": 0,
-        "total": 13,
-        "pct": 85
+        "total": 17,
+        "pct": 88
     },
     "diamond": {
-        "w": 8,
+        "w": 4,
         "l": 3,
         "p": 0,
-        "total": 11,
-        "pct": 73
+        "total": 7,
+        "pct": 57
     },
     "elite": {
         "w": 3,

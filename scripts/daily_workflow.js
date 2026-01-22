@@ -243,10 +243,20 @@ async function fetchBBMEase() {
                     const rows = Array.from(document.querySelectorAll('table.datatable tbody tr'));
                     const result = {};
                     rows.forEach(r => {
-                        const teamEl = r.cells[1];
+                        const teamEl = r.cells[0]; // Corrected: Col 0 is 'vs Team'
                         if (!teamEl) return;
-                        const team = teamEl.innerText.trim();
-                        if (!team || team === 'Team') return;
+
+                        let teamRaw = teamEl.innerText.trim();
+                        if (!teamRaw || teamRaw === 'Team' || teamRaw === 'vs Team') return;
+
+                        // Clean "vs " prefix if present
+                        teamRaw = teamRaw.replace(/^vs\s+/i, '').trim();
+
+                        // TEAM MAPPING (BBM uses full names or odd abbr sometimes)
+                        const TEAM_MAP_BBM = {
+                            "Atl": "ATL", "Bos": "BOS", "Bkn": "BKN", "Cha": "CHA", "Chi": "CHI", "Cle": "CLE", "Dal": "DAL", "Den": "DEN", "Det": "DET", "GS": "GSW", "Hou": "HOU", "Ind": "IND", "LAC": "LAC", "LAL": "LAL", "Mem": "MEM", "Mia": "MIA", "Mil": "MIL", "Min": "MIN", "NO": "NOP", "NY": "NYK", "OKC": "OKC", "Orl": "ORL", "Phi": "PHI", "Pho": "PHO", "Por": "POR", "Sac": "SAC", "SA": "SAS", "Tor": "TOR", "Uta": "UTA", "Was": "WAS"
+                        };
+                        const team = TEAM_MAP_BBM[teamRaw] || teamRaw.toUpperCase();
 
                         const getVal = (idx) => {
                             const txt = r.cells[idx]?.innerText || '0';

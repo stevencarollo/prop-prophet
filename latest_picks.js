@@ -1,33 +1,33 @@
 window.LAST_UPDATED = "1/22/2026, 11:01:47 AM";
 window.PROPHET_RECORD = {
-  "season": {
-    "w": 75,
-    "l": 56,
-    "p": 0,
-    "total": 131,
-    "pct": 57
-  },
-  "locks": {
-    "w": 5,
-    "l": 2,
-    "p": 0,
-    "total": 7,
-    "pct": 71
-  },
-  "diamond": {
-    "w": 7,
-    "l": 3,
-    "p": 0,
-    "total": 10,
-    "pct": 70
-  },
-  "elite": {
-    "w": 3,
-    "l": 5,
-    "p": 0,
-    "total": 8,
-    "pct": 38
-  }
+    "season": {
+        "w": 95,
+        "l": 66,
+        "p": 0,
+        "total": 161,
+        "pct": 59
+    },
+    "locks": {
+        "w": 11,
+        "l": 2,
+        "p": 0,
+        "total": 13,
+        "pct": 85
+    },
+    "diamond": {
+        "w": 8,
+        "l": 3,
+        "p": 0,
+        "total": 11,
+        "pct": 73
+    },
+    "elite": {
+        "w": 3,
+        "l": 6,
+        "p": 0,
+        "total": 9,
+        "pct": 33
+    }
 };
 window.LATEST_PICKS = [
   {

@@ -967,13 +967,27 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
 
                 // Stat Mapping
                 const statMap = { 'p': 'pts', 'r': 'reb', 'a': 'ast', '3': 'threes', 's': 'stl', 'b': 'blk', 'to': 'to' };
-                const logStat = statMap[stat];
+                let logStat = statMap[stat];
+                let isCombo = false;
 
-                if (logStat) {
+                // Handle Combined Stats
+                if (['pra', 'pr', 'pa', 'ra'].includes(stat)) {
+                    isCombo = true;
+                }
+
+                if (logStat || isCombo) {
                     const values = [];
                     recentLogs.forEach(g => {
-                        const val = g[logStat];
-                        if (val !== undefined) {
+                        let val = 0;
+                        if (isCombo) {
+                            if (stat.includes('p')) val += (g.pts || 0);
+                            if (stat.includes('r')) val += (g.reb || 0);
+                            if (stat.includes('a')) val += (g.ast || 0);
+                        } else {
+                            val = g[logStat];
+                        }
+
+                        if (val !== undefined && val !== null) { // null check
                             validGames++;
                             values.push(val);
                             if (side === 'OVER' && val > line) hits++;

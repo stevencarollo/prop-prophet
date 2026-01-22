@@ -577,7 +577,7 @@ async function fetchOdds() {
 
 // --- STEP 3a: FETCH GAME LOGS (SCORING ENGINE - L5 HIT RATE) ---
 async function fetchGameLogs(browser) {
-    console.log('📅 [Step 3a] Fetching Game Logs (Last 14 Days)...');
+    console.log('📅 [Step 3a] Fetching Game Logs (Last 21 Days)...');
     const logs = {}; // { "Player Name": [ { date, pts, reb, ast, threes, blk, stl, to, min }, ... ] }
     const page = await browser.newPage();
     await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
@@ -593,9 +593,9 @@ async function fetchGameLogs(browser) {
         };
     };
 
-    // Iterate last 14 days
+    // Iterate last 21 days (extended from 14 for better coverage)
     const today = new Date();
-    for (let i = 1; i <= 14; i++) {
+    for (let i = 1; i <= 21; i++) {
         const d = new Date(today);
         d.setDate(today.getDate() - i);
         const { M, D, Y, str } = formatDate(d);

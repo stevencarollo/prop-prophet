@@ -620,10 +620,11 @@ async function fetchGameLogs(browser) {
                     const nameEl = row.querySelector('td[data-stat="player"] a');
                     if (!nameEl) return;
 
-                    // Normalize Name (Strip Accents)
+                    // Normalize Name (Strip Accents & Dots)
                     // e.g. "Nikola Vučević" -> "Nikola Vucevic"
+                    // e.g. "P.J. Washington" -> "PJ Washington"
                     let name = nameEl.innerText.trim();
-                    name = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    name = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\./g, "");
                     const getVal = (stat) => parseFloat(row.querySelector(`td[data-stat="${stat}"]`)?.innerText || '0');
 
                     results.push({

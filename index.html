@@ -148,7 +148,7 @@
         <input type="password" id="password" placeholder="Password">
         <button onclick="login()">Login</button>
         <div class="info-text">
-            <strong>Guest:</strong> guest / Guest2024!
+            <strong>Guest:</strong> guest / prophet
         </div>
     </div>
 
@@ -282,7 +282,7 @@
             const password = document.getElementById('password').value;
 
             if ((username === 'owner' && password === 'Reempicks1!') ||
-                (username === 'guest' && password === 'Guest2024!')) {
+                (username === 'guest' && password === 'prophet')) {
                 currentUser = username;
                 document.getElementById('login-page').classList.add('hidden');
                 document.getElementById('dashboard-page').classList.remove('hidden');

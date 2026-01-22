@@ -1017,6 +1017,10 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                             l5Multiplier = 1.15; // +15%
                             icon = "🔥";
                             sentiment = "Strong Form";
+                        } else if (hits === 3) {
+                            l5Multiplier = 1.0; // Neutral
+                            icon = "➡️";
+                            sentiment = "Steady";
                         } else if (hits === 2) {
                             l5Multiplier = 0.90; // -10%
                             icon = "⚠️";
@@ -1030,11 +1034,13 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                         // Apply Multiplier
                         conf *= l5Multiplier;
 
-                        // Narrative
-                        if (l5Multiplier !== 1.0) {
-                            const bonusStr = (l5Multiplier > 1) ? `(+${Math.round((l5Multiplier - 1) * 100)}% Bonus)` : `(${Math.round((l5Multiplier - 1) * 100)}% Penalty)`;
+                        // Narrative - ALWAYS show if we have valid games
+                        if (validGames >= 3) {
+                            const bonusStr = (l5Multiplier > 1) ? `(+${Math.round((l5Multiplier - 1) * 100)}% Bonus)` :
+                                (l5Multiplier < 1) ? `(${Math.round((l5Multiplier - 1) * 100)}% Penalty)` :
+                                    "(No Adjustment)";
                             const hitStr = `${hits}/${validGames}`;
-                            const color = (l5Multiplier > 1) ? '#4ade80' : '#f87171'; // Green or Red
+                            const color = (l5Multiplier > 1) ? '#4ade80' : (l5Multiplier < 1) ? '#f87171' : '#cbd5e1';
                             l5Narrative = `${icon} **Last 5 Games**: ${sentiment} (${hitStr} Hits). Avg: ${avgStr}. <span style='color:${color}'>${bonusStr}</span>`;
                         }
                     }

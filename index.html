@@ -755,11 +755,11 @@
                         <div style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9em; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 4px;">
                             <div style="flex: 1; text-align: center; border-right: 1px solid #444;">
                                 <span style="color:#aaa;">Pos Ease</span><br>
-                                <span style="font-weight:bold; color: ${pick.posEase > 0 ? '#4ade80' : (pick.posEase < 0 ? '#f87171' : '#cbd5e1')}">${pick.posEase.toFixed(2)}</span>
+                                <span style="font-weight:bold; color: ${pick.posEase > 0 ? '#4ade80' : (pick.posEase < 0 ? '#f87171' : '#cbd5e1')}">${(pick.posEase * 100).toFixed(1)}%</span>
                             </div>
                             <div style="flex: 1; text-align: center;">
                                 <span style="color:#aaa;">Team Ease</span><br>
-                                <span style="font-weight:bold; color: ${pick.teamEase > 0 ? '#4ade80' : (pick.teamEase < 0 ? '#f87171' : '#cbd5e1')}">${pick.teamEase.toFixed(2)}</span>
+                                <span style="font-weight:bold; color: ${pick.teamEase > 0 ? '#4ade80' : (pick.teamEase < 0 ? '#f87171' : '#cbd5e1')}">${(pick.teamEase * 100).toFixed(1)}%</span>
                             </div>
                         </div>
                         ` : ''}

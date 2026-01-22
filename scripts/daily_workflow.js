@@ -94,8 +94,14 @@ function updateHistory(history, newPicks) {
     let added = 0;
 
     newPicks.forEach(p => {
+        // Use Game Date if available, otherwise Today
+        let pickDate = today;
+        if (p.startTime) {
+            pickDate = new Date(p.startTime).toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+        }
+
         // Create unique ID
-        const id = `${p.player}-${p.stat}-${today}`.replace(/\s+/g, '');
+        const id = `${p.player}-${p.stat}-${pickDate}`.replace(/\s+/g, '');
 
         // Check if exists
         if (!history.find(h => h.id === id)) {
@@ -108,7 +114,7 @@ function updateHistory(history, newPicks) {
                 line: p.line,
                 side: p.side,
                 tier: p.betRating,
-                date: today,
+                date: pickDate,
                 result: 'PENDING',
                 actual: null
             });
@@ -428,6 +434,7 @@ function parseBBM(buffer) {
     const ageKey = findKey(['age']);
     const l3Key = findKey(['3gg', 'l3', 'last 3']);
     const l5Key = findKey(['5gg', 'l5', 'last 5']);
+    const usgKey = findKey(['usg', 'usg%', 'usage']);
     const valCKey = findKey(['valuec', 'val c', 'value c']);
     const pcKey = findKey(['pc', 'p cons', 'consistency']);
     const joshKey = findKey(['josh', 'joshg', 'josh g']);
@@ -497,6 +504,7 @@ function parseBBM(buffer) {
             age: ageKey ? (Number(row[ageKey]) || 25) : 25,
             val_3: l3Key ? Number(row[l3Key]) || 0 : 0,
             val_5: l5Key ? Number(row[l5Key]) || 0 : 0,
+            usg: usgKey ? Number(row[usgKey]) || 0 : 0,
             valueC: valCKey ? Number(row[valCKey]) || 0 : 0,
             pc: pcKey ? Number(row[pcKey]) || 0 : 0,
             josh: joshKey ? Number(row[joshKey]) || 0 : 0,
@@ -1098,6 +1106,7 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                 ease: ease,
                 posEase: posEaseVal,
                 teamEase: teamEaseVal,
+                usg: player.usg,
                 marketLine: `${line}`,
                 betRating: betRating,
                 confidence: conf,

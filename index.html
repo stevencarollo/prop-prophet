@@ -533,8 +533,8 @@
                     </p>
                     <p><strong>Proj:</strong> ${pick.projection} | <strong>Line:</strong> ${pick.marketLine}</p>
                     <p>
-                        <strong>Pos Ease:</strong> <span style="color:${pick.posEase > 0 ? '#4ade80' : (pick.posEase < 0 ? '#f87171' : '#cbd5e1')}">${(pick.posEase * 100).toFixed(1)}%</span> | 
-                        <strong>Team Ease:</strong> <span style="color:${pick.teamEase > 0 ? '#4ade80' : (pick.teamEase < 0 ? '#f87171' : '#cbd5e1')}">${(pick.teamEase * 100).toFixed(1)}%</span>
+                        <strong>Pos Ease:</strong> <span style="color:${(pick.posEase || 0) > 0 ? '#4ade80' : ((pick.posEase || 0) < 0 ? '#f87171' : '#cbd5e1')}">${((pick.posEase || 0) * 100).toFixed(1)}%</span> | 
+                        <strong>Team Ease:</strong> <span style="color:${(pick.teamEase || 0) > 0 ? '#4ade80' : ((pick.teamEase || 0) < 0 ? '#f87171' : '#cbd5e1')}">${((pick.teamEase || 0) * 100).toFixed(1)}%</span>
                     </p>
                     <p><strong>Interpretation:</strong> <em style="color:#cbd5e1">${pick.interpretation ? pick.interpretation.split('|')[0] : 'None'}</em></p>
                     <p><strong>Confidence:</strong> ${(pick.confidence * 100).toFixed(0)}% | <strong>Score:</strong> ${(pick.edge * pick.confidence).toFixed(2)}</p>
@@ -875,6 +875,9 @@
             }
         }
     </script>
+    <div style="text-align:center; padding: 20px; font-size: 0.8rem; color: #64748b;">
+        &copy; 2025 Prop Prophet | System Version: 1.1 (Ease %)
+    </div>
 </body>
 
 </html>

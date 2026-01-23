@@ -285,13 +285,31 @@
         let currentPicks = [];
 
         async function refreshGuestData() {
-            showAlert('info', 'checking cloud storage for latest picks...');
+            showAlert('info', '🔄 Fetching fresh market lines...');
 
-            // Remove old script tag if found
+            try {
+                // Try serverless function first (Vercel deployment)
+                const resp = await fetch('/api/refresh-odds', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (resp.ok) {
+                    const data = await resp.json();
+                    showAlert('success', `✅ ${data.message} at ${data.timestamp}`);
+
+                    // Reload the page to show fresh data
+                    setTimeout(() => location.reload(), 1500);
+                    return;
+                }
+            } catch (err) {
+                console.log('Serverless function not available, falling back to static refresh');
+            }
+
+            // Fallback: Reload static file (for non-Vercel or if function fails)
             const old = document.querySelector('script[src*="latest_picks.js"]');
             if (old) old.remove();
 
-            // Add new script with cache buster
             const script = document.createElement('script');
             script.src = 'latest_picks.js?t=' + Date.now();
             script.onload = () => {

@@ -910,11 +910,11 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                 maxCap = Math.min(maxCap, 0.90);
             }
 
-            // 3. Blowout Risk Cap (Max 88% - B+)
+            // 3. Blowout Risk Cap (Relaxed Jan 23)
             const gameSpread = (lines && lines.length > 0) ? (lines[0].gameSpread || 0) : 0;
-            if (Math.abs(gameSpread) >= 10.0 && side === 'OVER') {
-                conf -= 0.15; // Still apply penalty
-                maxCap = Math.min(maxCap, 0.88);
+            if (Math.abs(gameSpread) >= 13.5 && side === 'OVER') {
+                conf -= 0.08; // Reduced penalty
+                // maxCap removed to allow strong edges to shine
             }
 
             // Penalties (Rest, Age) - Apply to base confidence

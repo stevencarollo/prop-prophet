@@ -901,12 +901,14 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             // Was /8.5 -> Now /12.5 to prevent edge inflation
             let conf = 0.5 + (weightedEdge / 12.5);
 
-            // --- CONTRADICTION PENALTY (Safety) ---
-            // --- CONTRADICTION PENALTY (Safety) ---
-            if (side === 'UNDER' && activeEaseVal > 0.40) {
-                conf -= 0.12;
-            } else if (side === 'OVER' && activeEaseVal < -0.40) {
-                conf -= 0.12;
+            // --- CONTRADICTION PENALTY (Safety) & ALIGNMENT BONUS (Reward) ---
+            // User Request (Jan 23): Tighten penalty to 0.30, Add 12% Bonus for > 0.30
+            if (side === 'UNDER') {
+                if (activeEaseVal > 0.30) conf -= 0.12; // Penalty
+                else if (activeEaseVal < -0.30) conf += 0.12; // Bonus (Smart Under)
+            } else { // OVER
+                if (activeEaseVal < -0.30) conf -= 0.12; // Penalty
+                else if (activeEaseVal > 0.30) conf += 0.12; // Bonus (Smart Over)
             }
 
             // --- CONFIDENCE CAPS (The "Realism" Ceiling) ---

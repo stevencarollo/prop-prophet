@@ -1114,8 +1114,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 28
   },
   {
     "id": "NormanPowell-p-2026-01-22",
@@ -1127,8 +1127,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 18
   },
   {
     "id": "KyleFilipowski-pra-2026-01-20",
@@ -2349,8 +2349,8 @@
     "side": "UNDER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 13
   },
   {
     "id": "LaMeloBall-pra-2026-01-22",
@@ -2362,8 +2362,8 @@
     "side": "OVER",
     "tier": "💎 DIAMOND BOY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 29
   },
   {
     "id": "KyleFilipowski-pra-2026-01-22",
@@ -2375,8 +2375,8 @@
     "side": "OVER",
     "tier": "🔥 ELITE",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 10
   },
   {
     "id": "JoshGiddey-pra-2026-01-22",
@@ -2388,8 +2388,8 @@
     "side": "OVER",
     "tier": "🔥 ELITE",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 32
   },
   {
     "id": "KawhiLeonard-pra-2026-01-22",
@@ -2401,8 +2401,8 @@
     "side": "OVER",
     "tier": "🔥 ELITE",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "PUSH",
+    "actual": 33
   },
   {
     "id": "IvicaZubac-pr-2026-01-22",
@@ -2414,8 +2414,8 @@
     "side": "UNDER",
     "tier": "🔥 ELITE",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 37
   },
   {
     "id": "JusufNurkic-ra-2026-01-22",
@@ -2427,8 +2427,8 @@
     "side": "OVER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 25
   },
   {
     "id": "AnthonyBlack-pa-2026-01-22",
@@ -2440,8 +2440,8 @@
     "side": "OVER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 6
   },
   {
     "id": "KawhiLeonard-pr-2026-01-22",
@@ -2453,8 +2453,8 @@
     "side": "OVER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 29
   },
   {
     "id": "NoahPenda-pr-2026-01-22",
@@ -2466,8 +2466,8 @@
     "side": "UNDER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 15
   },
   {
     "id": "AnthonyBlack-p-2026-01-22",
@@ -2479,8 +2479,8 @@
     "side": "OVER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 4
   },
   {
     "id": "LaMeloBall-ra-2026-01-22",
@@ -2492,8 +2492,8 @@
     "side": "OVER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 13
   },
   {
     "id": "BrandonWilliams-pra-2026-01-22",
@@ -2505,8 +2505,8 @@
     "side": "OVER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 28
   },
   {
     "id": "JoshGiddey-pr-2026-01-22",
@@ -2518,8 +2518,8 @@
     "side": "OVER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 27
   },
   {
     "id": "LaMeloBall-a-2026-01-22",
@@ -2531,8 +2531,8 @@
     "side": "OVER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 7
   },
   {
     "id": "LaMeloBall-pa-2026-01-22",
@@ -2544,8 +2544,8 @@
     "side": "OVER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 23
   },
   {
     "id": "IvicaZubac-p-2026-01-22",
@@ -2557,8 +2557,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 18
   },
   {
     "id": "JusufNurkic-pra-2026-01-22",
@@ -2570,8 +2570,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 42
   },
   {
     "id": "KawhiLeonard-pa-2026-01-22",
@@ -2583,8 +2583,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "PUSH",
+    "actual": 28
   },
   {
     "id": "BrandonWilliams-pr-2026-01-22",
@@ -2596,8 +2596,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 24
   },
   {
     "id": "KyleFilipowski-pa-2026-01-22",
@@ -2609,8 +2609,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 5
   },
   {
     "id": "DeniAvdija-pa-2026-01-22",
@@ -2622,8 +2622,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 24
   },
   {
     "id": "KhrisMiddleton-pr-2026-01-22",
@@ -2635,8 +2635,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 11
   },
   {
     "id": "IvicaZubac-pra-2026-01-22",
@@ -2648,8 +2648,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 37
   },
   {
     "id": "DeniAvdija-pra-2026-01-22",
@@ -2661,8 +2661,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 31
   },
   {
     "id": "BrandonWilliams-p-2026-01-22",
@@ -2674,8 +2674,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 19
   },
   {
     "id": "BrandonWilliams-pa-2026-01-22",
@@ -2687,8 +2687,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 23
   },
   {
     "id": "KyleFilipowski-ra-2026-01-22",
@@ -2700,8 +2700,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 5
   },
   {
     "id": "AnthonyBlack-pr-2026-01-22",
@@ -2713,8 +2713,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 6
   },
   {
     "id": "MarcusSmart-pr-2026-01-22",
@@ -2726,8 +2726,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 10
   },
   {
     "id": "PaulGeorge-pr-2026-01-22",
@@ -2739,8 +2739,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 16
   },
   {
     "id": "NoahPenda-pa-2026-01-22",
@@ -2752,8 +2752,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 17
   },
   {
     "id": "DeniAvdija-p-2026-01-22",
@@ -2765,8 +2765,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 20
   },
   {
     "id": "AnthonyBlack-pra-2026-01-22",
@@ -2778,8 +2778,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 8
   },
   {
     "id": "MarcusSmart-pa-2026-01-22",
@@ -2791,8 +2791,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 14
   },
   {
     "id": "HarrisonBarnes-pra-2026-01-22",
@@ -2804,8 +2804,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 4
   },
   {
     "id": "HarrisonBarnes-pa-2026-01-22",
@@ -2817,8 +2817,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 3
   },
   {
     "id": "CooperFlagg-pr-2026-01-22",
@@ -2830,8 +2830,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 32
   },
   {
     "id": "MarcusSmart-pra-2026-01-22",
@@ -2843,8 +2843,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 14
   },
   {
     "id": "LaMeloBall-pr-2026-01-22",
@@ -2856,8 +2856,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 22
   },
   {
     "id": "LukaDoncic-ra-2026-01-22",
@@ -2869,8 +2869,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 19
   },
   {
     "id": "KhrisMiddleton-pra-2026-01-22",
@@ -2882,8 +2882,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 11
   },
   {
     "id": "NoahPenda-pra-2026-01-22",
@@ -2895,8 +2895,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 19
   },
   {
     "id": "TyreseMaxey-pa-2026-01-22",
@@ -2908,8 +2908,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 46
   },
   {
     "id": "MarcusSmart-p-2026-01-22",
@@ -2921,8 +2921,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 10
   },
   {
     "id": "IvicaZubac-pa-2026-01-22",
@@ -2934,8 +2934,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 18
   },
   {
     "id": "KyleFilipowski-pr-2026-01-22",
@@ -2947,8 +2947,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 10
   },
   {
     "id": "LeBronJames-pa-2026-01-22",
@@ -2960,8 +2960,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "PUSH",
+    "actual": 29
   },
   {
     "id": "LukaDoncic-pr-2026-01-22",
@@ -2973,8 +2973,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 43
   },
   {
     "id": "JoshGiddey-pa-2026-01-22",
@@ -2986,8 +2986,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 26
   },
   {
     "id": "LeBronJames-p-2026-01-22",
@@ -2999,8 +2999,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 23
   },
   {
     "id": "TyreseMaxey-p-2026-01-22",
@@ -3012,8 +3012,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 36
   },
   {
     "id": "LukaDoncic-r-2026-01-22",
@@ -3025,8 +3025,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 11
   },
   {
     "id": "JusufNurkic-s-2026-01-22",
@@ -3038,8 +3038,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 1
   },
   {
     "id": "HarrisonBarnes-pr-2026-01-22",
@@ -3051,8 +3051,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 3
   },
   {
     "id": "CooperFlagg-pra-2026-01-22",
@@ -3064,8 +3064,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 34
   },
   {
     "id": "JusufNurkic-r-2026-01-22",
@@ -3077,8 +3077,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 11
   },
   {
     "id": "AnthonyEdwards-p-2026-01-22",
@@ -3090,8 +3090,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 20
   },
   {
     "id": "PaulGeorge-p-2026-01-22",
@@ -3103,8 +3103,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 10
   },
   {
     "id": "NikolaVucevic-pr-2026-01-22",
@@ -3116,8 +3116,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 18
   },
   {
     "id": "TyreseMaxey-pr-2026-01-22",
@@ -3129,8 +3129,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 38
   },
   {
     "id": "TyreseMaxey-pra-2026-01-22",
@@ -3142,8 +3142,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 48
   },
   {
     "id": "RudyGobert-r-2026-01-22",
@@ -3155,8 +3155,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 11
   },
   {
     "id": "KeyonteGeorge-pra-2026-01-22",
@@ -3168,8 +3168,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 32
   },
   {
     "id": "KhrisMiddleton-p-2026-01-22",
@@ -3181,8 +3181,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 9
   },
   {
     "id": "LeBronJames-s-2026-01-22",
@@ -3194,8 +3194,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 2
   },
   {
     "id": "JamalMurray-pra-2026-01-22",
@@ -3207,8 +3207,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 33
   },
   {
     "id": "LaMeloBall-r-2026-01-22",
@@ -3220,8 +3220,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 6
   },
   {
     "id": "JohnCollins-p-2026-01-22",
@@ -3233,8 +3233,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 13
   },
   {
     "id": "PaulGeorge-pa-2026-01-22",
@@ -3246,8 +3246,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 14
   },
   {
     "id": "DeniAvdija-pr-2026-01-22",
@@ -3259,8 +3259,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 27
   },
   {
     "id": "JadenMcDaniels-b-2026-01-22",
@@ -3272,8 +3272,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 1
   },
   {
     "id": "JusufNurkic-a-2026-01-22",
@@ -3285,8 +3285,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 14
   },
   {
     "id": "JoshGiddey-ra-2026-01-22",
@@ -3298,7 +3298,7 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-22",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 11
   }
 ]

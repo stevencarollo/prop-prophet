@@ -4,12 +4,18 @@ const path = require('path');
 const fs = require('fs');
 
 console.log('⏰ Prophet Scheduler Started');
-console.log('📅 Schedule: Morning Recon (11am) + Dynamic Lock Run (-20m to Tip)');
+console.log('📅 Schedule: Early Bird (8am) + Morning Recon (11am) + Crunch Time (30m) + Dynamic Pre-Game (-2hr, -1hr, -20m)');
 
 // Store the scheduled lock job to prevent duplicates if manual update runs
 let lockJobTimeout = null;
 
-// 1. Morning Recon (11:00 AM) - Get schedule and set the Lock Timer
+// 1. Early Bird (8:00 AM) - Fresh overnight lines
+cron.schedule('0 8 * * *', () => {
+    console.log('🐦 Early Bird Triggered (8:00 AM)');
+    runUpdate('Early Bird');
+});
+
+// 2. Morning Recon (11:00 AM) - Get schedule and set the Lock Timer
 cron.schedule('0 11 * * *', () => {
     console.log('🌅 Morning Recon Triggered (11:00 AM)');
     runUpdate('Morning Recon');

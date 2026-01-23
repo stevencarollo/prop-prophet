@@ -1031,6 +1031,35 @@ app.post('/api/force-update', (req, res) => {
     });
 });
 
+// --- GUEST PAGE: REFRESH ODDS ON-DEMAND ---
+app.post('/api/refresh-odds', async (req, res) => {
+    console.log('[Refresh Odds] Guest requested fresh market lines...');
+
+    try {
+        // Force cache refresh
+        oddsCache.timestamp = 0;
+
+        // Trigger fresh odds fetch
+        const freshOdds = await getOdds();
+
+        res.json({
+            success: true,
+            message: `Refreshed odds for ${freshOdds.length} games`,
+            gamesUpdated: freshOdds.length,
+            timestamp: new Date().toLocaleTimeString()
+        });
+
+        console.log(`[Refresh Odds] ✅ Success! Updated ${freshOdds.length} games`);
+    } catch (error) {
+        console.error('[Refresh Odds] ❌ Error:', error.message);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to refresh odds',
+            details: error.message
+        });
+    }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Prop Prophet v3 Server running on port ${PORT}`);
 });

@@ -673,21 +673,6 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
     // Use passed Ease DB or fallback (safety)
     const EASE_DB = easeDb || {};
 
-    // --- DATA INTEGRITY PATCH (Jan 23 Glitch) ---
-    // BBM Excel has shifted/corrupt teams for some players today.
-    const DATA_OVERRIDES = {
-        'Kevin Durant': { team: 'PHO', opp: 'ATL' },
-        'Dillon Brooks': { team: 'HOU', opp: 'DET' }
-    };
-
-    bbmPlayers.forEach(p => {
-        if (DATA_OVERRIDES[p.name]) {
-            p.team = DATA_OVERRIDES[p.name].team;
-            p.opp = DATA_OVERRIDES[p.name].opp;
-            console.log(`   🔧 Patched Data for ${p.name}: ${p.team} vs ${p.opp}`);
-        }
-    });
-
     // Build Odds Map
     const oddsMap = new Map(); // "normName|market" -> { line, price, event }
 

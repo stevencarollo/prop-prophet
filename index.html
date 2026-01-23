@@ -285,26 +285,74 @@
         let currentPicks = [];
 
         async function refreshGuestData() {
-            showAlert('info', '🔄 Fetching fresh market lines...');
+            const btn = document.querySelector('button[onclick="refreshGuestData()"]');
+            const originalText = btn ? btn.innerHTML : '';
+
+            // Disable button and show loading state
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Triggering Full Refresh...';
+            }
+
+            showAlert('info', '🚀 Triggering full Prophet workflow (BBM + Odds + Scoring)...');
 
             try {
-                // Try serverless function first (Vercel deployment)
-                const resp = await fetch('/api/refresh-odds', {
+                // Trigger the furkflow
+                const resp = await fetch('/api/trigger-workflow', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });
 
                 if (resp.ok) {
                     const data = await resp.json();
-                    showAlert('success', `✅ ${data.message} at ${data.timestamp}`);
+                    showAlert('success', `✅ ${data.message}`);
 
-                    // Continue to static refresh below
+                    // Show countdown and auto-reload after 3 minutes
+                    if (btn) btn.innerHTML = '⏳ Generating picks (~3 min)...';
+
+                    let secondsLeft = 180; // 3 minutes
+                    const countdown = setInterval(() => {
+                        secondsLeft--;
+                        if (btn) btn.innerHTML = `⏳ Refreshing in ${Math.floor(secondsLeft / 60)}:${(secondsLeft % 60).toString().padStart(2, '0')}...`;
+
+                        if (secondsLeft <= 0) {
+                            clearInterval(countdown);
+                            if (btn) {
+                                btn.disabled = false;
+                                btn.innerHTML = originalText;
+                            }
+                            // Reload the static file to get updated picks
+                            const old = document.querySelector('script[src*="latest_picks.js"]');
+                            if (old) old.remove();
+                            const script = document.createElement('script');
+                            script.src = 'latest_picks.js?t=' + Date.now();
+                            script.onload = () => {
+                                if (window.LATEST_PICKS) {
+                                    currentPicks = window.LATEST_PICKS;
+                                    displayPicks(window.LATEST_PICKS);
+                                    showAlert('success', `✅ Fresh picks loaded! (${window.LATEST_PICKS.length} total)`);
+                                }
+                            };
+                            document.body.appendChild(script);
+                        }
+                    }, 1000);
+
+                    return; // Exit early - countdown handles the rest
+                } else {
+                    const errData = await resp.json();
+                    throw new Error(errData.message || 'Failed to trigger workflow');
                 }
             } catch (err) {
-                console.log('Serverless function not available, falling back to static refresh');
+                console.log('Workflow trigger failed:', err.message);
+                showAlert('warning', '⚠️ Full refresh unavailable. Loading cached picks...');
             }
 
             // Fallback: Reload static file (for non-Vercel or if function fails)
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+
             const old = document.querySelector('script[src*="latest_picks.js"]');
             if (old) old.remove();
 
@@ -827,7 +875,6 @@
             updateRecordDisplay();
             updateProfitMeter();
         }
-
         // Initialize Wisdom
         initWisdom();
 

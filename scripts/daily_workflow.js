@@ -725,7 +725,7 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
     };
 
     const results = [];
-    const STAT_WEIGHTS = { 'p': 1.0, 'r': 1.5, 'a': 1.6, '3': 1.7, 's': 3.5, 'b': 3.5, 'to': 2.5, 'pr': 0.9, 'pa': 0.9, 'ra': 1.1, 'pra': 0.85 };
+
 
     function interpret(easeVal, propType, direction) {
         if (propType === 'to') {
@@ -747,6 +747,17 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             return "Neutral Ease → Edge drives the bet.";
         }
     }
+
+    // --- WEIGHTS TO NORMALIZE EDGE VALUE ---
+    // Example: 1.0 steal edge is massive (x8), 1.0 point edge is small (x1)
+    // --- WEIGHTS TO NORMALIZE EDGE VALUE ---
+    // Example: 0.5 steal edge is massive (x12) -> 6.0 weighted edge
+    const STAT_WEIGHTS = {
+        'p': 1.0, 'pr': 1.0, 'pa': 1.0, 'pra': 1.0, 'ra': 1.0,
+        'r': 1.35, 'a': 1.35,
+        '3': 2.5,
+        's': 12.0, 'b': 12.0, 'to': 8.0
+    };
 
     // Iterate Players
     bbmPlayers.forEach(player => {

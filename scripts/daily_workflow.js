@@ -751,12 +751,12 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
     // --- WEIGHTS TO NORMALIZE EDGE VALUE ---
     // Example: 1.0 steal edge is massive (x8), 1.0 point edge is small (x1)
     // --- WEIGHTS TO NORMALIZE EDGE VALUE ---
-    // Example: 0.5 steal edge is massive (x12) -> 6.0 weighted edge
+    // Example: 0.5 steal edge * 6.0 = 3.0 weighted edge. (Score ~7.5) -> Strong Play
     const STAT_WEIGHTS = {
         'p': 1.0, 'pr': 1.0, 'pa': 1.0, 'pra': 1.0, 'ra': 1.0,
-        'r': 1.35, 'a': 1.35,
-        '3': 2.5,
-        's': 12.0, 'b': 12.0, 'to': 8.0
+        'r': 1.2, 'a': 1.2,
+        '3': 1.8,
+        's': 6.0, 'b': 6.0, 'to': 4.0
     };
 
     // Iterate Players

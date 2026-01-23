@@ -923,11 +923,11 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                 maxCap = Math.min(maxCap, 0.90);
             }
 
-            // 3. Blowout Risk Cap (Relaxed Jan 23)
+            // 3. Blowout Risk Cap (Tightened Jan 23 - User Request)
             const gameSpread = (lines && lines.length > 0) ? (lines[0].gameSpread || 0) : 0;
-            if (Math.abs(gameSpread) >= 13.5 && side === 'OVER') {
-                conf -= 0.08; // Reduced penalty
-                // maxCap removed to allow strong edges to shine
+            if (Math.abs(gameSpread) >= 10.5 && side === 'OVER') {
+                conf -= 0.10; // Increased penalty to 10%
+                narrative.push(`⚠️ **Game Script**: ${gameSpread}pt spread implies a blowout. Size down for 4th qtr risk.`);
             }
 
             // Penalties (Rest, Age) - Apply to base confidence

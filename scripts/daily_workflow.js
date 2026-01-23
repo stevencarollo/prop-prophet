@@ -891,9 +891,10 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             let conf = 0.5 + (weightedEdge / 12.5);
 
             // --- CONTRADICTION PENALTY (Safety) ---
-            if (side === 'UNDER' && activeEaseVal > 0.5) {
+            // --- CONTRADICTION PENALTY (Safety) ---
+            if (side === 'UNDER' && activeEaseVal > 0.40) {
                 conf -= 0.12;
-            } else if (side === 'OVER' && activeEaseVal < -0.5) {
+            } else if (side === 'OVER' && activeEaseVal < -0.40) {
                 conf -= 0.12;
             }
 

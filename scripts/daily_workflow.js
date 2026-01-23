@@ -930,6 +930,15 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                 narrative.push(`⚠️ **Game Script**: ${gameSpread}pt spread implies a blowout. Size down for 4th qtr risk.`);
             }
 
+            // 4. Rotation Volatility (User Request: Jan 23)
+            // If Projected Min is > 6 mins higher than Last Actual Min, risk of benching.
+            const lastMin = player.lastMin || 0;
+            const projMin = player.min || 0;
+            if (lastMin > 0 && (projMin - lastMin) >= 6) {
+                conf -= 0.08; // -8% Penalty
+                narrative.push(`⚠️ **Rotation Risk**: Projected for ${projMin}m but only played ${lastMin}m last game. Volatile role.`);
+            }
+
             // Penalties (Rest, Age) - Apply to base confidence
             if (player.rest === 0) conf -= SETTINGS.rest0_penalty;
             if (player.b2b >= 1) {

@@ -903,13 +903,22 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             let conf = 0.5 + (weightedEdge / 12.5);
 
             // --- CONTRADICTION PENALTY (Safety) & ALIGNMENT BONUS (Reward) ---
-            // User Request (Jan 23): Tighten penalty to 0.30, Add 12% Bonus for > 0.30
             if (side === 'UNDER') {
-                if (activeEaseVal > 0.30) conf -= 0.12; // Penalty
-                else if (activeEaseVal < -0.30) conf += 0.12; // Bonus (Smart Under)
+                if (activeEaseVal > 0.30) {
+                    conf -= 0.12;
+                    narrative.push(`⚠️ **Contradiction**: Betting UNDER against a soft defense (+${(activeEaseVal * 100).toFixed(1)}% Ease). <span style='color:#f87171'>(-12% Penalty)</span>`);
+                } else if (activeEaseVal < -0.30) {
+                    conf += 0.12;
+                    narrative.push(`✅ **Smart Under**: Defense is elite (-${Math.abs(activeEaseVal * 100).toFixed(1)}% Ease). Supports the under. <span style='color:#4ade80'>(+12% Bonus)</span>`);
+                }
             } else { // OVER
-                if (activeEaseVal < -0.30) conf -= 0.12; // Penalty
-                else if (activeEaseVal > 0.30) conf += 0.12; // Bonus (Smart Over)
+                if (activeEaseVal < -0.30) {
+                    conf -= 0.12;
+                    narrative.push(`⚠️ **Contradiction**: Betting OVER against a tough defense (-${Math.abs(activeEaseVal * 100).toFixed(1)}% Ease). <span style='color:#f87171'>(-12% Penalty)</span>`);
+                } else if (activeEaseVal > 0.30) {
+                    conf += 0.12;
+                    narrative.push(`✅ **Smart Over**: Defense is soft (+${(activeEaseVal * 100).toFixed(1)}% Ease). Supports the over. <span style='color:#4ade80'>(+12% Bonus)</span>`);
+                }
             }
 
             // --- CONFIDENCE CAPS (The "Realism" Ceiling) ---

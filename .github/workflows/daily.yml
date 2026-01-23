@@ -1,56 +1,88 @@
-name: Daily Prophet Automation
+name: Prophet Cloud Automation
 
 on:
   schedule:
-    # Run at 10:00 AM PST (18:00 UTC) every day
-    # Run multiple times to cover different game starts (Times in UTC - PST is UTC-8)
-    # 11:30 AM PST (19:30 UTC) - Early/Weekend games coverage
-    - cron: '30 19 * * *'
+    # 8:00 AM PST (16:00 UTC) - Early Bird
+    - cron: '0 16 * * *'
     
-    # PEAK TIME HOURLY RUNS (Covering 4pm, 5pm, 6pm, 7pm, 8pm starts)
+    # 11:00 AM PST (19:00 UTC) - Morning Recon
+    - cron: '0 19 * * *'
+    
+    # CRUNCH TIME (3-8pm PST every 30 min)
+    # 3:00 PM PST (23:00 UTC)
+    - cron: '0 23 * * *'
     # 3:30 PM PST (23:30 UTC)
     - cron: '30 23 * * *'
-    # 4:30 PM PST (00:30 UTC next day)
+    # 4:00 PM PST (00:00 UTC next day)
+    - cron: '0 0 * * *'
+    # 4:30 PM PST (00:30 UTC)
     - cron: '30 0 * * *'
+    # 5:00 PM PST (01:00 UTC)
+    - cron: '0 1 * * *'
     # 5:30 PM PST (01:30 UTC)
     - cron: '30 1 * * *'
+    # 6:00 PM PST (02:00 UTC)
+    - cron: '0 2 * * *'
     # 6:30 PM PST (02:30 UTC)
     - cron: '30 2 * * *'
+    # 7:00 PM PST (03:00 UTC)
+    - cron: '0 3 * * *'
     # 7:30 PM PST (03:30 UTC)
     - cron: '30 3 * * *'
+    # 8:00 PM PST (04:00 UTC)
+    - cron: '0 4 * * *'
 
-    # 11:00 PM PST (07:00 UTC) - Next Day Prep
-    - cron: '0 7 * * *'
-  workflow_dispatch: # Allow manual trigger button
+  workflow_dispatch: # Allow manual trigger from GitHub UI
 
 jobs:
-  run-daily-picks:
+  run-prophet-automation:
     runs-on: ubuntu-latest
-
+    
     env:
       BBM_USER: ${{ secrets.BBM_USER }}
       BBM_PASS: ${{ secrets.BBM_PASS }}
       MARKET_API_KEY: ${{ secrets.MARKET_API_KEY }}
-
+    
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v3
-
-      - name: Setup Node
+        with:
+          fetch-depth: 0  # Full history for proper commits
+      
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-
-      - name: Install Prop Prophet Dependencies
-        run: npm install
-
-      - name: Run Daily Workflow (Scrape + Generate)
+          cache: 'npm'
+      
+      - name: Install Dependencies
+        run: npm ci  # Faster than npm install
+      
+      - name: Run Prophet Workflow
         run: node scripts/daily_workflow.js
-
-      - name: Commit and Push Results
+        continue-on-error: false  # Fail workflow if this fails
+      
+      - name: Commit & Push Results
         run: |
           git config --global user.name "Prophet Bot"
           git config --global user.email "bot@prop-prophet.com"
-          git add latest_picks.js
-          git commit -m "🤖 Daily Picks Update: $(date +'%Y-%m-%d')" || echo "No changes to commit"
+          git add latest_picks.js history/prophet_history.json ease_rankings.json
+          git diff --staged --quiet || git commit -m "🤖 Auto-Update: $(date +'%Y-%m-%d %H:%M PST')"
           git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Vercel auto-deploys on git push - no manual deploy needed!
+      
+      - name: Workflow Summary
+        if: success()
+        run: |
+          echo "✅ Prophet automation completed successfully!"
+          echo "📊 Updated picks pushed to GitHub"
+          echo "🚀 Vercel will auto-deploy in ~1 minute"
+      
+      - name: Error Notification
+        if: failure()
+        run: |
+          echo "❌ Prophet automation failed!"
+          echo "Check logs above for details"

@@ -1097,7 +1097,9 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             if (side === 'UNDER' && jMax < 1.0) conf += 0.03;
 
             // Clamp Confidence
-            conf = Math.max(0.01, Math.min(0.99, conf));
+            // User Request (Jan 23): Remove 99% Cap. Allow bonuses to stack > 100%.
+            // Setting flexible ceiling at 1.50 (150%) to prevent infinite blowout.
+            conf = Math.max(0.01, Math.min(1.50, conf));
 
             // Confidence Grading (Stricter Thresholds)
             let confGrade = "D";

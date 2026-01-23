@@ -298,9 +298,7 @@
                     const data = await resp.json();
                     showAlert('success', `✅ ${data.message} at ${data.timestamp}`);
 
-                    // Reload the page to show fresh data
-                    setTimeout(() => location.reload(), 1500);
-                    return;
+                    // Continue to static refresh below
                 }
             } catch (err) {
                 console.log('Serverless function not available, falling back to static refresh');

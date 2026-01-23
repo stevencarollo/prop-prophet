@@ -1116,9 +1116,22 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             else narrative.push(`🎯 **Solid Edge**: Model identifies a **${edge.toFixed(2)} point gap** vs public perception.`);
 
             // 2. THE MATCHUP
-            if (activeEaseVal >= 0.20) narrative.push(`✅ **Smash Spot**: ${oppTeam} defense is bleeding ${displayStat} to this position (Ease: +${activeEaseVal}). High ceiling environment.`);
-            else if (activeEaseVal <= -0.20 && side === 'UNDER') narrative.push(`🔒 **Defensive Clamp**: ${oppTeam} ranks elite vs ${displayStat}. Expect usage to struggle.`);
-            else if (Math.abs(activeEaseVal) < 0.10) narrative.push(`⚖️ **Neutral Spot**: Matchup is average, but the volume projection (${proj.toFixed(1)}) carries the play.`);
+            const formattedEase = (activeEaseVal * 100).toFixed(1) + '%';
+            if (activeEaseVal >= 0.20) {
+                if (side === 'OVER') {
+                    narrative.push(`✅ **Smash Spot**: ${oppTeam} defense is bleeding ${displayStat} to this position (+${formattedEase} Ease). High ceiling environment.`);
+                } else {
+                    narrative.push(`⚠️ **Dangerous Matchup**: ${oppTeam} allows high production (+${formattedEase} Ease). Risky spot for an Under.`);
+                }
+            } else if (activeEaseVal <= -0.20) {
+                if (side === 'UNDER') {
+                    narrative.push(`🔒 **Defensive Clamp**: ${oppTeam} ranks elite vs ${displayStat} (${formattedEase} Ease). Expect usage to struggle.`);
+                } else {
+                    narrative.push(`⚠️ **Tough Grind**: ${oppTeam} is elite vs ${displayStat} (${formattedEase} Ease). Player will need volume to hit.`);
+                }
+            } else if (Math.abs(activeEaseVal) < 0.10) {
+                narrative.push(`⚖️ **Neutral Spot**: Matchup is average, but the volume projection (${proj.toFixed(1)}) carries the play.`);
+            }
 
             // 3. THE FORM (L5)
             if (l5Narrative) narrative.push(l5Narrative);

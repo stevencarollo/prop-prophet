@@ -31,6 +31,16 @@ on:
     - cron: '30 3 * * *'
     # 8:00 PM PST (04:00 UTC)
     - cron: '0 4 * * *'
+    
+    # LATE NIGHT / POST-GAME (9pm - 11:30pm PST)
+    # 9:00 PM PST (05:00 UTC)
+    - cron: '0 5 * * *'
+    # 10:00 PM PST (06:00 UTC)
+    - cron: '0 6 * * *'
+    # 11:00 PM PST (07:00 UTC)
+    - cron: '0 7 * * *'
+    # 11:30 PM PST (07:30 UTC)
+    - cron: '30 7 * * *'
 
   workflow_dispatch: # Allow manual trigger from GitHub UI
 

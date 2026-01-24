@@ -1262,14 +1262,15 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             console.log(`⏱️ Earliest Tip-Off in ${minutesUntilTip.toFixed(1)} mins`);
         }
 
-        // Logic: Only snapshot (lock in) picks if we are close to tip-off (e.g. 35 mins or less)
-        // User requested "20 mins before". Given hourly trigger, 0-40 mins window is safe.
-        // We also allow negative overlap (e.g. -5 mins) just in case script is slightly late.
-        if (minutesUntilTip <= 40 && minutesUntilTip > -10) {
-            console.log(`🔒 LOCK WINDOW ACTIVE: Snapshotting picks to History...`);
+        // Logic: Snapshot picks if we are within the 'Active Day' window (e.g. 12 hours before tip)
+        // User Request (Jan 23): Track picks starting 10:30 AM daily.
+        // If tip is 4:00 PM (16:00), 10:30 AM is 5.5 hours (330 mins) prior.
+        // Setting safely to 720 mins (12 hours) to capture all day-of picks.
+        if (minutesUntilTip <= 720 && minutesUntilTip > -60) {
+            console.log(`🔒 ACTIVE WINDOW (<=12h): Snapshotting picks to History...`);
             history = updateHistory(history, picks);
         } else {
-            console.log(`⏳ No Commit: Outside Lock Window (Needs to be <= 40m before tip).`);
+            console.log(`⏳ No Commit: Outside Lock Window (> 12h before tip).`);
         }
 
         const recordStats = generateStats(history);

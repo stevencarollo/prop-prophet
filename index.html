@@ -163,17 +163,6 @@
         </div>
 
         <div class="container">
-            <!-- PROPHET WISDOM (Top Left Location) -->
-            <div id="top-wisdom-banner"
-                style="margin-bottom: 20px; background: linear-gradient(135deg, #374151, #111827); border-left: 5px solid #f59e0b; border-radius: 12px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; align-items: center;">
-                <h3 style="color: #f59e0b; margin: 0 15px 0 0; white-space: nowrap; font-size: 1.1em;">
-                    <span style="font-size: 1.2em;">🔮</span> Wisdom:
-                </h3>
-                <p id="daily-wisdom" style="font-size: 1em; margin: 0; color: #e2e8f0; font-style: italic;">
-                    "Loading wisdom..."
-                </p>
-            </div>
-
             <!-- OWNER-ONLY BBM INPUT -->
             <div id="owner-only" class="hidden">
                 <h2>📊 Step 1: Upload BBM File or Paste Data</h2>
@@ -225,9 +214,9 @@
             <div id="insights-container" class="hidden"
                 style="display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap;">
 
-                <!-- PROPHET METER (Profit) -->
+                <!-- 1. PROPHET METER (Left) -->
                 <div
-                    style="flex: 1; min-width: 300px; background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #10b981; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; overflow: hidden;">
+                    style="flex: 1; min-width: 250px; background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #10b981; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; overflow: hidden;">
                     <div style="position: absolute; top: -10px; right: -10px; font-size: 4rem; opacity: 0.1;">💸</div>
                     <h3 style="color: #10b981; margin: 0 0 10px 0; display: flex; align-items: center;">
                         <span style="font-size: 1.5em; margin-right: 10px;">💵</span> The Prophet Meter
@@ -235,7 +224,6 @@
                     <p style="color: #94a3b8; font-size: 0.9em; margin: 0 0 15px 0;">Theoretical Profit betting
                         <strong>$100</strong> on every LOCK.
                     </p>
-
                     <div style="font-size: 2.2em; font-weight: bold; color: #fff;">
                         <span id="profit-display" style="color: #4ade80;">$0.00</span>
                     </div>
@@ -243,20 +231,31 @@
                         -$100)</div>
                 </div>
 
-                <!-- TIER LEGEND (New Location) -->
+                <!-- 2. TIER LEGEND (Middle) -->
                 <div
-                    style="flex: 2; min-width: 300px; background: linear-gradient(135deg, #4b5563, #1f2937); border-left: 5px solid #8b5cf6; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
-                    <h3 style="color: #a78bfa; margin: 0 0 15px 0; display: flex; align-items: center;">
-                        <span style="font-size: 1.5em; margin-right: 10px;">🏷️</span> Prophet Pick Tiers
+                    style="flex: 1.2; min-width: 280px; background: linear-gradient(135deg, #4b5563, #1f2937); border-left: 5px solid #8b5cf6; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                    <h3 style="color: #a78bfa; margin: 0 0 10px 0; display: flex; align-items: center;">
+                        <span style="font-size: 1.5em; margin-right: 10px;">🏷️</span> Pick Tiers
                     </h3>
-                    <div
-                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95em; color: #e2e8f0;">
+                    <div style="display: flex; flex-direction: column; gap: 5px; font-size: 0.9em; color: #e2e8f0;">
                         <div>🔒 <strong>Prophet Lock</strong>: Prophet Tier</div>
                         <div>💎 <strong>Diamond</strong>: A Boy's Best Friend</div>
                         <div>🔥 <strong>Elite</strong>: Quality Tested</div>
                         <div>💪 <strong>Strong</strong>: Good But Wouldn't Bet</div>
-                        <div style="grid-column: span 2;">✅ <strong>Solid Play</strong>: Data Farming Play</div>
+                        <div>✅ <strong>Solid Play</strong>: Data Farming Play</div>
                     </div>
+                </div>
+
+                <!-- 3. PROPHET WISDOM (Right) -->
+                <div
+                    style="flex: 1.2; min-width: 280px; background: linear-gradient(135deg, #374151, #111827); border-left: 5px solid #f59e0b; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                    <h3 style="color: #f59e0b; margin: 0 0 10px 0; display: flex; align-items: center;">
+                        <span style="font-size: 1.5em; margin-right: 10px;">🔮</span> Wisdom
+                    </h3>
+                    <p id="daily-wisdom"
+                        style="font-size: 1.05em; line-height: 1.5; color: #e2e8f0; font-style: italic;">
+                        "Loading wisdom..."
+                    </p>
                 </div>
             </div>
 

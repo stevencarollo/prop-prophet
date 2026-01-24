@@ -336,10 +336,10 @@
                                 btn.innerHTML = originalText;
                             }
                             // Reload the static file to get updated picks
-                            const old = document.querySelector('script[src*="latest_picks.js"]');
+                            const old = document.querySelector('script[src*="latest_picks_live.js"]');
                             if (old) old.remove();
                             const script = document.createElement('script');
-                            script.src = 'latest_picks.js?t=' + Date.now();
+                            script.src = 'latest_picks_live.js?t=' + Date.now();
                             script.onload = () => {
                                 if (window.LATEST_PICKS) {
                                     currentPicks = window.LATEST_PICKS;
@@ -367,11 +367,11 @@
                 btn.innerHTML = originalText;
             }
 
-            const old = document.querySelector('script[src*="latest_picks.js"]');
+            const old = document.querySelector('script[src*="latest_picks_live.js"]');
             if (old) old.remove();
 
             const script = document.createElement('script');
-            script.src = 'latest_picks.js?t=' + Date.now();
+            script.src = 'latest_picks_live.js?t=' + Date.now();
             script.onload = () => {
                 if (window.LATEST_PICKS) {
                     currentPicks = window.LATEST_PICKS;

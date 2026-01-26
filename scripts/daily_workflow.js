@@ -1309,18 +1309,50 @@ async function sendAlerts(picks) {
         sentIds = JSON.parse(fs.readFileSync(ALERTS_FILE, 'utf8'));
     }
 
-    // Filter for NEW Locks
-    const newLocks = picks.filter(p =>
-        p.tier.includes('LOCK') &&
-        !sentIds.includes(p.id)
-    );
+    // 1. Filter for Locks that haven't been sent (Check Player+Date collision)
+    // We want 1 alert per player per day.
+    let candidates = picks.filter(p => p.tier.includes('LOCK'));
+    let newLocks = [];
 
-    if (newLocks.length === 0) {
-        console.log('📭 No new Prophet Locks to alert.');
+    // Helper to sanitize name matches (matches ID generation usually)
+    const sanitize = (name) => name.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
+
+    for (const p of candidates) {
+        const pName = sanitize(p.player);
+
+        // Check History: Has this Player already been alerted TODAY?
+        // ID Format: Name-Stat-Date (e.g. LeBronJames-pts-2026-01-26)
+        // We check if sentIds contains anything starting with Name and ending with Date
+        const alreadySent = sentIds.some(sentId => {
+            return sentId.startsWith(pName + '-') && sentId.endsWith(p.date);
+        });
+
+        if (!alreadySent) {
+            newLocks.push(p);
+        }
+    }
+
+    // 2. Deduplicate within THIS batch (Safety: If LeBron has 2 new locks, only send best)
+    // Sort by Score descending
+    newLocks.sort((a, b) => b.score - a.score);
+
+    const uniqueLocks = [];
+    const seenInBatch = new Set();
+
+    for (const p of newLocks) {
+        const pName = sanitize(p.player);
+        if (!seenInBatch.has(pName)) {
+            uniqueLocks.push(p);
+            seenInBatch.add(pName);
+        }
+    }
+
+    if (uniqueLocks.length === 0) {
+        console.log('📭 No NEW (Unique) Prophet Locks to alert.');
         return;
     }
 
-    console.log(`📧 Found ${newLocks.length} NEW Locks! Sending email...`);
+    console.log(`📧 Found ${uniqueLocks.length} NEW Unique Locks! Sending email...`);
 
     // Setup Transporter (Gmail)
     let transporter = nodemailer.createTransport({
@@ -1333,7 +1365,7 @@ async function sendAlerts(picks) {
 
     // Build Email Body
     let html = `<h2>🚀 New Prophet Locks Detected!</h2>`;
-    newLocks.forEach(p => {
+    uniqueLocks.forEach(p => {
         html += `
         <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
             <h3 style="color: #10b981;">${p.player} (${p.team})</h3>
@@ -1351,13 +1383,14 @@ async function sendAlerts(picks) {
         await transporter.sendMail({
             from: `"Prophet Bot" <${EMAIL_USER}>`,
             to: EMAIL_TO,
-            subject: `🔒 ${newLocks.length} New Prophet Lock(s)!`,
+            subject: `🔒 ${uniqueLocks.length} New Prophet Lock(s)!`,
             html: html
         });
         console.log('✅ Email sent successfully!');
 
-        // Update History
-        newLocks.forEach(p => sentIds.push(p.id));
+        // Update History (Add the IDs of the sent ones)
+        // Note: We only add the IDs we SENT.
+        uniqueLocks.forEach(p => sentIds.push(p.id));
         fs.writeFileSync(ALERTS_FILE, JSON.stringify(sentIds, null, 2));
 
     } catch (err) {

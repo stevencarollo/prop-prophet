@@ -74,8 +74,9 @@ jobs:
         run: |
           git config --global user.name "Prophet Bot"
           git config --global user.email "bot@prop-prophet.com"
-          git add latest_picks.js history/prophet_history.json ease_rankings.json
+          git add latest_picks_live.js history/prophet_history.json ease_rankings.json
           git diff --staged --quiet || git commit -m "🤖 Auto-Update: $(date +'%Y-%m-%d %H:%M PST')"
+          git pull --rebase origin main
           git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

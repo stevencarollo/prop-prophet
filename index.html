@@ -919,13 +919,17 @@
                         </div>
                     </div>
                     
-                    <div style="margin-bottom: 10px;">
-                         <span style="background: ${sideBg}; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 1.1em;">
+                    </div>
+                    
+                    <div class="pick-stat-row">
+                         <span style="background: ${sideBg}; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 1.1em; display: inline-block;">
                             ${statLabel} ${pick.side}
                          </span>
-                         <span style="margin-left: 10px; font-size: 1.1em; font-weight: bold;">${pick.line}</span>
-                         <span style="color: #666;"> (Proj: ${pick.projection})</span>
-                         <span style="color: #28a745; font-weight: bold; margin-left: 5px;">+${pick.edge} Edge</span>
+                         <div style="font-size: 1.1em;">
+                             <span style="font-weight: bold; margin-left: 5px;">${pick.line}</span>
+                             <span style="color: #94a3b8; font-size: 0.9em;">(Proj: ${pick.projection})</span>
+                             <span style="color: #28a745; font-weight: bold; margin-left: 5px;">+${pick.edge} Edge</span>
+                         </div>
                     </div>
                     
 

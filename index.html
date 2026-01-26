@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prop Prophet v3.0</title>
     <style>
         body {
@@ -133,6 +134,63 @@
             margin: 15px 0;
             border-radius: 8px;
             text-align: center;
+        }
+
+        /* MOBILE RESPONSIVENESS */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 1rem;
+                text-align: center;
+            }
+
+            .navbar h1 {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                margin: 1rem auto;
+                padding: 0 10px;
+            }
+
+            /* Stack Insights Vertically */
+            #insights-container {
+                flex-direction: column !important;
+            }
+
+            /* Stack Record Banner */
+            .record-banner {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            /* Login Box */
+            .login-box {
+                margin: 2rem auto;
+                padding: 1.5rem;
+            }
+
+            /* Pick Card Adjustments */
+            .pick-card {
+                padding: 1rem;
+            }
+
+            .stat-badge {
+                padding: 4px 12px;
+                font-size: 0.9em;
+            }
+
+            .edge {
+                font-size: 1.4rem;
+            }
+
+            /* Hide non-essential desktop elements if needed, or adjust */
         }
     </style>
     <!-- Load Data (Cache Busted via Filename Change) -->

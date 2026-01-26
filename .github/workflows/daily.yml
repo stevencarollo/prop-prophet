@@ -50,6 +50,9 @@ jobs:
       BBM_USER: ${{ secrets.BBM_USER }}
       BBM_PASS: ${{ secrets.BBM_PASS }}
       MARKET_API_KEY: ${{ secrets.MARKET_API_KEY }}
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
     
     steps:
       - name: Checkout Repository

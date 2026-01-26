@@ -11,6 +11,9 @@ require('dotenv').config();
 const BBM_USER = process.env.BBM_USER;
 const BBM_PASS = process.env.BBM_PASS;
 const MARKET_API_KEY = process.env.MARKET_API_KEY;
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+const EMAIL_TO = process.env.EMAIL_TO || EMAIL_USER; // Default to self
 
 const DOWNLOAD_DIR = path.join(__dirname, '..');
 const BBM_LOGIN_URL = 'https://basketballmonster.com/login.aspx';
@@ -19,6 +22,8 @@ const BBM_DATA_URL = 'https://basketballmonster.com/dailyprojections.aspx';
 const EASE_DB_FILE = path.join(__dirname, '../ease_rankings.json');
 const OUTPUT_FILE = path.join(__dirname, '../latest_picks_live.js');
 const HISTORY_FILE = path.join(__dirname, '../history/prophet_history.json');
+const ALERTS_FILE = path.join(__dirname, '../history/prophet_alerts.json');
+const nodemailer = require('nodemailer');
 
 // --- HISTORY & TRACKING FUNCTIONS ---
 
@@ -1282,8 +1287,80 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
         fs.writeFileSync(OUTPUT_FILE, content);
         console.log(`💾 Saved to ${OUTPUT_FILE}`);
 
+        // 6. Check for Alerts
+        await sendAlerts(picks);
+
     } catch (err) {
         console.error('❌ FATAL ERROR:', err);
         process.exit(1);
     }
 })();
+
+// --- ALERT SYSTEM ---
+async function sendAlerts(picks) {
+    if (!EMAIL_USER || !EMAIL_PASS) {
+        console.log('⚠️ No Email Credentials found. Skipping alerts.');
+        return;
+    }
+
+    // Load History
+    let sentIds = [];
+    if (fs.existsSync(ALERTS_FILE)) {
+        sentIds = JSON.parse(fs.readFileSync(ALERTS_FILE, 'utf8'));
+    }
+
+    // Filter for NEW Locks
+    const newLocks = picks.filter(p =>
+        p.tier.includes('LOCK') &&
+        !sentIds.includes(p.id)
+    );
+
+    if (newLocks.length === 0) {
+        console.log('📭 No new Prophet Locks to alert.');
+        return;
+    }
+
+    console.log(`📧 Found ${newLocks.length} NEW Locks! Sending email...`);
+
+    // Setup Transporter (Gmail)
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: EMAIL_USER,
+            pass: EMAIL_PASS
+        }
+    });
+
+    // Build Email Body
+    let html = `<h2>🚀 New Prophet Locks Detected!</h2>`;
+    newLocks.forEach(p => {
+        html += `
+        <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+            <h3 style="color: #10b981;">${p.player} (${p.team})</h3>
+            <p><strong>Pick:</strong> ${p.stat} ${p.side} ${p.line}</p>
+            <p><strong>Score:</strong> ${p.score} 💎</p>
+            <p><strong>Edge:</strong> ${p.edge}%</p>
+            <p><em>"${p.interpretation}"</em></p>
+        </div>
+        `;
+    });
+    html += `<p><a href="https://prop-prophet.vercel.app">View Dashboard</a></p>`;
+
+    // Send
+    try {
+        await transporter.sendMail({
+            from: `"Prophet Bot" <${EMAIL_USER}>`,
+            to: EMAIL_TO,
+            subject: `🔒 ${newLocks.length} New Prophet Lock(s)!`,
+            html: html
+        });
+        console.log('✅ Email sent successfully!');
+
+        // Update History
+        newLocks.forEach(p => sentIds.push(p.id));
+        fs.writeFileSync(ALERTS_FILE, JSON.stringify(sentIds, null, 2));
+
+    } catch (err) {
+        console.error('❌ Failed to send email:', err);
+    }
+}

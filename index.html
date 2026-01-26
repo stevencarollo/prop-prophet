@@ -209,7 +209,8 @@
                         a new <strong>Prophet Lock</strong> is detected. No spam.</p>
                     <div style="display: flex; gap: 10px;">
                         <input type="email" id="sub-email" placeholder="Enter your email" style="margin: 0;">
-                        <button onclick="subscribeEmail()" style="width: auto; background: #8b5cf6;">Join</button>
+                        <button id="sub-btn" onclick="subscribeEmail()"
+                            style="width: auto; background: #8b5cf6;">Join</button>
                     </div>
                 </div>
             </div>
@@ -410,7 +411,7 @@
                 return;
             }
 
-            const btn = document.querySelector('button[onclick="subscribeEmail()"]');
+            const btn = document.getElementById('sub-btn');
             const originalText = btn.innerText;
             btn.disabled = true;
             btn.innerText = 'Joining...';

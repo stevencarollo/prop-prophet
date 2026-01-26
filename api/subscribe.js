@@ -5,7 +5,7 @@ const GITHUB_REPO = 'stevencarollo/prop-prophet';
 const FILE_PATH = 'history/subscribers.json';
 const BRANCH = 'main';
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' });
     }

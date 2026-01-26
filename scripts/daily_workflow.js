@@ -1363,6 +1363,18 @@ async function sendAlerts(picks) {
         }
     });
 
+    // Load Subscribers
+    const SUBSCRIBERS_FILE = path.join(__dirname, '../history/subscribers.json');
+    let recipients = [EMAIL_TO]; // Default to admin
+    if (fs.existsSync(SUBSCRIBERS_FILE)) {
+        const subs = JSON.parse(fs.readFileSync(SUBSCRIBERS_FILE, 'utf8'));
+        if (Array.isArray(subs) && subs.length > 0) {
+            recipients = subs;
+        }
+    }
+
+    console.log(`📧 Sending to ${recipients.length} subscribers...`);
+
     // Build Email Body
     let html = `<h2>🚀 New Prophet Locks Detected!</h2>`;
     uniqueLocks.forEach(p => {
@@ -1382,7 +1394,7 @@ async function sendAlerts(picks) {
     try {
         await transporter.sendMail({
             from: `"Prophet Bot" <${EMAIL_USER}>`,
-            to: EMAIL_TO,
+            bcc: recipients, // Use BCC for privacy
             subject: `🔒 ${uniqueLocks.length} New Prophet Lock(s)!`,
             html: html
         });

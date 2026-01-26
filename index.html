@@ -197,10 +197,21 @@
             <!-- GUEST CONTROLS -->
             <div id="guest-controls" class="hidden" style="text-align: center; margin-bottom: 20px;">
                 <h2>Welcome Guest!</h2>
-                <p class="info-text" style="margin-bottom: 15px;">Viewing latest picks from the Prophet.</p>
                 <button onclick="refreshGuestData()" style="max-width: 300px; background: #0ea5e9;">🔄 Refresh Cloud
                     Data</button>
                 <p style="font-size: 0.8em; color: #94a3b8; margin-top: 5px;">(System updates hourly on game days)</p>
+
+                <!-- EMAIL SUBSCRIBE FORM -->
+                <div
+                    style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #334155; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    <h3 style="color: #10b981; margin-bottom: 10px;">📧 Get Prophet Locks via Email</h3>
+                    <p style="font-size: 0.9em; color: #cbd5e1; margin-bottom: 15px;">Receive an instant alert whenever
+                        a new <strong>Prophet Lock</strong> is detected. No spam.</p>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="email" id="sub-email" placeholder="Enter your email" style="margin: 0;">
+                        <button onclick="subscribeEmail()" style="width: auto; background: #8b5cf6;">Join</button>
+                    </div>
+                </div>
             </div>
 
             <!-- RECORD BANNER -->
@@ -388,6 +399,44 @@
             };
             script.onerror = () => showAlert('error', 'Failed to load cloud file.');
             document.body.appendChild(script);
+        }
+
+        async function subscribeEmail() {
+            const emailInput = document.getElementById('sub-email');
+            const email = emailInput.value.trim();
+
+            if (!email || !email.includes('@')) {
+                showAlert('warning', 'Please enter a valid email address.');
+                return;
+            }
+
+            const btn = document.querySelector('button[onclick="subscribeEmail()"]');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Joining...';
+
+            try {
+                const resp = await fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await resp.json();
+
+                if (resp.ok) {
+                    showAlert('success', '✅ You are subscribed! Watch your inbox.');
+                    emailInput.value = '';
+                } else {
+                    throw new Error(data.message || 'Subscription failed');
+                }
+            } catch (err) {
+                console.error(err);
+                showAlert('warning', `⚠️ ${err.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
         }
 
         function login() {

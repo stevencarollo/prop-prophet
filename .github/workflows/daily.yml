@@ -65,7 +65,10 @@ jobs:
       
       - name: Install Dependencies
         run: npm ci  # Faster than npm install
-      
+
+      - name: Sync Latest Code
+        run: git pull origin main
+
       - name: Run Prophet Workflow
         run: node scripts/daily_workflow.js
         continue-on-error: false  # Fail workflow if this fails

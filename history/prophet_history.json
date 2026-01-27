@@ -5456,8 +5456,8 @@
     "side": "OVER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 4
   },
   {
     "id": "LaMeloBall-pra-2026-01-26",
@@ -5469,8 +5469,8 @@
     "side": "OVER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 21
   },
   {
     "id": "JabariSmithJr.-pra-2026-01-26",
@@ -5495,8 +5495,8 @@
     "side": "OVER",
     "tier": "💎 DIAMOND BOY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 23
   },
   {
     "id": "LaMeloBall-pa-2026-01-26",
@@ -5508,8 +5508,8 @@
     "side": "OVER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 19
   },
   {
     "id": "AnthonyBlack-p-2026-01-26",
@@ -5521,8 +5521,8 @@
     "side": "OVER",
     "tier": "💎 DIAMOND BOY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 14
   },
   {
     "id": "JoshGiddey-pra-2026-01-26",
@@ -5534,8 +5534,8 @@
     "side": "OVER",
     "tier": "🔥 ELITE",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 32
   },
   {
     "id": "AnthonyBlack-pa-2026-01-26",
@@ -5547,8 +5547,8 @@
     "side": "OVER",
     "tier": "🔥 ELITE",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 19
   },
   {
     "id": "EvanMobley-b-2026-01-26",
@@ -5560,8 +5560,8 @@
     "side": "OVER",
     "tier": "🔥 ELITE",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 2
   },
   {
     "id": "JabariSmithJr.-pr-2026-01-26",
@@ -5586,8 +5586,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 22
   },
   {
     "id": "DonovanClingan-b-2026-01-26",
@@ -5599,8 +5599,8 @@
     "side": "OVER",
     "tier": "🔥 ELITE",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 5
   },
   {
     "id": "AnthonyBlack-pr-2026-01-26",
@@ -5612,8 +5612,8 @@
     "side": "OVER",
     "tier": "💎 DIAMOND BOY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 18
   },
   {
     "id": "ShaedonSharpe-pa-2026-01-26",
@@ -5625,8 +5625,8 @@
     "side": "UNDER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 12
   },
   {
     "id": "CamSpencer-pa-2026-01-26",
@@ -5638,8 +5638,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 18
   },
   {
     "id": "DeniAvdija-ra-2026-01-26",
@@ -5664,8 +5664,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 20
   },
   {
     "id": "DonovanClingan-pra-2026-01-26",
@@ -5677,8 +5677,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 25
   },
   {
     "id": "JabariSmithJr.-pa-2026-01-26",
@@ -5716,8 +5716,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "PUSH",
+    "actual": 18
   },
   {
     "id": "CamSpencer-ra-2026-01-26",
@@ -5729,8 +5729,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 18
   },
   {
     "id": "QuentinGrimes-pr-2026-01-26",
@@ -5742,8 +5742,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 17
   },
   {
     "id": "JalenJohnson-pra-2026-01-26",
@@ -5755,8 +5755,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 28
   },
   {
     "id": "JadenMcDaniels-pr-2026-01-26",
@@ -5768,8 +5768,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 17
   },
   {
     "id": "CamSpencer-pra-2026-01-26",
@@ -5781,8 +5781,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 23
   },
   {
     "id": "CamSpencer-a-2026-01-26",
@@ -5794,8 +5794,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 13
   },
   {
     "id": "LaMeloBall-p-2026-01-26",
@@ -5807,8 +5807,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 11
   },
   {
     "id": "AmenThompson-pra-2026-01-26",
@@ -5820,8 +5820,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 30
   },
   {
     "id": "QuentinGrimes-pa-2026-01-26",
@@ -5833,8 +5833,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 19
   },
   {
     "id": "AnferneeSimons-pr-2026-01-26",
@@ -5846,8 +5846,8 @@
     "side": "UNDER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 13
   },
   {
     "id": "DeniAvdija-pa-2026-01-26",
@@ -5872,8 +5872,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 14
   },
   {
     "id": "BennedictMathurin-p-2026-01-26",
@@ -5885,8 +5885,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 16
   },
   {
     "id": "StephenCurry-s-2026-01-26",
@@ -5911,8 +5911,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 0
   },
   {
     "id": "QuentinGrimes-s-2026-01-26",
@@ -5924,8 +5924,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 1
   },
   {
     "id": "JalenJohnson-pr-2026-01-26",
@@ -5937,8 +5937,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 22
   },
   {
     "id": "MatasBuzelis-pr-2026-01-26",
@@ -5950,8 +5950,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 16
   },
   {
     "id": "NeemiasQueta-r-2026-01-26",
@@ -5963,8 +5963,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 4
   },
   {
     "id": "JoshGiddey-pa-2026-01-26",
@@ -5976,8 +5976,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 26
   },
   {
     "id": "AlperenSengun-pra-2026-01-26",
@@ -5989,8 +5989,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 48
   },
   {
     "id": "JoshGiddey-p-2026-01-26",
@@ -6002,8 +6002,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 19
   },
   {
     "id": "IsaacOkoro-pa-2026-01-26",
@@ -6015,8 +6015,8 @@
     "side": "OVER",
     "tier": "💎 DIAMOND BOY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 12
   },
   {
     "id": "MoussaDiabate-b-2026-01-26",
@@ -6028,8 +6028,8 @@
     "side": "OVER",
     "tier": "🔥 ELITE",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 0
   },
   {
     "id": "KevinDurant-b-2026-01-26",
@@ -6041,8 +6041,8 @@
     "side": "OVER",
     "tier": "🔥 ELITE",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 1
   },
   {
     "id": "NikolaVucevic-pra-2026-01-26",
@@ -6054,8 +6054,8 @@
     "side": "UNDER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 34
   },
   {
     "id": "KevinHuerter-p-2026-01-26",
@@ -6067,8 +6067,8 @@
     "side": "OVER",
     "tier": "💪 STRONG PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 0
   },
   {
     "id": "IsaacOkoro-pra-2026-01-26",
@@ -6080,8 +6080,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 13
   },
   {
     "id": "NikolaVucevic-pr-2026-01-26",
@@ -6093,8 +6093,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 29
   },
   {
     "id": "BennedictMathurin-pa-2026-01-26",
@@ -6106,8 +6106,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 17
   },
   {
     "id": "BennedictMathurin-pra-2026-01-26",
@@ -6119,8 +6119,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 19
   },
   {
     "id": "JaylenWells-b-2026-01-26",
@@ -6132,8 +6132,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 0
   },
   {
     "id": "NikolaVucevic-pa-2026-01-26",
@@ -6145,8 +6145,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 23
   },
   {
     "id": "KevinHuerter-pra-2026-01-26",
@@ -6158,8 +6158,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 2
   },
   {
     "id": "JarrettAllen-b-2026-01-26",
@@ -6171,8 +6171,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 0
   },
   {
     "id": "ToumaniCamara-pra-2026-01-26",
@@ -6184,8 +6184,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 27
   },
   {
     "id": "DeandreAyton-b-2026-01-26",
@@ -6197,8 +6197,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 0
   },
   {
     "id": "CamSpencer-b-2026-01-26",
@@ -6210,8 +6210,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 1
   },
   {
     "id": "ShaedonSharpe-b-2026-01-26",
@@ -6223,8 +6223,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 0
   },
   {
     "id": "QuentinGrimes-p-2026-01-26",
@@ -6236,8 +6236,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 14
   },
   {
     "id": "ToumaniCamara-pa-2026-01-26",
@@ -6249,8 +6249,8 @@
     "side": "UNDER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 19
   },
   {
     "id": "AmenThompson-b-2026-01-26",
@@ -6262,8 +6262,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "LOSS",
+    "actual": 0
   },
   {
     "id": "JockLandale-pra-2026-01-26",
@@ -6288,8 +6288,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "PUSH",
+    "actual": 15
   },
   {
     "id": "JadenMcDaniels-pa-2026-01-26",
@@ -6301,8 +6301,8 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 17
   },
   {
     "id": "JockLandale-pa-2026-01-26",
@@ -6327,6 +6327,448 @@
     "side": "OVER",
     "tier": "✅ SOLID PLAY",
     "date": "2026-01-26",
+    "result": "LOSS",
+    "actual": 6
+  },
+  {
+    "id": "O.G.Anunoby-pra-2026-01-27",
+    "player": "O.G. Anunoby",
+    "team": "NYK",
+    "opp": "SAC",
+    "stat": "pra",
+    "line": 24,
+    "side": "OVER",
+    "tier": "🔥 ELITE",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "BriceSensabaugh-pr-2026-01-27",
+    "player": "Brice Sensabaugh",
+    "team": "UTA",
+    "opp": "LAC",
+    "stat": "pr",
+    "line": 18,
+    "side": "OVER",
+    "tier": "💪 STRONG PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "Karl-AnthonyTowns-pr-2026-01-27",
+    "player": "Karl-Anthony Towns",
+    "team": "NYK",
+    "opp": "SAC",
+    "stat": "pr",
+    "line": 31,
+    "side": "OVER",
+    "tier": "💪 STRONG PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "KrisDunn-pra-2026-01-27",
+    "player": "Kris Dunn",
+    "team": "LAC",
+    "opp": "UTA",
+    "stat": "pra",
+    "line": 13,
+    "side": "OVER",
+    "tier": "💪 STRONG PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "JamesHarden-p-2026-01-27",
+    "player": "James Harden",
+    "team": "LAC",
+    "opp": "UTA",
+    "stat": "p",
+    "line": 25,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "JamesHarden-pr-2026-01-27",
+    "player": "James Harden",
+    "team": "LAC",
+    "opp": "UTA",
+    "stat": "pr",
+    "line": 30,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "CadeCunningham-pra-2026-01-27",
+    "player": "Cade Cunningham",
+    "team": "DET",
+    "opp": "DEN",
+    "stat": "pra",
+    "line": 39,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "DeniAvdija-pa-2026-01-27",
+    "player": "Deni Avdija",
+    "team": "POR",
+    "opp": "WAS",
+    "stat": "pa",
+    "line": 31.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "PaulGeorge-pra-2026-01-27",
+    "player": "Paul George",
+    "team": "PHI",
+    "opp": "MIL",
+    "stat": "pra",
+    "line": 23.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "ToumaniCamara-s-2026-01-27",
+    "player": "Toumani Camara",
+    "team": "POR",
+    "opp": "WAS",
+    "stat": "s",
+    "line": 0.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "O.G.Anunoby-pr-2026-01-27",
+    "player": "O.G. Anunoby",
+    "team": "NYK",
+    "opp": "SAC",
+    "stat": "pr",
+    "line": 22,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "PaulGeorge-pa-2026-01-27",
+    "player": "Paul George",
+    "team": "PHI",
+    "opp": "MIL",
+    "stat": "pa",
+    "line": 18,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "Karl-AnthonyTowns-pra-2026-01-27",
+    "player": "Karl-Anthony Towns",
+    "team": "NYK",
+    "opp": "SAC",
+    "stat": "pra",
+    "line": 34.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "O.G.Anunoby-pa-2026-01-27",
+    "player": "O.G. Anunoby",
+    "team": "NYK",
+    "opp": "SAC",
+    "stat": "pa",
+    "line": 19,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "JoelEmbiid-pr-2026-01-27",
+    "player": "Joel Embiid",
+    "team": "PHI",
+    "opp": "MIL",
+    "stat": "pr",
+    "line": 36.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "JoelEmbiid-pra-2026-01-27",
+    "player": "Joel Embiid",
+    "team": "PHI",
+    "opp": "MIL",
+    "stat": "pra",
+    "line": 40.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "DeniAvdija-pra-2026-01-27",
+    "player": "Deni Avdija",
+    "team": "POR",
+    "opp": "WAS",
+    "stat": "pra",
+    "line": 38.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "KyshawnGeorge-pra-2026-01-27",
+    "player": "Kyshawn George",
+    "team": "WAS",
+    "opp": "POR",
+    "stat": "pra",
+    "line": 28.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "LuguentzDort-s-2026-01-27",
+    "player": "Luguentz Dort",
+    "team": "OKC",
+    "opp": "NOR",
+    "stat": "s",
+    "line": 0.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "JonasValanciunas-b-2026-01-27",
+    "player": "Jonas Valanciunas",
+    "team": "DEN",
+    "opp": "DET",
+    "stat": "b",
+    "line": 1.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "TimHardawayJr.-pra-2026-01-27",
+    "player": "Tim Hardaway Jr.",
+    "team": "DEN",
+    "opp": "DET",
+    "stat": "pra",
+    "line": 17.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "SaddiqBey-b-2026-01-27",
+    "player": "Saddiq Bey",
+    "team": "NOR",
+    "opp": "OKC",
+    "stat": "b",
+    "line": 0.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "KrisDunn-pr-2026-01-27",
+    "player": "Kris Dunn",
+    "team": "LAC",
+    "opp": "UTA",
+    "stat": "pr",
+    "line": 9.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "KyshawnGeorge-pa-2026-01-27",
+    "player": "Kyshawn George",
+    "team": "WAS",
+    "opp": "POR",
+    "stat": "pa",
+    "line": 23,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "JoshHart-s-2026-01-27",
+    "player": "Josh Hart",
+    "team": "NYK",
+    "opp": "SAC",
+    "stat": "s",
+    "line": 1.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "O.G.Anunoby-p-2026-01-27",
+    "player": "O.G. Anunoby",
+    "team": "NYK",
+    "opp": "SAC",
+    "stat": "p",
+    "line": 16.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "DonovanClingan-b-2026-01-27",
+    "player": "Donovan Clingan",
+    "team": "POR",
+    "opp": "WAS",
+    "stat": "b",
+    "line": 1,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "KrisDunn-pa-2026-01-27",
+    "player": "Kris Dunn",
+    "team": "LAC",
+    "opp": "UTA",
+    "stat": "pa",
+    "line": 10,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "PaulGeorge-pr-2026-01-27",
+    "player": "Paul George",
+    "team": "PHI",
+    "opp": "MIL",
+    "stat": "pr",
+    "line": 20,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "ZekeNnaji-pra-2026-01-27",
+    "player": "Zeke Nnaji",
+    "team": "DEN",
+    "opp": "DET",
+    "stat": "pra",
+    "line": 9.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "TimHardawayJr.-p-2026-01-27",
+    "player": "Tim Hardaway Jr.",
+    "team": "DEN",
+    "opp": "DET",
+    "stat": "p",
+    "line": 14,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "DomantasSabonis-pra-2026-01-27",
+    "player": "Domantas Sabonis",
+    "team": "SAC",
+    "opp": "NYK",
+    "stat": "pra",
+    "line": 31.5,
+    "side": "UNDER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "Karl-AnthonyTowns-pa-2026-01-27",
+    "player": "Karl-Anthony Towns",
+    "team": "NYK",
+    "opp": "SAC",
+    "stat": "pa",
+    "line": 23,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
+    "result": "PENDING",
+    "actual": null
+  },
+  {
+    "id": "ZionWilliamson-s-2026-01-27",
+    "player": "Zion Williamson",
+    "team": "NOR",
+    "opp": "OKC",
+    "stat": "s",
+    "line": 0.5,
+    "side": "OVER",
+    "tier": "✅ SOLID PLAY",
+    "date": "2026-01-27",
     "result": "PENDING",
     "actual": null
   }

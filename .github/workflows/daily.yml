@@ -67,29 +67,36 @@ jobs:
           cache: 'npm'
       
       - name: Install Dependencies
-        run: npm install  # Fallback to install (slower but handles lockfile mismatch)
+        id: install
+        run: npm install
 
-      - name: Sync Latest Code
-        run: git pull origin main
+      # Removed redundant 'git pull origin main' to avoid conflicts
 
       - name: Run Prophet Workflow
+        id: run_script
         run: node scripts/daily_workflow.js
-        continue-on-error: false  # Fail workflow if this fails
+        continue-on-error: false
       
       - name: Commit & Push Results
-        if: always() # Run even if script fails (to save error log)
+        if: always()
         run: |
           git config --global user.name "Prophet Bot"
           git config --global user.email "bot@prop-prophet.com"
+          
+          # Check for install failure
+          if [ "${{ steps.install.outcome }}" == "failure" ]; then
+            echo "❌ CRITICAL: npm install failed" > last_run_error.txt
+          fi
+          
+          # Access last_run_error.txt (create if missing)
           touch last_run_error.txt
+          
           git add latest_picks_live.js history/prophet_history.json ease_rankings.json last_run_error.txt
           git diff --staged --quiet || git commit -m "🤖 Auto-Update: $(date +'%Y-%m-%d %H:%M PST')"
           git pull --rebase origin main
           git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      # Vercel auto-deploys on git push - no manual deploy needed!
       
       - name: Workflow Summary
         if: success()
@@ -102,4 +109,4 @@ jobs:
         if: failure()
         run: |
           echo "❌ Prophet automation failed!"
-          echo "Check logs above for details"
+          echo "Check last_run_error.txt or logs details"

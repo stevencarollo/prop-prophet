@@ -14,6 +14,9 @@ const MARKET_API_KEY = process.env.MARKET_API_KEY;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 const EMAIL_TO = process.env.EMAIL_TO || EMAIL_USER; // Default to self
+const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
+const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+const TWILIO_PHONE = process.env.TWILIO_PHONE_NUMBER;
 
 const DOWNLOAD_DIR = path.join(__dirname, '..');
 const BBM_LOGIN_URL = 'https://basketballmonster.com/login.aspx';
@@ -1405,6 +1408,33 @@ async function sendAlerts(picks) {
             html: html
         });
         console.log('✅ Email sent successfully!');
+
+        // --- SMS ALERT SYSTEM (Jan 27) ---
+        const SMS_FILE = path.join(__dirname, '../history/sms_subscribers.json');
+        if (fs.existsSync(SMS_FILE)) {
+            const smsList = JSON.parse(fs.readFileSync(SMS_FILE, 'utf8'));
+            if (smsList.length > 0 && TWILIO_SID && TWILIO_TOKEN && TWILIO_PHONE) {
+                console.log(`📱 Sending SMS to ${smsList.length} numbers...`);
+                // Lazy load twilio to avoid crash if not installed/configured
+                try {
+                    const client = require('twilio')(TWILIO_SID, TWILIO_TOKEN);
+                    const firstLock = uniqueLocks[0];
+                    // "Prophet Lock: [Player] [Stat] [Line]. Analysis: [Link]"
+                    const msg = `🔒 PROPHET LOCK: ${firstLock.player} (${firstLock.team}) ${firstLock.stat.toUpperCase()} ${firstLock.side} ${firstLock.line} ${firstLock.line}.\nConf: ${(firstLock.confidence * 100).toFixed(0)}%\n\nAnalysis: https://prop-prophet.vercel.app`;
+
+                    for (const number of smsList) {
+                        try {
+                            await client.messages.create({ body: msg, from: TWILIO_PHONE, to: number });
+                            console.log(`   -> Sent to ${number}`);
+                        } catch (smsErr) {
+                            console.error(`   ❌ Failed to SMS ${number}:`, smsErr.message);
+                        }
+                    }
+                } catch (loadErr) {
+                    console.error('❌ Twilio load error:', loadErr.message);
+                }
+            }
+        }
 
         // Update History (Add the IDs of the sent ones)
         // Note: We only add the IDs we SENT.

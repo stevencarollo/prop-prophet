@@ -274,15 +274,48 @@
                 <p style="font-size: 0.8em; color: #94a3b8; margin-top: 5px;">(System updates hourly on game days)</p>
 
                 <!-- EMAIL SUBSCRIBE FORM -->
+                <!-- SUBSCRIBE FORM TABS -->
                 <div
                     style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #334155; max-width: 400px; margin-left: auto; margin-right: auto;">
-                    <h3 style="color: #10b981; margin-bottom: 10px;">📧 Get Prophet Locks via Email</h3>
-                    <p style="font-size: 0.9em; color: #cbd5e1; margin-bottom: 15px;">Receive an instant alert whenever
-                        a new <strong>Prophet Lock</strong> is detected. No spam.</p>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="email" id="sub-email" placeholder="Enter your email" style="margin: 0;">
-                        <button id="sub-btn" onclick="subscribeEmail()"
-                            style="width: auto; background: #8b5cf6;">Join</button>
+                    <h3 style="color: #10b981; margin-bottom: 10px;">🔔 Get Prophet Notifications</h3>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <button onclick="showSubTab('email')" id="tab-email"
+                            style="flex: 1; background: #334155; font-size: 0.9em;">Email</button>
+                        <button onclick="showSubTab('sms')" id="tab-sms"
+                            style="flex: 1; background: #1e293b; font-size: 0.9em;">Text (SMS)</button>
+                    </div>
+
+                    <!-- EMAIL FORM -->
+                    <div id="form-email">
+                        <p style="font-size: 0.9em; color: #cbd5e1; margin-bottom: 15px;">Receive detailed reports via
+                            email.</p>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="email" id="sub-email" placeholder="Enter your email" style="margin: 0;">
+                            <button id="sub-btn-email" onclick="subscribeEmail()"
+                                style="width: auto; background: #8b5cf6;">Join</button>
+                        </div>
+                    </div>
+
+                    <!-- SMS FORM -->
+                    <div id="form-sms" class="hidden">
+                        <p style="font-size: 0.9em; color: #cbd5e1; margin-bottom: 15px;">Get instant alerts via free
+                            carrier text.</p>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <input type="tel" id="sub-phone" placeholder="Phone Number (e.g. 5551234567)"
+                                style="margin: 0;">
+                            <select id="sub-carrier" style="margin: 0;">
+                                <option value="" disabled selected>Select Carrier</option>
+                                <option value="vtext.com">Verizon</option>
+                                <option value="tmomail.net">T-Mobile</option>
+                                <option value="txt.att.net">AT&T</option>
+                                <option value="messaging.sprintpcs.com">Sprint</option>
+                                <option value="sms.myboostmobile.com">Boost Mobile</option>
+                                <option value="mms.cricketwireless.net">Cricket</option>
+                                <option value="email.uscc.net">US Cellular</option>
+                            </select>
+                            <button id="sub-btn-sms" onclick="subscribeSMS()"
+                                style="width: 100%; background: #10b981;">Enable SMS</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -474,6 +507,63 @@
             document.body.appendChild(script);
         }
 
+        // TAB SWITCHER
+        function showSubTab(tab) {
+            document.getElementById('form-email').className = (tab === 'email') ? '' : 'hidden';
+            document.getElementById('form-sms').className = (tab === 'sms') ? '' : 'hidden';
+
+            document.getElementById('tab-email').style.background = (tab === 'email') ? '#334155' : '#1e293b';
+            document.getElementById('tab-sms').style.background = (tab === 'sms') ? '#334155' : '#1e293b';
+        }
+
+        async function subscribeSMS() {
+            const phoneVal = document.getElementById('sub-phone').value.replace(/[^0-9]/g, '');
+            const carrier = document.getElementById('sub-carrier').value;
+
+            if (phoneVal.length < 10) {
+                showAlert('warning', 'Please enter a valid 10-digit number.');
+                return;
+            }
+            if (!carrier) {
+                showAlert('warning', 'Please select your carrier.');
+                return;
+            }
+
+            // Construct Gateway Address
+            const gatewayEmail = `${phoneVal}@${carrier}`;
+
+            const btn = document.getElementById('sub-btn-sms');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'Activating...';
+
+            try {
+                // Determine API endpoint (use separate one or reuse existing?)
+                // Since efficient design, reuse subscribe.js but point to distinct file if needed
+                // OR create new one. Let's assume we repurposed subscribe.js or created subscribe-sms.js
+                // Plan: Use specific sms endpoint to keep lists clean.
+                const resp = await fetch('/api/subscribe-sms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: gatewayEmail }) // It's strictly an email address now
+                });
+
+                const data = await resp.json();
+                if (resp.ok) {
+                    showAlert('success', '✅ SMS Alerts Activated!');
+                    document.getElementById('sub-phone').value = '';
+                } else {
+                    throw new Error(data.message || 'SMS Setup Failed');
+                }
+            } catch (err) {
+                console.error(err);
+                showAlert('warning', `⚠️ ${err.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+
         async function subscribeEmail() {
             const emailInput = document.getElementById('sub-email');
             const email = emailInput.value.trim();
@@ -483,7 +573,7 @@
                 return;
             }
 
-            const btn = document.getElementById('sub-btn');
+            const btn = document.getElementById('sub-btn-email');
             const originalText = btn.innerText;
             btn.disabled = true;
             btn.innerText = 'Joining...';

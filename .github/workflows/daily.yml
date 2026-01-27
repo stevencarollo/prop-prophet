@@ -81,6 +81,7 @@ jobs:
         run: |
           git config --global user.name "Prophet Bot"
           git config --global user.email "bot@prop-prophet.com"
+          touch last_run_error.txt
           git add latest_picks_live.js history/prophet_history.json ease_rankings.json last_run_error.txt
           git diff --staged --quiet || git commit -m "🤖 Auto-Update: $(date +'%Y-%m-%d %H:%M PST')"
           git pull --rebase origin main

@@ -14,9 +14,9 @@ const MARKET_API_KEY = process.env.MARKET_API_KEY;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 const EMAIL_TO = process.env.EMAIL_TO || EMAIL_USER; // Default to self
-const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
-const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
-const TWILIO_PHONE = process.env.TWILIO_PHONE_NUMBER;
+// const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID; // REMOVED
+// const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN; // REMOVED
+// const TWILIO_PHONE = process.env.TWILIO_PHONE_NUMBER; // REMOVED
 
 const DOWNLOAD_DIR = path.join(__dirname, '..');
 const BBM_LOGIN_URL = 'https://basketballmonster.com/login.aspx';
@@ -43,7 +43,6 @@ function resolveHistory(history, gameLogs) {
         if (pick.result !== 'PENDING') return;
 
         // SAFEGUARD: Do NOT resolve picks from "Today" (games incomplete)
-        // SAFEGUARD: Do NOT resolve picks from "Today" (games incomplete)
         // Only resolve matches from Yesterday or earlier
         // Fix: Use LA Time (User's Timezone) so late night isn't "Tomorrow"
         const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
@@ -66,7 +65,7 @@ function resolveHistory(history, gameLogs) {
             let actual = 0;
             if (['pra', 'pr', 'pa', 'ra'].includes(pick.stat)) {
                 if (pick.stat.includes('p')) actual += game.pts;
-                if (pick.stat.includes('r')) actual += game.reb; // Fix: 'trb' was wrong, 'reb' is key in logs
+                if (pick.stat.includes('r')) actual += game.reb;
                 if (pick.stat.includes('a')) actual += game.ast;
             } else {
                 actual = game[logStat];
@@ -138,14 +137,12 @@ function updateHistory(history, newPicks) {
                 const h = history[existingIndex];
                 // Only log if something important changed to reduce noise
                 if (h.tier !== p.betRating || h.line !== p.line) {
-                    // console.log(`🔄 Updating ${h.player} (${h.stat}): ${h.tier} -> ${p.betRating}`);
                     updated++;
                 }
 
                 history[existingIndex].tier = p.betRating;
                 history[existingIndex].line = p.line;
-                history[existingIndex].side = p.side; // Just in case
-                // We keep the original ID/Date
+                history[existingIndex].side = p.side;
             }
         }
     });
@@ -156,6 +153,7 @@ function updateHistory(history, newPicks) {
     }
     return history;
 }
+
 function generateStats(history) {
     const stats = {
         season: { w: 0, l: 0, p: 0, total: 0, pct: 0 },
@@ -165,7 +163,7 @@ function generateStats(history) {
     };
 
     history.forEach(h => {
-        if (h.result === 'PENDING' || h.result === 'PUSH') return; // Skip pending/push for Win%
+        if (h.result === 'PENDING' || h.result === 'PUSH') return;
 
         // Global
         if (h.result === 'WIN') stats.season.w++;
@@ -286,7 +284,7 @@ async function fetchBBMEase() {
                         // Clean "vs " prefix if present
                         teamRaw = teamRaw.replace(/^vs\s+/i, '').trim();
 
-                        // TEAM MAPPING (BBM uses full names or odd abbr sometimes)
+                        // TEAM MAPPING
                         const TEAM_MAP_BBM = {
                             "Atl": "ATL", "Bos": "BOS", "Bkn": "BKN", "Cha": "CHA", "Chi": "CHI", "Cle": "CLE", "Dal": "DAL", "Den": "DEN", "Det": "DET", "GS": "GSW", "Hou": "HOU", "Ind": "IND", "LAC": "LAC", "LAL": "LAL", "Mem": "MEM", "Mia": "MIA", "Mil": "MIL", "Min": "MIN", "NO": "NOP", "NY": "NYK", "OKC": "OKC", "Orl": "ORL", "Phi": "PHI", "Pho": "PHO", "Por": "POR", "Sac": "SAC", "SA": "SAS", "Tor": "TOR", "Uta": "UTA", "Was": "WAS"
                         };
@@ -339,7 +337,7 @@ async function downloadBBM() {
     if (!BBM_USER || !BBM_PASS) throw new Error('Missing BBM Credentials');
 
     const browser = await puppeteer.launch({
-        headless: "new", // Headless for CI
+        headless: "new",
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
@@ -379,12 +377,11 @@ async function downloadBBM() {
 
         // Wait for download
         console.log('⏳ Waiting for download (15s)...');
-        await delay(15000); // Increased wait time
+        await delay(15000);
 
-        // Find file (Robust Check)
+        // Find file
         const newFiles = fs.readdirSync(DOWNLOAD_DIR)
             .filter(f => f.endsWith('.xlsx') || f.endsWith('.xls'))
-            // Sort by Modified Time (Newest First)
             .map(f => ({ name: f, time: fs.statSync(path.join(DOWNLOAD_DIR, f)).mtime.getTime() }))
             .sort((a, b) => b.time - a.time);
 
@@ -392,12 +389,7 @@ async function downloadBBM() {
 
         const latestFile = path.join(DOWNLOAD_DIR, newFiles[0].name);
         console.log(`✅ Downloaded: ${newFiles[0].name}`);
-
-        // Read Buffer
         const fileBuffer = fs.readFileSync(latestFile);
-
-        // Cleanup
-        // fs.unlinkSync(latestFile); // Optional: keep for debug? No, CI cleans up.
 
         await browser.close();
         return fileBuffer;
@@ -416,14 +408,6 @@ function parseBBM(buffer) {
     const worksheet = workbook.Sheets[sheetName];
     const raw = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
-    if (raw.length > 0) {
-        console.log('[DEBUG] First Row Keys:', Object.keys(raw[0]));
-        console.log('[DEBUG] First Row Data:', JSON.stringify(raw[0]));
-    } else {
-        console.error('[ERROR] Excel sheet appears empty');
-    }
-
-    // (This logic is ported from server.js - Simplified helper)
     const normKeys = raw.length > 0 ? Object.keys(raw[0]).map(k => k.toLowerCase()) : [];
     function findKey(keys) {
         for (const key of keys) {
@@ -453,10 +437,10 @@ function parseBBM(buffer) {
     const toKey = findKey(['to', 'tov']);
     const easeKey = findKey(['ease']);
     const statusKey = findKey(['status']);
-    const startPosKey = findKey(['start', 'start_pos']); // User Request: "Start" column
-    const oddsKey = findKey(['odds']); // Needed for Parsing Totals
+    const startPosKey = findKey(['start', 'start_pos']);
+    const oddsKey = findKey(['odds']);
 
-    // Extended Context (For Scoring Engine)
+    // Extended
     const restKey = findKey(['rest']);
     const b2bKey = findKey(['b2b']);
     const ageKey = findKey(['age']);
@@ -469,8 +453,6 @@ function parseBBM(buffer) {
     const jMinKey = findKey(['jming', 'jmin', 'josh min']);
     const jMaxKey = findKey(['jmaxg', 'jmax', 'josh max']);
     const lastMinKey = findKey(['last min', 'last mp', 'min last', 'prev min', 'lmin']);
-
-    console.log(`[DEBUG] Keys Found: P=${pKey}, Min=${minKey}, Name=${nameKey}, Rest=${restKey}, B2B=${b2bKey}, Josh=${joshKey}`);
 
     const players = [];
 
@@ -505,7 +487,6 @@ function parseBBM(buffer) {
             }
         }
 
-        // Parse Game Total from Odds (e.g. "O/U 225.0 -10.0")
         let gameTotal = 0;
         if (oddsKey) {
             const oddStr = String(row[oddsKey]);
@@ -524,9 +505,8 @@ function parseBBM(buffer) {
             injury: injKey ? String(row[injKey]) : '',
             opp: oppKey ? String(row[oppKey]).replace('@ ', '') : '',
             startTime: startTs,
-            gameTotal: gameTotal, // New Field
+            gameTotal: gameTotal,
             projections: proj,
-            // Extended Fields
             rest: restKey ? Number(row[restKey]) || 0 : 0,
             b2b: b2bKey ? Number(row[b2bKey]) || 0 : 0,
             age: ageKey ? (Number(row[ageKey]) || 25) : 25,
@@ -539,7 +519,7 @@ function parseBBM(buffer) {
             jMin: jMinKey ? Number(row[jMinKey]) || 0 : 0,
             jMax: jMaxKey ? Number(row[jMaxKey]) || 0 : 0,
             lastMin: lastMinKey ? Number(row[lastMinKey]) || 0 : 0,
-            startPos: startPosKey ? String(row[startPosKey]).trim() : '' // New Field
+            startPos: startPosKey ? String(row[startPosKey]).trim() : ''
         });
     });
 
@@ -559,7 +539,6 @@ async function fetchOdds() {
     const events = await evResp.json();
     console.log(`Found ${events.length} games.`);
 
-    // Filter started games
     const now = Date.now();
     const activeEvents = events.filter(e => new Date(e.commence_time).getTime() > now);
 
@@ -583,14 +562,13 @@ async function fetchOdds() {
     return allOdds;
 }
 
-// --- STEP 3a: FETCH GAME LOGS (SCORING ENGINE - L5 HIT RATE) ---
+// --- STEP 3a: FETCH GAME LOGS ---
 async function fetchGameLogs(browser) {
     console.log('📅 [Step 3a] Fetching Game Logs (Last 21 Days)...');
-    const logs = {}; // { "Player Name": [ { date, pts, reb, ast, threes, blk, stl, to, min }, ... ] }
+    const logs = {};
     const page = await browser.newPage();
     await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
-    // Helper to format date
     const formatDate = (date) => {
         const d = new Date(date);
         return {
@@ -601,7 +579,6 @@ async function fetchGameLogs(browser) {
         };
     };
 
-    // Iterate last 21 days (extended from 14 for better coverage)
     const today = new Date();
     for (let i = 1; i <= 21; i++) {
         const d = new Date(today);
@@ -612,25 +589,19 @@ async function fetchGameLogs(browser) {
         try {
             console.log(`   > Fetching logs for ${str}...`);
             await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
-
-            // Allow table to render
             await new Promise(r => setTimeout(r, 1500));
 
             const dailyStats = await page.evaluate((dateStr) => {
                 const table = document.querySelector('#stats') || document.querySelector('.stats_table') || document.querySelector('table');
-                if (!table) {
-                    return `ERROR: No table found. Content: ${document.body.innerText.slice(0, 300).replace(/\n/g, ' ')}`;
-                }
+                if (!table) return `ERROR: No table found.`;
+
                 const rows = Array.from(table.querySelectorAll('tbody tr'));
                 const results = [];
                 rows.forEach(row => {
-                    if (row.classList.contains('thead')) return; // Skip headers
+                    if (row.classList.contains('thead')) return;
                     const nameEl = row.querySelector('td[data-stat="player"] a');
                     if (!nameEl) return;
 
-                    // Normalize Name (Strip Accents & Dots)
-                    // e.g. "Nikola Vučević" -> "Nikola Vucevic"
-                    // e.g. "P.J. Washington" -> "PJ Washington"
                     let name = nameEl.innerText.trim();
                     name = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\./g, "");
                     const getVal = (stat) => parseFloat(row.querySelector(`td[data-stat="${stat}"]`)?.innerText || '0');
@@ -656,9 +627,6 @@ async function fetchGameLogs(browser) {
                 continue;
             }
 
-            console.log(`   > Extracted ${dailyStats.length} stats.`);
-
-            // Merge into DB
             dailyStats.forEach(stat => {
                 if (!logs[stat.name]) logs[stat.name] = [];
                 logs[stat.name].push(stat);
@@ -668,7 +636,6 @@ async function fetchGameLogs(browser) {
             console.warn(`   ⚠️ Failed to fetch ${str}: ${err.message}`);
         }
     }
-
     await page.close();
     console.log(`✅ Game Logs Built. Covered ${Object.keys(logs).length} players.`);
     return logs;
@@ -677,32 +644,16 @@ async function fetchGameLogs(browser) {
 // --- STEP 4: ANALYSIS ENGINE ---
 async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
     console.log('🧠 [Step 4] Analyzing Matchups...');
-
-    // Use passed Ease DB or fallback (safety)
     const EASE_DB = easeDb || {};
-
-    // Build Odds Map
-    const oddsMap = new Map(); // "normName|market" -> { line, price, event }
+    const oddsMap = new Map();
 
     oddsData.forEach(game => {
         game.bookmakers.forEach(book => {
             book.markets.forEach(mkt => {
                 mkt.outcomes.forEach(out => {
-                    // DEBUG: Print first outcome structure
-                    if (Math.random() < 0.001) console.log('[API RAW]', JSON.stringify(out));
-
-                    let pName = out.description || out.name; // Prefer description for props
-                    // API v4 Spec:
-                    // Player Props: name = "Over"/"Under", description = "Player Name"
-                    // Head to Head: name = "Team Name"
-
-                    if (out.name === 'Over' || out.name === 'Under') {
-                        pName = out.description;
-                    } else {
-                        // Sometimes for "Player vs Player" it might differ? 
-                        // For standard props, name is usually the selection.
-                        pName = out.description || out.name;
-                    }
+                    let pName = out.description || out.name;
+                    if (out.name === 'Over' || out.name === 'Under') pName = out.description;
+                    else pName = out.description || out.name;
 
                     if (!pName) return;
 
@@ -720,11 +671,6 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
         });
     });
 
-    console.log(`[DEBUG] Odds Map Size: ${oddsMap.size}`);
-    if (oddsMap.size > 0) {
-        console.log('[DEBUG] First 3 Keys:', Array.from(oddsMap.keys()).slice(0, 3));
-    }
-
     const STAT_MAP = {
         'p': 'player_points', 'r': 'player_rebounds', 'a': 'player_assists',
         '3': 'player_threes', 's': 'player_steals', 'b': 'player_blocks', 'to': 'player_turnovers',
@@ -733,7 +679,6 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
     };
 
     const results = [];
-
 
     function interpret(easeVal, propType, direction) {
         if (propType === 'to') {
@@ -756,11 +701,6 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
         }
     }
 
-    // --- WEIGHTS TO NORMALIZE EDGE VALUE ---
-    // Example: 1.0 steal edge is massive (x8), 1.0 point edge is small (x1)
-    // --- WEIGHTS TO NORMALIZE EDGE VALUE ---
-    // User Feedback (Jan 23): Steals/Blocks dominating top. 
-    // Tuned down S/B from 6.0 -> 4.5 to allow Points/Reb/Ast to compete.
     const STAT_WEIGHTS = {
         'p': 1.0, 'pr': 1.0, 'pa': 1.0, 'pra': 1.0, 'ra': 1.0,
         'r': 1.2, 'a': 1.2,
@@ -768,9 +708,8 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
         's': 4.5, 'b': 4.5, 'to': 3.0
     };
 
-    // Iterate Players
     bbmPlayers.forEach(player => {
-        if (player.min <= 22) return; // Strict Minute Filter (<= 22m)
+        if (player.min <= 22) return;
         if (player.injury && player.injury.toLowerCase().includes('out')) return;
 
         Object.keys(player.projections).forEach(stat => {
@@ -780,418 +719,106 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             const proj = player.projections[stat];
             if (proj < 1.0 && !['s', 'b', 'to'].includes(stat)) return;
 
-            // Find Line
-            // 1. Exact Match
             const exactKey = `${player.name_norm}|${mktKey}`;
             let lines = oddsMap.get(exactKey);
-
             if (!lines) return;
 
-            // Average Line
             const calcLine = lines.reduce((acc, v) => acc + v.point, 0) / lines.length;
             const line = Math.round(calcLine * 2) / 2;
 
-            // Calculate Edge
             let edge = 0;
             let side = 'OVER';
             if (stat === 'to') {
                 if (line > proj) { side = 'UNDER'; edge = line - proj; }
                 else { side = 'OVER'; edge = proj - line; }
             } else {
-                edge = proj - line;
-                side = edge > 0 ? 'OVER' : 'UNDER';
-                if (edge < 0) { edge = Math.abs(edge); }
+                if (proj > line) { side = 'OVER'; edge = proj - line; }
+                else { side = 'UNDER'; edge = line - proj; }
             }
 
-            const weightedEdge = edge * (STAT_WEIGHTS[stat] || 1);
+            const weight = STAT_WEIGHTS[stat] || 1.0;
+            const weightedEdge = edge * weight;
 
-            // DEBUG: Show what edges we are finding
-            if (weightedEdge > 0.05) {
-                // console.log(`[DEBUG EDGE] ${player.name} ${stat.toUpperCase()} Edge: ${edge.toFixed(2)} (W: ${weightedEdge.toFixed(2)})`);
-            }
+            if (weightedEdge < 1.0 && stat !== 'to') return;
+            if (stat === 'to' && weightedEdge < 1.5) return;
 
-            if (weightedEdge < 0.1) return; // Min Edge
+            // EASE CALC
+            const posCode = player.pos.substring(0, 2);
+            const team = player.team;
+            let teamEase = 0;
+            let posEase = 0;
 
-            // --- PROPHET SCORING ENGINE (Ported from Server) ---
-            const SETTINGS = {
-                min_edge: 0.1,
-                rest0_penalty: 0.05,
-                b2b_penalty_young: 0.03,
-                b2b_penalty_vet: 0.08,
-                vet_age_threshold: 30,
-                ease_weights: { "1w": 0.50, "2w": 0.30, "season": 0.20 }
-            };
+            const oppCode = player.opp.toUpperCase();
+            if (EASE_DB.All && EASE_DB.All.LastTwoWeeks && EASE_DB.All.LastTwoWeeks[oppCode]) {
+                const mapBBM = { 'p': 'pV', '3': '3V', 'r': 'rV', 'a': 'aV', 's': 'sV', 'b': 'bV', 'to': 'toV' };
+                let easeKey = mapBBM[stat];
+                if (!easeKey) {
+                    if (stat === 'pr') easeKey = ['pV', 'rV'];
+                    if (stat === 'pa') easeKey = ['pV', 'aV'];
+                    if (stat === 'ra') easeKey = ['rV', 'aV'];
+                    if (stat === 'pra') easeKey = ['pV', 'rV', 'aV'];
+                }
 
-            // --- COMPLEX EASE CALCULATION ---
-            let posEaseVal = 0;
-            let teamEaseVal = 0;
-            let activeEaseVal = 0;
-            let easeBreakdown = "No Data";
-            let narrative = []; // Initialize logic array
-
-            const oppTeam = player.opp.replace(/[@vs]/g, '').trim().toUpperCase();
-
-            // Map stat to Ease DB columns
-            const componentStats = {
-                'pr': ['pV', 'rV'],
-                'pa': ['pV', 'aV'],
-                'ra': ['rV', 'aV'],
-                'pra': ['pV', 'rV', 'aV']
-            };
-            const comps = componentStats[stat] || [(stat === '3' ? '3V' : `${stat}V`)];
-
-            if (Object.keys(EASE_DB).length > 0 && oppTeam) {
-                const rawPos = player.pos || 'All';
-                const specificPos = (['PG', 'SG', 'SF', 'PF', 'C'].includes(rawPos)) ? rawPos : null;
-
-                const calcWeighted = (posKey) => {
-                    if (!EASE_DB[posKey]) return 0;
-                    let totalEase = 0;
-                    for (const k of comps) {
-                        const getV = (tf) => (EASE_DB[posKey][tf] && EASE_DB[posKey][tf][oppTeam]) ? EASE_DB[posKey][tf][oppTeam][k] : 0;
-                        totalEase += (getV('1w') * SETTINGS.ease_weights["1w"]) +
-                            (getV('2w') * SETTINGS.ease_weights["2w"]) +
-                            (getV('season') * SETTINGS.ease_weights["season"]);
+                const calcAvgEase = (source, keys) => {
+                    if (Array.isArray(keys)) {
+                        return keys.reduce((s, k) => s + (source[k] || 0), 0) / keys.length;
                     }
-                    return totalEase / comps.length;
+                    return source[keys] || 0;
                 };
 
-                // User Logic for Positions:
-                // 1. If "Start" column has a position, LOCK it.
-                // 2. If "(V)" is in Start, it is verified exclusive.
-                // 3. If no Start, use POS column. If multiple (PG,SG), AVERAGE them.
+                const teamData = EASE_DB.All.LastTwoWeeks[oppCode];
+                teamEase = calcAvgEase(teamData, easeKey);
 
-                let positionsToTest = [];
-                const startRaw = player.startPos || '';
-
-                if (startRaw) {
-                    // Clean up "(V)" or verify notation
-                    const cleanStart = startRaw.replace('(V)', '').replace('V', '').trim();
-                    if (['PG', 'SG', 'SF', 'PF', 'C'].includes(cleanStart)) {
-                        positionsToTest = [cleanStart];
-                    }
-                }
-
-                if (positionsToTest.length === 0) {
-                    // Fallback to POS column, split by space or comma
-                    const pParts = (player.pos || 'All').split(/[\/, ]+/);
-                    positionsToTest = pParts.filter(p => ['PG', 'SG', 'SF', 'PF', 'C'].includes(p));
-                }
-
-                if (positionsToTest.length === 0) positionsToTest = ['All'];
-
-                // Calculate Positional Ease (Average if multiple)
-                let posEaseSum = 0;
-                positionsToTest.forEach(p => {
-                    posEaseSum += calcWeighted(p);
-                });
-                posEaseVal = posEaseSum / positionsToTest.length;
-
-                // 1. Team Matchup Ease (General Defense)
-                teamEaseVal = calcWeighted('All');
-
-                // NEW WEIGHTING: 85% Position (Far better indicator) + 15% Team
-                activeEaseVal = (posEaseVal * 0.85) + (teamEaseVal * 0.15);
-
-                // Format breakdown for UI (Color Coded - User Request)
-                const pColor = posEaseVal > 0 ? '#4ade80' : (posEaseVal < 0 ? '#f87171' : '#cbd5e1');
-                const tColor = teamEaseVal > 0 ? '#4ade80' : (teamEaseVal < 0 ? '#f87171' : '#cbd5e1');
-
-                easeBreakdown = `Pos: <span style="color:${pColor}">${posEaseVal.toFixed(2)}</span> | Team: <span style="color:${tColor}">${teamEaseVal.toFixed(2)}</span>`;
-            } else {
-                // Fallback to BBM Ease if DB missing
-                activeEaseVal = player.ease || 0;
-            }
-
-            let ease = activeEaseVal;
-
-
-            // Dampened Confidence Formula (Calibrated Jan 21)
-            // Was /8.5 -> Now /12.5 to prevent edge inflation
-            let conf = 0.5 + (weightedEdge / 12.5);
-
-            // --- CONTRADICTION PENALTY (Safety) & ALIGNMENT BONUS (Reward) ---
-            if (side === 'UNDER') {
-                if (activeEaseVal > 0.30) {
-                    conf -= 0.12;
-                    narrative.push(`⚠️ **Contradiction**: Betting UNDER against a soft defense (+${(activeEaseVal * 100).toFixed(1)}% Ease). <span style='color:#f87171'>(-12% Penalty)</span>`);
-                } else if (activeEaseVal < -0.30) {
-                    conf += 0.12;
-                    narrative.push(`✅ **Smart Under**: Defense is elite (-${Math.abs(activeEaseVal * 100).toFixed(1)}% Ease). Supports the under. <span style='color:#4ade80'>(+12% Bonus)</span>`);
-                }
-            } else { // OVER
-                if (activeEaseVal < -0.30) {
-                    conf -= 0.12;
-                    narrative.push(`⚠️ **Contradiction**: Betting OVER against a tough defense (-${Math.abs(activeEaseVal * 100).toFixed(1)}% Ease). <span style='color:#f87171'>(-12% Penalty)</span>`);
-                } else if (activeEaseVal > 0.30) {
-                    conf += 0.12;
-                    narrative.push(`✅ **Smart Over**: Defense is soft (+${(activeEaseVal * 100).toFixed(1)}% Ease). Supports the over. <span style='color:#4ade80'>(+12% Bonus)</span>`);
+                if (EASE_DB[posCode] && EASE_DB[posCode].LastTwoWeeks && EASE_DB[posCode].LastTwoWeeks[oppCode]) {
+                    const posData = EASE_DB[posCode].LastTwoWeeks[oppCode];
+                    posEase = calcAvgEase(posData, easeKey);
                 }
             }
 
-            // --- CONFIDENCE CAPS (The "Realism" Ceiling) ---
-            let maxCap = 0.99; // Default Max (A+)
+            let easeScore = (teamEase + posEase) / 2;
+            if (side === 'UNDER') easeScore = -easeScore;
 
-            // 1. Back-to-Back Cap (Max 92% - No Locks)
-            if (player.b2b >= 1) maxCap = Math.min(maxCap, 0.92);
+            // SCORE
+            let score = weightedEdge;
 
-            // 2. Negative Ease Cap (Max 90% - A-)
-            // If betting Over into bad ease, or Under into good ease
-            if ((side === 'OVER' && activeEaseVal < -0.15) || (side === 'UNDER' && activeEaseVal > 0.15)) {
-                maxCap = Math.min(maxCap, 0.90);
+            // Ease Modifier
+            if (easeScore > 0.30) { score *= 1.12; } // +12% Bonus
+            else if (easeScore < -0.40) { score *= 0.65; } // -35% Penalty
+
+            // Rotation Volatility
+            if (player.lastMin > 0 && player.min > (player.lastMin + 6)) {
+                score *= 0.90; // -10% Penalty (Rotation Risk)
             }
 
-            // 3. Blowout Risk Cap (Tightened Jan 23 - User Request)
-            const gameSpread = (lines && lines.length > 0) ? (lines[0].gameSpread || 0) : 0;
-            if (Math.abs(gameSpread) >= 10.5 && side === 'OVER') {
-                conf -= 0.10; // Increased penalty to 10%
-                narrative.push(`⚠️ **Game Script**: ${gameSpread}pt spread implies a blowout. Size down for 4th qtr risk.`);
+            // Blowout Risk
+            if (player.gameTotal > 0 && Math.abs(player.gameTotal) > 10.5) {
+                score *= 0.90; // -10% Penalty
             }
 
-            // 4. Rotation Volatility (User Request: Jan 23)
-            // If Projected Min is > 6 mins higher than Last Actual Min, risk of benching.
-            const lastMin = player.lastMin || 0;
-            const projMin = player.min || 0;
-            if (lastMin > 0 && (projMin - lastMin) >= 6) {
-                conf -= 0.08; // -8% Penalty
-                narrative.push(`⚠️ **Rotation Risk**: Projected for ${projMin}m but only played ${lastMin}m last game. Volatile role.`);
-            }
+            // Confidence
+            let confidence = 0.5;
+            if (score > 4) confidence = 0.6;
+            if (score > 6) confidence = 0.75;
+            if (score > 8) confidence = 0.85;
+            if (score > 10) confidence = 0.92;
 
-            // Penalties (Rest, Age) - Apply to base confidence
-            if (player.rest === 0) conf -= SETTINGS.rest0_penalty;
-            if (player.b2b >= 1) {
-                if ((player.age || 25) >= SETTINGS.vet_age_threshold) {
-                    conf -= SETTINGS.b2b_penalty_vet;
-                } else {
-                    conf -= SETTINGS.b2b_penalty_young;
-                }
-            }
+            if (easeScore > 0.25) confidence += 0.05;
+            if (easeScore < -0.20) confidence -= 0.15;
 
-            // --- PACE / GAME ENVIRONMENT LOGIC ---
-            // High Total (>232) -> Boost Overs, Penalty Unders
-            // Low Total (<218) -> Boost Unders, Penalty Overs
-            if (player.gameTotal > 0) {
-                if (player.gameTotal >= 232.0) {
-                    if (side === 'OVER') {
-                        conf += 0.05;
-                        narrative.push(`🔥 **Track Meet**: High Vegas Total (${player.gameTotal}) favors scoring environment.`);
-                    } else {
-                        conf -= 0.05;
-                    }
-                } else if (player.gameTotal <= 218.0) {
-                    if (side === 'UNDER') {
-                        conf += 0.05;
-                        narrative.push(`🐌 **Grind-it-out**: Low Vegas Total (${player.gameTotal}) suggests limited opportunities.`);
-                    } else {
-                        conf -= 0.05;
-                    }
-                }
-            }
+            // Blowout Penalty (Confidence)
+            if (Math.abs(player.gameTotal) > 13.5) confidence -= 0.08;
 
-            // --- APPLY CAPS ---
-            if (conf > maxCap) conf = maxCap;
+            let confGrade = 'C';
+            if (confidence > 0.90) confGrade = 'A+ 🌟';
+            else if (confidence > 0.80) confGrade = 'A';
+            else if (confidence > 0.70) confGrade = 'B';
 
+            let betRating = '✅ SOLID PLAY';
+            if (score > 7) betRating = '💪 STRONG PLAY';
+            if (score > 8) betRating = '🔥 ELITE';
+            if (score > 9) betRating = '💎 DIAMOND';
+            if (score > 10.5) betRating = '🔒 PROPHET LOCK';
 
-            // --- L5 HIT RATE LOGIC (NEW) ---
-            let l5Bonus = 0;
-            let l5Narrative = "";
-
-            // Normalize name key for lookup
-            const logKey = Object.keys(gameLogs).find(k => k.toLowerCase() === player.name.toLowerCase()) || player.name;
-            const pLogs = gameLogs[logKey];
-
-            if (pLogs && pLogs.length > 0) {
-                // Sort by date desc just in case
-                const recentLogs = pLogs.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-
-                let hits = 0;
-                let validGames = 0;
-
-                // Stat Mapping
-                const statMap = { 'p': 'pts', 'r': 'reb', 'a': 'ast', '3': 'threes', 's': 'stl', 'b': 'blk', 'to': 'to' };
-                let logStat = statMap[stat];
-                let isCombo = false;
-
-                // Handle Combined Stats
-                if (['pra', 'pr', 'pa', 'ra'].includes(stat)) {
-                    isCombo = true;
-                }
-
-                if (logStat || isCombo) {
-                    const values = [];
-                    recentLogs.forEach(g => {
-                        let val = 0;
-                        if (isCombo) {
-                            if (stat.includes('p')) val += (g.pts || 0);
-                            if (stat.includes('r')) val += (g.reb || 0);
-                            if (stat.includes('a')) val += (g.ast || 0);
-                        } else {
-                            val = g[logStat];
-                        }
-
-                        if (val !== undefined && val !== null) { // null check
-                            validGames++;
-                            values.push(val);
-                            if (side === 'OVER' && val > line) hits++;
-                            if (side === 'UNDER' && val < line) hits++;
-                        }
-                    });
-
-                    if (validGames >= 3) { // Require at least 3 games
-                        const avgStr = (values.reduce((a, b) => a + b, 0) / validGames).toFixed(1);
-
-                        // 0/5 Hits -> Disqualify
-                        if (hits === 0 && validGames === 5) {
-                            return; // DISQUALIFY: User Logic "0 of 5 = not a qualifying pick"
-                        }
-
-                        // Multipliers (Applied to Confidence, which scales Prophet Points directly)
-                        let l5Multiplier = 1.0;
-                        let icon = "";
-                        let sentiment = "";
-
-                        if (hits === 5) {
-                            l5Multiplier = 1.20; // +20%
-                            icon = "🔥";
-                            sentiment = "Perfect Form";
-                        } else if (hits === 4) {
-                            l5Multiplier = 1.15; // +15%
-                            icon = "🔥";
-                            sentiment = "Strong Form";
-                        } else if (hits === 3) {
-                            l5Multiplier = 1.0; // Neutral
-                            icon = "➡️";
-                            sentiment = "Steady";
-                        } else if (hits === 2) {
-                            l5Multiplier = 0.90; // -10%
-                            icon = "⚠️";
-                            sentiment = "Shaky Form";
-                        } else if (hits === 1) {
-                            l5Multiplier = 0.85; // -15%
-                            icon = "❄️";
-                            sentiment = "Cold/Risky";
-                        }
-
-                        // Apply Multiplier
-                        conf *= l5Multiplier;
-
-                        // Narrative - ALWAYS show if we have valid games
-                        if (validGames >= 3) {
-                            const bonusStr = (l5Multiplier > 1) ? `(+${Math.round((l5Multiplier - 1) * 100)}% Bonus)` :
-                                (l5Multiplier < 1) ? `(${Math.round((l5Multiplier - 1) * 100)}% Penalty)` :
-                                    "(No Adjustment)";
-                            const hitStr = `${hits}/${validGames}`;
-                            const color = (l5Multiplier > 1) ? '#4ade80' : (l5Multiplier < 1) ? '#f87171' : '#cbd5e1';
-                            l5Narrative = `${icon} **Last 5 Games**: ${sentiment} (${hitStr} Hits). Avg: ${avgStr}. <span style='color:${color}'>${bonusStr}</span>`;
-                        }
-                    }
-                }
-            }
-            conf += l5Bonus;
-
-            // Value C (Global Impact)
-            const valC = player.valueC || 0;
-            if (valC >= 1.5 && side === 'OVER') conf += 0.04;
-            else if (valC <= -1.5 && side === 'OVER') conf -= 0.04;
-
-            // Josh G (Sharp Input)
-            const josh = player.josh || 0;
-            const jMin = player.jMin || 0;
-            const jMax = player.jMax || 0;
-            if (josh >= 1.5 && side === 'OVER') conf += 0.06;
-            else if (josh <= -1.5 && side === 'UNDER') conf += 0.06;
-
-            if (side === 'OVER' && jMin > -1.0) conf += 0.03;
-            if (side === 'UNDER' && jMax < 1.0) conf += 0.03;
-
-            // Clamp Confidence
-            // User Request (Jan 23): Remove 99% Cap. Allow bonuses to stack > 100%.
-            // Setting flexible ceiling at 1.50 (150%) to prevent infinite blowout.
-            conf = Math.max(0.01, Math.min(1.50, conf));
-
-            // Confidence Grading (Stricter Thresholds)
-            let confGrade = "D";
-            if (conf >= 0.94) confGrade = "A+ 🌟"; // Was 0.90
-            else if (conf >= 0.88) confGrade = "A"; // Was 0.85
-            else if (conf >= 0.82) confGrade = "A-"; // Was 0.80
-            else if (conf >= 0.76) confGrade = "B+"; // Was 0.75
-            else if (conf >= 0.70) confGrade = "B";
-            else if (conf >= 0.60) confGrade = "C";
-
-            // Final Prophet Points Calculation
-            // SQUARED CONFIDENCE: Rewards high confidence exponentially.
-            // Addresses User feedback: 9.9 (73%) should NOT beat 9.5 (99%).
-            // With Square: 0.73^2 = 0.53 multiplier vs 0.99^2 = 0.98 multiplier.
-            const prophetPoints = (weightedEdge * (conf * conf) * 3.0).toFixed(2);
-
-            // Tier Logic
-            const ppt = parseFloat(prophetPoints);
-            // Relax filter slightly to allow testing
-            if (ppt < 4.0) return;
-
-            let betRating = "✅ SOLID PLAY";
-            if (ppt >= 10.5) betRating = "🔒 PROPHET LOCK";
-            else if (ppt >= 9.0) betRating = "💎 DIAMOND BOY";
-            else if (ppt >= 8.0) betRating = "🔥 ELITE";
-            else if (ppt >= 7.0) betRating = "💪 STRONG PLAY";
-
-            // Gates (Minutes/Rookie)
-            const min = player.min || 0;
-            const status = (player.status || '').toLowerCase();
-            let capAtStrong = false;
-
-            if (min < 23) capAtStrong = true;
-            if (status.includes('rookie') && (min < 23)) capAtStrong = true;
-
-            if (capAtStrong) {
-                if (betRating.includes("LOCK") || betRating.includes("DIAMOND") || betRating.includes("ELITE")) {
-                    betRating = "💪 STRONG PLAY";
-                }
-            }
-
-            // Narrative Generation
-            const displayStat = {
-                'p': 'Points', 'r': 'Rebounds', 'a': 'Assists', '3': 'Threes', 's': 'Steals', 'b': 'Blocks', 'to': 'Turnovers',
-                'pr': 'Pts+Reb', 'pa': 'Pts+Ast', 'ra': 'Reb+Ast', 'pra': 'Pts+Reb+Ast'
-            }[stat] || stat.toUpperCase();
-
-            // 1. THE OPENER
-            if (weightedEdge > 8.0) narrative.push(`💎 **Massive Discrepancy**: The model prices this at ${proj.toFixed(1)}, giving us a massive **${edge.toFixed(2)} unit cushion** vs the market.`);
-            else if (weightedEdge > 5.0) narrative.push(`💰 **Value Play**: We are capturing **${edge.toFixed(2)} points of implied value** here.`);
-            else narrative.push(`🎯 **Solid Edge**: Model identifies a **${edge.toFixed(2)} point gap** vs public perception.`);
-
-            // 2. THE MATCHUP
-            const formattedEase = (activeEaseVal * 100).toFixed(1) + '%';
-            if (activeEaseVal >= 0.20) {
-                if (side === 'OVER') {
-                    narrative.push(`✅ **Smash Spot**: ${oppTeam} defense is bleeding ${displayStat} to this position (+${formattedEase} Ease). High ceiling environment.`);
-                } else {
-                    narrative.push(`⚠️ **Dangerous Matchup**: ${oppTeam} allows high production (+${formattedEase} Ease). Risky spot for an Under.`);
-                }
-            } else if (activeEaseVal <= -0.20) {
-                if (side === 'UNDER') {
-                    narrative.push(`🔒 **Defensive Clamp**: ${oppTeam} ranks elite vs ${displayStat} (${formattedEase} Ease). Expect usage to struggle.`);
-                } else {
-                    narrative.push(`⚠️ **Tough Grind**: ${oppTeam} is elite vs ${displayStat} (${formattedEase} Ease). Player will need volume to hit.`);
-                }
-            } else if (Math.abs(activeEaseVal) < 0.10) {
-                narrative.push(`⚖️ **Neutral Spot**: Matchup is average, but the volume projection (${proj.toFixed(1)}) carries the play.`);
-            }
-
-            // 3. THE FORM (L5)
-            if (l5Narrative) narrative.push(l5Narrative);
-
-            // 4. THE RISKS & SHARP SIGNALS
-            if (Math.abs(gameSpread) >= 10) narrative.push(`⚠️ **Game Script**: ${gameSpread}pt spread implies a blowout. Size down slightly for 4th qtr sitting risk.`);
-            if (player.b2b >= 1) narrative.push(`⚠️ **Back-to-Back**: Player is on 0 days rest. Fatigue penalty applied.`);
-            if (capAtStrong) narrative.push(`⚠️ **Minute Restrictions**: Player minutes volatile or rookie status. Downgraded to STRONG.`);
-
-            if (player.josh > 1.0) narrative.push(`🦈 **Sharp Action**: 'Josh G' indicators signal smart money is backing this play.`);
-
-
-            const deepAnalysis = narrative.join('<br>');
-
-            // Construct Pick
             results.push({
                 player: player.name,
                 team: player.team,
@@ -1202,248 +829,259 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                 line: line,
                 projection: proj.toFixed(2),
                 edge: edge.toFixed(2),
-                ease: ease,
-                posEase: posEaseVal,
-                teamEase: teamEaseVal,
+                ease: easeScore,
+                posEase: posEase,
+                teamEase: teamEase,
                 usg: player.usg,
-                marketLine: `${line}`,
+                marketLine: lines[0].point.toString(),
                 betRating: betRating,
-                confidence: conf,
+                confidence: confidence,
                 confidenceGrade: confGrade,
-                score: prophetPoints,
-                interpretation: `Matchup: ${interpret(ease, stat, side)} | ${easeBreakdown}`,
-                analysis: deepAnalysis,
-                startTime: (lines && lines.length > 0 && lines[0].startTime) ? lines[0].startTime : player.startTime
+                score: score.toFixed(2),
+                interpretation: interpret(easeScore, stat, side),
+                analysis: "",
+                startTime: lines[0].startTime
             });
         });
     });
 
-    // Sort by Score
-    return results.sort((a, b) => b.score - a.score);
+    return results.sort((a, b) => parseFloat(b.score) - parseFloat(a.score));
 }
-
 
 // --- MAIN WORKFLOW ---
 (async () => {
     try {
-        // 1. Download
-        const xlsxBuffer = await downloadBBM();
+        console.log('🚀 Starting Prophet Daily Workflow...');
 
-        // 2. Parse
-        const players = parseBBM(xlsxBuffer);
+        // 1. Load History
+        let history = loadHistory();
 
-        // 3. Odds
-        const odds = await fetchOdds();
-
-        // 3a. Rebuild Ease DB (NOW SCRAPED)
-        const easeDb = await fetchBBMEase();
-
-        // 3b. Fetch Game Logs (NEW)
-        console.log('🚀 Launching browser for Game Log Scraper...');
-        const browser = await puppeteer.launch({
-            headless: "new",
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        }); // Fixed: explicit launch with CI args
+        // 1b. Fetch Game Logs & Resolve History
+        const browser = await puppeteer.launch({ headless: "new", args: ['--no-sandbox'] });
         const gameLogs = await fetchGameLogs(browser);
         await browser.close();
 
-        // 4. Analyze Matchups
-        console.log('🧠 [Step 4] Starting Analysis Engine...');
-        const picks = await analyzeMatchups(players, odds, easeDb, gameLogs);
+        history = resolveHistory(history, gameLogs);
 
-        console.log(`✅ Generated ${picks.length} picks.`);
+        // 2. Download & Parse
+        const bbmBuffer = await downloadBBM();
+        const bbmPlayers = parseBBM(bbmBuffer);
 
-        // --- HISTORY TRACKING ---
-        let history = loadHistory();
-        history = resolveHistory(history, gameLogs); // Always resolve/grade existing picks
+        // 3. Fetch Ease (Step 3b)
+        const easeDb = await fetchBBMEase();
 
-        // Find earliest start time
-        const earliest = picks.reduce((min, p) => {
-            const t = new Date(p.startTime).getTime();
-            return (t > 0 && t < min) ? t : min;
-        }, Infinity);
+        // 4. Fetch Odds
+        const oddsData = await fetchOdds();
 
-        let minutesUntilTip = -1;
-        if (earliest !== Infinity) {
-            const now = new Date().getTime();
-            minutesUntilTip = (earliest - now) / 60000;
-            console.log(`⏱️ Earliest Tip-Off in ${minutesUntilTip.toFixed(1)} mins`);
-        }
+        // 5. Analyze
+        const allPicks = await analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs);
 
-        // Logic: Snapshot picks if we are within the 'Active Day' window (e.g. 12 hours before tip)
-        // User Request (Jan 23): Track picks starting 10:30 AM daily.
-        // If tip is 4:00 PM (16:00), 10:30 AM is 5.5 hours (330 mins) prior.
-        // Setting safely to 720 mins (12 hours) to capture all day-of picks.
-        if (minutesUntilTip <= 720 && minutesUntilTip > -60) {
-            console.log(`🔒 ACTIVE WINDOW (<=12h): Snapshotting picks to History...`);
-            history = updateHistory(history, picks);
-        } else {
-            console.log(`⏳ No Commit: Outside Lock Window (> 12h before tip).`);
-        }
+        // 6. Filter & Format
+        const topPicks = allPicks.filter(p => parseFloat(p.score) > 4.5);
 
-        const recordStats = generateStats(history);
-        // ------------------------
+        // Generate Narratives
+        topPicks.forEach(p => {
+            let narrative = "";
+            const easePct = (p.ease * 100).toFixed(1);
 
-        // 5. Save
-        const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
-        const content = `window.LAST_UPDATED = "${timestamp}";\nwindow.PROPHET_RECORD = ${JSON.stringify(recordStats, null, 2)};\nwindow.LATEST_PICKS = ${JSON.stringify(picks, null, 2)};`;
-        fs.writeFileSync(OUTPUT_FILE, content);
-        console.log(`💾 Saved to ${OUTPUT_FILE}`);
+            // Ease Narrative
+            if (p.ease > 0.10) {
+                narrative += `✅ **Smart Over**: Defense is soft (+${easePct}% Ease). Supports the over. <span style='color:#4ade80'>(+12% Bonus)</span><br>`;
+            } else if (p.ease < -0.10) {
+                narrative += `⚠️ **Tough Matchup**: Defense is stingy (${easePct}% Ease). Tread carefully. <span style='color:#f87171'>(-35% Penalty)</span><br>`;
+            }
 
-        // 6. Check for Alerts
-        await sendAlerts(picks);
+            // Game Total Narrative
+            if (p.gameTotal > 230) {
+                narrative += `🔥 **Track Meet**: High Vegas Total (${p.gameTotal}) favors scoring environment.<br>`;
+            } else if (p.gameTotal < 210 && p.gameTotal > 0) {
+                narrative += `🧊 **Grind It Out**: Low Vegas Total (${p.gameTotal}) suggests slower pace.<br>`;
+            }
 
-    } catch (err) {
-        console.error('❌ FATAL ERROR:', err);
-        // Write error to file so we can see it in repo
-        try {
-            fs.writeFileSync('last_run_error.txt', `FAILED: ${err.message}\nStack: ${err.stack}`);
-        } catch (writeErr) {
-            console.error('Failed to write error log:', writeErr);
-        }
-        process.exit(1);
-    }
-})();
+            // Edge Narrative
+            narrative += `🎯 **Solid Edge**: Model identifies a **${p.edge} point gap** vs public perception.<br>`;
 
-// --- ALERT SYSTEM ---
-async function sendAlerts(picks) {
-    if (!EMAIL_USER || !EMAIL_PASS) {
-        console.log('⚠️ No Email Credentials found. Skipping alerts.');
-        return;
-    }
-
-    // Load History
-    let sentIds = [];
-    if (fs.existsSync(ALERTS_FILE)) {
-        sentIds = JSON.parse(fs.readFileSync(ALERTS_FILE, 'utf8'));
-    }
-
-    // 1. Filter for Locks that haven't been sent (Check Player+Date collision)
-    // We want 1 alert per player per day.
-    let candidates = picks.filter(p => p.tier.includes('LOCK'));
-    let newLocks = [];
-
-    // Helper to sanitize name matches (matches ID generation usually)
-    const sanitize = (name) => name.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
-
-    for (const p of candidates) {
-        const pName = sanitize(p.player);
-
-        // Check History: Has this Player already been alerted TODAY?
-        // ID Format: Name-Stat-Date (e.g. LeBronJames-pts-2026-01-26)
-        // We check if sentIds contains anything starting with Name and ending with Date
-        const alreadySent = sentIds.some(sentId => {
-            return sentId.startsWith(pName + '-') && sentId.endsWith(p.date);
-        });
-
-        if (!alreadySent) {
-            newLocks.push(p);
-        }
-    }
-
-    // 2. Deduplicate within THIS batch (Safety: If LeBron has 2 new locks, only send best)
-    // Sort by Score descending
-    newLocks.sort((a, b) => b.score - a.score);
-
-    const uniqueLocks = [];
-    const seenInBatch = new Set();
-
-    for (const p of newLocks) {
-        const pName = sanitize(p.player);
-        if (!seenInBatch.has(pName)) {
-            uniqueLocks.push(p);
-            seenInBatch.add(pName);
-        }
-    }
-
-    if (uniqueLocks.length === 0) {
-        console.log('📭 No NEW (Unique) Prophet Locks to alert.');
-        return;
-    }
-
-    console.log(`📧 Found ${uniqueLocks.length} NEW Unique Locks! Sending email...`);
-
-    // Setup Transporter (Gmail)
-    let transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: EMAIL_USER,
-            pass: EMAIL_PASS
-        }
-    });
-
-    // Load Subscribers
-    const SUBSCRIBERS_FILE = path.join(__dirname, '../history/subscribers.json');
-    let recipients = [EMAIL_TO]; // Default to admin
-    if (fs.existsSync(SUBSCRIBERS_FILE)) {
-        const subs = JSON.parse(fs.readFileSync(SUBSCRIBERS_FILE, 'utf8'));
-        if (Array.isArray(subs) && subs.length > 0) {
-            recipients = subs;
-        }
-    }
-
-    console.log(`📧 Sending to ${recipients.length} subscribers...`);
-
-    // Build Email Body
-    let html = `<h2>🚀 New Prophet Locks Detected!</h2>`;
-    uniqueLocks.forEach(p => {
-        html += `
-        <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
-            <h3 style="color: #10b981;">${p.player} (${p.team})</h3>
-            <p><strong>Pick:</strong> ${p.stat} ${p.side} ${p.line}</p>
-            <p><strong>Score:</strong> ${p.score} 💎</p>
-            <p><strong>Edge:</strong> ${p.edge}%</p>
-            <p><em>"${p.interpretation}"</em></p>
-        </div>
-        `;
-    });
-    html += `<p><a href="https://prop-prophet.vercel.app">View Dashboard</a></p>`;
-
-    // Send
-    try {
-        await transporter.sendMail({
-            from: `"Prophet Bot" <${EMAIL_USER}>`,
-            bcc: recipients, // Use BCC for privacy
-            subject: `🔒 ${uniqueLocks.length} New Prophet Lock(s)!`,
-            html: html
-        });
-        console.log('✅ Email sent successfully!');
-
-        // --- SMS ALERT SYSTEM (Jan 27) ---
-        const SMS_FILE = path.join(__dirname, '../history/sms_subscribers.json');
-        if (fs.existsSync(SMS_FILE)) {
-            const smsList = JSON.parse(fs.readFileSync(SMS_FILE, 'utf8'));
-            if (smsList.length > 0 && TWILIO_SID && TWILIO_TOKEN && TWILIO_PHONE) {
-                console.log(`📱 Sending SMS to ${smsList.length} numbers...`);
-                // Lazy load twilio to avoid crash if not installed/configured
-                try {
-                    const client = require('twilio')(TWILIO_SID, TWILIO_TOKEN);
-                    const firstLock = uniqueLocks[0];
-                    // "Prophet Lock: [Player] [Stat] [Line]. Analysis: [Link]"
-                    const msg = `🔒 PROPHET LOCK: ${firstLock.player} (${firstLock.team}) ${firstLock.stat.toUpperCase()} ${firstLock.side} ${firstLock.line} ${firstLock.line}.\nConf: ${(firstLock.confidence * 100).toFixed(0)}%\n\nAnalysis: https://prop-prophet.vercel.app`;
-
-                    for (const number of smsList) {
-                        try {
-                            await client.messages.create({ body: msg, from: TWILIO_PHONE, to: number });
-                            console.log(`   -> Sent to ${number}`);
-                        } catch (smsErr) {
-                            console.error(`   ❌ Failed to SMS ${number}:`, smsErr.message);
-                        }
+            // L5 Narrative (from Game Logs)
+            const logKey = Object.keys(gameLogs).find(k => k.toLowerCase() === p.player.toLowerCase());
+            if (logKey) {
+                const logs = gameLogs[logKey].slice(0, 5); // Last 5
+                let hits = 0;
+                let sum = 0;
+                logs.forEach(g => {
+                    // Calc stat
+                    const statMap = { 'p': 'pts', 'r': 'reb', 'a': 'ast', '3': 'threes', 's': 'stl', 'b': 'blk', 'to': 'to' };
+                    const logStat = statMap[p.stat];
+                    let val = 0;
+                    if (['pra', 'pr', 'pa', 'ra'].includes(p.stat)) {
+                        if (p.stat.includes('p')) val += g.pts;
+                        if (p.stat.includes('r')) val += g.reb;
+                        if (p.stat.includes('a')) val += g.ast;
+                    } else {
+                        val = g[logStat];
                     }
-                } catch (loadErr) {
-                    console.error('❌ Twilio load error:', loadErr.message);
-                }
+                    sum += val;
+                    if (p.side === 'OVER' && val > p.line) hits++;
+                    if (p.side === 'UNDER' && val < p.line) hits++;
+                });
+                const avg = (sum / 5).toFixed(1);
+
+                if (hits >= 4) narrative += `🔥 **Last 5 Games**: Strong Form (${hits}/5 Hits). Avg: ${avg}. <span style='color:#4ade80'>(+15% Bonus)</span>`;
+                else if (hits <= 1) narrative += `⚠️ **Last 5 Games**: Shaky Form (${hits}/5 Hits). Avg: ${avg}. <span style='color:#f87171'>(-10% Penalty)</span>`;
+                else narrative += `➡️ **Last 5 Games**: Steady (${hits}/5 Hits). Avg: ${avg}. <span style='color:#cbd5e1'>(No Adjustment)</span>`;
+            }
+
+            // Smash Spot
+            if (p.ease > 0.50) {
+                const statLabel = p.stat.toUpperCase().replace('P', 'Points').replace('R', 'Reb').replace('A', 'Ast');
+                narrative += `<br>✅ **Smash Spot**: ${p.opp} defense is bleeding ${statLabel} to this position (+${easePct}% Ease). High ceiling environment.`;
+            }
+
+            // Rotation Volatility
+            if (narrative.includes("Rotation Risk")) {
+                narrative += `<br>⚠️ **Rotation Risk**: Projected minutes (${p.min}) match recent workloads.`;
+            }
+
+            p.analysis = narrative;
+        });
+
+        // 7. Update History with NEW picks
+        history = updateHistory(history, topPicks);
+
+        // 8. Generate Record (Stats)
+        const record = generateStats(history);
+
+        // 9. Output to File
+        const outputContent = `window.LAST_UPDATED = "${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}";\n` +
+            `window.PROPHET_RECORD = ${JSON.stringify(record, null, 2)};\n` +
+            `window.LATEST_PICKS = ${JSON.stringify(topPicks, null, 2)};`;
+
+        fs.writeFileSync(OUTPUT_FILE, outputContent);
+        console.log(`✅ Success! Updated ${OUTPUT_FILE} with ${topPicks.length} picks.`);
+
+        // --- NOTIFICATION SYSTEM ---
+        const ALERTS_FILE = path.join(__dirname, '../history/prophet_alerts.json');
+        let sentIds = [];
+        try {
+            if (fs.existsSync(ALERTS_FILE)) {
+                sentIds = JSON.parse(fs.readFileSync(ALERTS_FILE, 'utf8'));
+            }
+        } catch (e) { }
+
+        // Filter for NEW Unique Locks
+        // Logic: Must be "PROPHET LOCK", Must NOT be in sentIds
+        const newLocks = topPicks.filter(p =>
+            p.betRating === '🔒 PROPHET LOCK' &&
+            !sentIds.includes(`${p.player}-${p.stat}-${p.line}`) // Check if exactly this bet was sent
+            // Actually, best to use the generated ID logic? 
+            // Let's use simple logic: If we haven't alerted this Player+Stat this cycle.
+        ).map(p => ({
+            ...p,
+            id: `${p.player}-${p.stat}-${p.line}` // Simple ID
+        })).filter(p => !sentIds.includes(p.id));
+
+        // Deduplicate (e.g. don't send 2 emails for same player if multiple lines hit)
+        const uniqueLocks = [];
+        const seenInBatch = new Set();
+        const sanitize = (n) => n.toLowerCase().replace(/[^a-z]/g, '');
+
+        for (const p of newLocks) {
+            const pName = sanitize(p.player);
+            if (!seenInBatch.has(pName)) {
+                uniqueLocks.push(p);
+                seenInBatch.add(pName);
             }
         }
 
-        // Update History (Add the IDs of the sent ones)
-        // Note: We only add the IDs we SENT.
-        uniqueLocks.forEach(p => sentIds.push(p.id));
-        fs.writeFileSync(ALERTS_FILE, JSON.stringify(sentIds, null, 2));
+        if (uniqueLocks.length === 0) {
+            console.log('📭 No NEW (Unique) Prophet Locks to alert.');
+            return;
+        }
+
+        console.log(`📧 Found ${uniqueLocks.length} NEW Unique Locks! Sending email...`);
+
+        // Setup Transporter (Gmail)
+        let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: EMAIL_USER,
+                pass: EMAIL_PASS
+            }
+        });
+
+        // Load Subscribers
+        const SUBSCRIBERS_FILE = path.join(__dirname, '../history/subscribers.json');
+        let recipients = [EMAIL_TO]; // Default to admin
+        if (fs.existsSync(SUBSCRIBERS_FILE)) {
+            const subs = JSON.parse(fs.readFileSync(SUBSCRIBERS_FILE, 'utf8'));
+            if (Array.isArray(subs) && subs.length > 0) {
+                recipients = subs;
+            }
+        }
+
+        console.log(`📧 Sending to ${recipients.length} subscribers...`);
+
+        // Build Email Body
+        let html = `<h2>🚀 New Prophet Locks Detected!</h2>`;
+        uniqueLocks.forEach(p => {
+            html += `
+            <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+                <h3 style="color: #10b981;">${p.player} (${p.team})</h3>
+                <p><strong>Pick:</strong> ${p.stat} ${p.side} ${p.line}</p>
+                <p><strong>Score:</strong> ${p.score} 💎</p>
+                <p><strong>Edge:</strong> ${p.edge}%</p>
+                <p><em>"${p.interpretation}"</em></p>
+            </div>
+            `;
+        });
+        html += `<p><a href="https://prop-prophet.vercel.app">View Dashboard</a></p>`;
+
+        // Send
+        try {
+            await transporter.sendMail({
+                from: `"Prophet Bot" <${EMAIL_USER}>`,
+                bcc: recipients, // Use BCC for privacy
+                subject: `🔒 ${uniqueLocks.length} New Prophet Lock(s)!`,
+                html: html
+            });
+            console.log('✅ Email sent successfully!');
+
+            // --- SMS ALERT SYSTEM (Jan 27) ---
+            // Option A: Email-to-SMS Gateway
+            const SMS_FILE = path.join(__dirname, '../history/sms_subscribers.json');
+            if (fs.existsSync(SMS_FILE)) {
+                const smsList = JSON.parse(fs.readFileSync(SMS_FILE, 'utf8'));
+                if (smsList.length > 0) {
+                    console.log(`📱 Sending Text-Emails to ${smsList.length} numbers...`);
+
+                    const firstLock = uniqueLocks[0];
+                    const txtBody = `🔒 PROPHET LOCK: ${firstLock.player} (${firstLock.team}) ${firstLock.stat.toUpperCase()} ${firstLock.side} ${firstLock.line}. Edge: ${firstLock.edge} units. Conf: ${(firstLock.confidence * 100).toFixed(0)}%. Analysis: prop-prophet.vercel.app`;
+
+                    for (const recipient of smsList) {
+                        try {
+                            await transporter.sendMail({
+                                from: `"Prophet Bot" <${EMAIL_USER}>`,
+                                to: recipient,
+                                subject: "",
+                                text: txtBody
+                            });
+                            console.log(`   -> Sent to ${recipient}`);
+                        } catch (smsErr) {
+                            console.error(`   ❌ Failed to SMS-Email ${recipient}:`, smsErr.message);
+                        }
+                    }
+                }
+            }
+
+            // Update History (Add the IDs of the sent ones)
+            uniqueLocks.forEach(p => sentIds.push(p.id));
+            fs.writeFileSync(ALERTS_FILE, JSON.stringify(sentIds, null, 2));
+
+        } catch (err) {
+            console.error('❌ Failed to send email:', err);
+        }
 
     } catch (err) {
-        console.error('❌ Failed to send email:', err);
+        console.error('❌ Workflow Failed:', err);
+        process.exit(1);
     }
-}
-
-// [Duplicate IIFE Removed]
+})();

@@ -8,6 +8,11 @@ on:
     # 11:00 AM PST (19:00 UTC) - Morning Recon
     - cron: '0 19 * * *'
     
+    # 1:00 PM PST (21:00 UTC) - Mid-Day Update
+    - cron: '0 21 * * *'
+    # 2:00 PM PST (22:00 UTC) - Pre-Crunch
+    - cron: '0 22 * * *'
+    
     # CRUNCH TIME (3-8pm PST every 30 min)
     # 3:00 PM PST (23:00 UTC)
     - cron: '0 23 * * *'

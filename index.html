@@ -516,9 +516,16 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
+            performLogin(username, password);
+        }
+
+        function performLogin(username, password) {
             if ((username === 'owner' && password === 'Reempicks1!') ||
                 (username === 'guest' && password === 'prophet')) {
                 currentUser = username;
+                // PERSIST SESSION
+                localStorage.setItem('prophetUser', username);
+
                 document.getElementById('login-page').classList.add('hidden');
                 document.getElementById('dashboard-page').classList.remove('hidden');
                 document.getElementById('username-display').textContent = username;
@@ -541,14 +548,24 @@
                     }
                 }
 
-                showAlert('success', `Welcome, ${username}!`);
+                showAlert('success', `Welcome back, ${username}!`);
             } else {
                 showAlert('error', 'Invalid username or password');
             }
         }
 
+        // Auto-Login on Load
+        window.addEventListener('load', () => {
+            const savedUser = localStorage.getItem('prophetUser');
+            if (savedUser) {
+                if (savedUser === 'owner') performLogin('owner', 'Reempicks1!');
+                else if (savedUser === 'guest') performLogin('guest', 'prophet');
+            }
+        });
+
         function logout() {
             currentUser = null;
+            localStorage.removeItem('prophetUser'); // Clear Session
             document.getElementById('dashboard-page').classList.add('hidden');
             document.getElementById('login-page').classList.remove('hidden');
             document.getElementById('owner-only').classList.add('hidden');

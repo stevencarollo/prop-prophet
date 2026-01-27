@@ -550,7 +550,8 @@
 
                 const data = await resp.json();
                 if (resp.ok) {
-                    showAlert('success', '✅ SMS Alerts Activated!');
+                    // Show actual server message (which includes "SMS Failed" details if applicable)
+                    showAlert('success', `✅ ${data.message}`);
                     document.getElementById('sub-phone').value = '';
                 } else {
                     throw new Error(data.message || 'SMS Setup Failed');

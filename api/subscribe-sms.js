@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const nodemailer = require('nodemailer');
 
 // CONFIG
 const GITHUB_REPO = 'stevencarollo/prop-prophet';
@@ -51,7 +52,6 @@ module.exports = async function handler(req, res) {
 
         // 4. Send Welcome SMS (Helper)
         async function sendWelcome(target) {
-            const nodemailer = require('nodemailer');
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
@@ -64,14 +64,19 @@ module.exports = async function handler(req, res) {
                     text: "Psssst Hey. Its me the Prophet. Welcome to Prophet Lock Text Line. If i see something worth your time, I'll be sure to send it over. Please merk responsibly"
                 });
                 console.log('✅ Welcome SMS sent to:', target);
-            } catch (err) { console.error('⚠️ Welcome SMS failed:', err.message); }
+                return { sent: true };
+            } catch (err) {
+                console.error('⚠️ Welcome SMS failed:', err.message);
+                return { sent: false, error: err.message };
+            }
         }
 
         // 2. Add Subscriber
         if (subscribers.includes(email)) {
             // ALREADY SUBSCRIBED? Send Welcome anyway (User requested to duplicate action to test)
-            await sendWelcome(email);
-            return res.status(200).json({ message: 'Already subscribed (Welcome resent)' });
+            const result = await sendWelcome(email);
+            const msg = result.sent ? 'Already subscribed (Welcome resent!)' : `Already subscribed (But SMS Failed: ${result.error})`;
+            return res.status(200).json({ message: msg });
         }
 
         // NEW SUBSCRIBER
@@ -89,7 +94,7 @@ module.exports = async function handler(req, res) {
             body: JSON.stringify({
                 message: `📱 SMS Subscribe: ${email}`,
                 content: newContent,
-                sha: sha,
+                sha: sha, // If null, creates new file
                 branch: BRANCH
             })
         });
@@ -100,8 +105,9 @@ module.exports = async function handler(req, res) {
         }
 
         // Send Welcome to New User
-        await sendWelcome(email);
-        return res.status(200).json({ message: 'Success' });
+        const result = await sendWelcome(email);
+        const msg = result.sent ? 'Success' : `Success (But SMS Failed: ${result.error})`;
+        return res.status(200).json({ message: msg });
 
     } catch (error) {
         console.error('Subscribe SMS Error:', error);

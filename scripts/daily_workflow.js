@@ -1292,6 +1292,12 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
 
     } catch (err) {
         console.error('❌ FATAL ERROR:', err);
+        // Write error to file so we can see it in repo
+        try {
+            fs.writeFileSync('last_run_error.txt', `FAILED: ${err.message}\nStack: ${err.stack}`);
+        } catch (writeErr) {
+            console.error('Failed to write error log:', writeErr);
+        }
         process.exit(1);
     }
 })();
@@ -1410,43 +1416,4 @@ async function sendAlerts(picks) {
     }
 }
 
-// --- EXECUTION ---
-(async () => {
-    try {
-        console.log('🚀 Starting Prophet Daily Workflow...');
-
-        // 1. Download & Parse BBM
-        const bbmBuffer = await downloadBBM();
-        const players = parseBBM(bbmBuffer);
-
-        if (players.length === 0) throw new Error('No players parsed from BBM Excel.');
-
-        console.log(`✅ Loaded ${players.length} players from BBM.`);
-
-        // 2. Fetch Market Lines (Batched)
-        const picks = await processPlayers(players);
-
-        console.log(`✅ Generated ${picks.length} picks.`);
-
-        // 3. Save to File
-        const fileContent = `window.LAST_UPDATED = "${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}";\n` +
-            `window.PROPHET_RECORD = ${JSON.stringify(require('../history/prophet_history.json'), null, 2)};\n` +
-            `window.LATEST_PICKS = ${JSON.stringify(picks, null, 2)};`;
-
-        fs.writeFileSync(OUTPUT_FILE, fileContent);
-        console.log(`💾 Saved to ${OUTPUT_FILE}`);
-
-        // 4. Send Alerts
-        await sendAlerts(picks);
-
-        // Success - Clear Error Log (if it existed)
-        // fs.writeFileSync('last_run_error.txt', 'Values: Success'); 
-        // (Optional: Don't clutter repo with success logs, only errors)
-
-    } catch (err) {
-        console.error('❌ WORKFLOW FAILED:', err);
-        // Write error to file so we can see it in repo
-        fs.writeFileSync('last_run_error.txt', `FAILED: ${err.message}\nStack: ${err.stack}`);
-        process.exit(1);
-    }
-})();
+// [Duplicate IIFE Removed]

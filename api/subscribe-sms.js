@@ -77,6 +77,29 @@ module.exports = async function handler(req, res) {
             throw new Error(`GitHub Put Failed: ${putErr}`);
         }
 
+        // 4. Send Welcome SMS (via Email)
+        const nodemailer = require('nodemailer');
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        try {
+            await transporter.sendMail({
+                from: `"Prophet Bot" <${process.env.EMAIL_USER}>`,
+                to: email, // The phone number gateway address
+                subject: "", // Keep subject empty for cleaner text
+                text: "Psssst Hey. Its me the Prophet. Welcome to Prophet Lock Text Line. If i see something worth your time, I'll be sure to send it over. Please merk responsibly"
+            });
+            console.log('✅ Welcome SMS sent to:', email);
+        } catch (mailErr) {
+            console.error('⚠️ Failed to send welcome SMS:', mailErr);
+            // Don't fail the request, just log it
+        }
+
         return res.status(200).json({ message: 'Success' });
 
     } catch (error) {

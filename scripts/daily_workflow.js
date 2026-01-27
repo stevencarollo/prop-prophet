@@ -1047,22 +1047,27 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
 
             // --- SMS ALERT SYSTEM (Jan 27) ---
             // Option A: Email-to-SMS Gateway
+            // We now treat "SMS Subscribers" as just special email addresses.
+            // They are loaded from 'history/sms_subscribers.json' and sent via Nodemailer.
+
             const SMS_FILE = path.join(__dirname, '../history/sms_subscribers.json');
             if (fs.existsSync(SMS_FILE)) {
                 const smsList = JSON.parse(fs.readFileSync(SMS_FILE, 'utf8'));
                 if (smsList.length > 0) {
                     console.log(`📱 Sending Text-Emails to ${smsList.length} numbers...`);
 
+                    // For SMS, we want Plain Text ONLY (no HTML) to avoid garbage characters.
                     const firstLock = uniqueLocks[0];
                     const txtBody = `🔒 PROPHET LOCK: ${firstLock.player} (${firstLock.team}) ${firstLock.stat.toUpperCase()} ${firstLock.side} ${firstLock.line}. Edge: ${firstLock.edge} units. Conf: ${(firstLock.confidence * 100).toFixed(0)}%. Analysis: prop-prophet.vercel.app`;
 
+                    // Send individually to avoid exposing numbers in "To" field (privacy)
                     for (const recipient of smsList) {
                         try {
                             await transporter.sendMail({
                                 from: `"Prophet Bot" <${EMAIL_USER}>`,
                                 to: recipient,
-                                subject: "",
-                                text: txtBody
+                                subject: "", // SMS often ignore subject or show it as part of body. Keep empty or short.
+                                text: txtBody // Plain text only
                             });
                             console.log(`   -> Sent to ${recipient}`);
                         } catch (smsErr) {

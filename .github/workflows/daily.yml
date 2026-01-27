@@ -77,10 +77,11 @@ jobs:
         continue-on-error: false  # Fail workflow if this fails
       
       - name: Commit & Push Results
+        if: always() # Run even if script fails (to save error log)
         run: |
           git config --global user.name "Prophet Bot"
           git config --global user.email "bot@prop-prophet.com"
-          git add latest_picks_live.js history/prophet_history.json ease_rankings.json
+          git add latest_picks_live.js history/prophet_history.json ease_rankings.json last_run_error.txt
           git diff --staged --quiet || git commit -m "🤖 Auto-Update: $(date +'%Y-%m-%d %H:%M PST')"
           git pull --rebase origin main
           git push origin main

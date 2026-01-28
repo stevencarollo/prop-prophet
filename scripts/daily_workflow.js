@@ -706,8 +706,8 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
     const STAT_WEIGHTS = {
         'p': 1.0, 'pr': 1.0, 'pa': 1.0, 'pra': 1.0, 'ra': 1.0,
         'r': 1.2, 'a': 1.2,
-        '3': 1.6,
-        's': 4.5, 'b': 4.5, 'to': 3.0
+        '3': 3.0,
+        's': 12.0, 'b': 12.0, 'to': 6.0
     };
 
     bbmPlayers.forEach(player => {

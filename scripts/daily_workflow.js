@@ -1102,10 +1102,9 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             else if (conf >= 0.60) confGrade = "C";
 
             // Final Prophet Points Calculation
-            // SQUARED CONFIDENCE: Rewards high confidence exponentially.
-            // Addresses User feedback: 9.9 (73%) should NOT beat 9.5 (99%).
-            // With Square: 0.73^2 = 0.53 multiplier vs 0.99^2 = 0.98 multiplier.
-            const prophetPoints = (weightedEdge * (conf * conf) * 3.0).toFixed(2);
+            // BALANCED FORMULA: Edge ~50%, Confidence ~50%
+            // Linear confidence (not squared) gives more weight to confidence factors
+            const prophetPoints = (weightedEdge * conf * 2.5).toFixed(2);
 
             // Tier Logic
             const ppt = parseFloat(prophetPoints);

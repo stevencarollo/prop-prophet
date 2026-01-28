@@ -1261,6 +1261,10 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
 function shouldSendAlert(pick) {
     if (pick.betRating !== '🔒 PROPHET LOCK') return false;
 
+    // User Request Jan 28: Strict Confidence Threshold for Texts
+    // Only text if Confidence is 99% or higher.
+    if (pick.confidence < 0.99) return false;
+
     // Load or create alerts sent file
     let sent = {};
     if (fs.existsSync(ALERTS_SENT_FILE)) {
@@ -1315,22 +1319,32 @@ async function sendAlerts(picks) {
         auth: { user: EMAIL_USER, pass: EMAIL_PASS }
     });
 
-    for (const pick of newLocks) {
-        const body = `🚨 PROPHET LOCK ALERT 🚨\n\n${pick.player} (${pick.team}) vs ${pick.opp}\nStat: ${pick.stat.toUpperCase()}\nSide: ${pick.side} ${pick.line}\nEdge: ${pick.edge}\nConfidence: ${pick.confidenceGrade}\n\n"Please merk responsibly."`;
+    // --- BATCH NOTIFICATION LOGIC (User Request Jan 28) ---
+    // Combined multiple locks into ONE message to prevent spam.
 
-        console.log(`📧 Mailing LOCK: ${pick.player}...`);
+    let batchBody = `🚨 PROPHET LOCK BATCH 🚨\n\n`;
 
-        try {
-            await transporter.sendMail({
-                from: `"Prophet Bot" <${EMAIL_USER}>`,
-                to: allRecipients.join(','),
-                subject: `🔒 LOCK: ${pick.player}`,
-                text: body
-            });
-            console.log(`✅ Alert sent for ${pick.player}`);
-        } catch (err) {
-            console.error(`❌ Failed to send alert for ${pick.player}:`, err.message);
-        }
+    newLocks.forEach((pick, index) => {
+        batchBody += `${index + 1}. ${pick.player} (${pick.team})\n`;
+        batchBody += `${pick.stat.toUpperCase()} ${pick.side} ${pick.line}\n`;
+        batchBody += `Conf: ${pick.confidenceGrade} | Edge: ${pick.edge}\n`;
+        batchBody += `----------------\n`;
+    });
+
+    batchBody += `\n"Please merk responsibly."`;
+
+    console.log(`📧 Mailing BATCH of ${newLocks.length} locks...`);
+
+    try {
+        await transporter.sendMail({
+            from: `"Prophet Bot" <${EMAIL_USER}>`,
+            to: allRecipients.join(','),
+            subject: `🔒 ${newLocks.length} NEW LOCKS FOUND`,
+            text: batchBody
+        });
+        console.log(`✅ Batch Alert sent successfully.`);
+    } catch (err) {
+        console.error(`❌ Failed to send batch alert:`, err.message);
     }
 }
 

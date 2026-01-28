@@ -901,18 +901,26 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             // Was /8.5 -> Now /12.5 to prevent edge inflation
             let conf = 0.5 + (weightedEdge / 12.5);
 
-            // --- INCREMENTAL EASE BONUS/PENALTY (Jan 27) ---
-            // Starts at ±30% ease, scales up to max ±20% confidence adjustment
-            // Formula: For every 10% ease beyond 30%, add 5% bonus/penalty (max 20%)
+            // --- TIERED EASE BONUS SYSTEM (Jan 27 v2) ---
+            // Rewards extreme ease values more:
+            // 30-50% ease: +5-10% bonus | 50-70%: +10-15% | 70-100%: +15-25% | 100%+: +25-35%
             let easeAdjustment = 0;
-            const easeThreshold = 0.30; // Start applying at ±30%
-            const maxBonus = 0.20; // Max ±20% bonus/penalty
+            const absEase = Math.abs(activeEaseVal);
 
-            if (Math.abs(activeEaseVal) > easeThreshold) {
-                // Calculate how far beyond threshold (capped for smooth scaling)
-                const excessEase = Math.min(Math.abs(activeEaseVal) - easeThreshold, 0.40);
-                // Scale: 40% excess = 20% bonus (so each 1% excess = 0.5% bonus)
-                easeAdjustment = (excessEase / 0.40) * maxBonus;
+            if (absEase > 0.30) {
+                if (absEase >= 1.00) {
+                    // EXTREME: 100%+ ease → 25-35% bonus
+                    easeAdjustment = 0.25 + Math.min((absEase - 1.00), 0.50) * 0.20; // Scales 25% → 35%
+                } else if (absEase >= 0.70) {
+                    // HIGH: 70-100% ease → 15-25% bonus  
+                    easeAdjustment = 0.15 + ((absEase - 0.70) / 0.30) * 0.10; // Scales 15% → 25%
+                } else if (absEase >= 0.50) {
+                    // MEDIUM: 50-70% ease → 10-15% bonus
+                    easeAdjustment = 0.10 + ((absEase - 0.50) / 0.20) * 0.05; // Scales 10% → 15%
+                } else {
+                    // LOW: 30-50% ease → 5-10% bonus
+                    easeAdjustment = 0.05 + ((absEase - 0.30) / 0.20) * 0.05; // Scales 5% → 10%
+                }
 
                 // Apply as bonus (aligned) or penalty (contradicts)
                 const isAligned = (side === 'OVER' && activeEaseVal > 0) || (side === 'UNDER' && activeEaseVal < 0);
@@ -1048,11 +1056,11 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                             icon = "➡️";
                             sentiment = "Steady";
                         } else if (hits === 2) {
-                            l5Multiplier = 0.90; // -10%
+                            l5Multiplier = 0.93; // -7% (was -10%)
                             icon = "⚠️";
                             sentiment = "Shaky Form";
                         } else if (hits === 1) {
-                            l5Multiplier = 0.85; // -15%
+                            l5Multiplier = 0.88; // -12% (was -15%)
                             icon = "❄️";
                             sentiment = "Cold/Risky";
                         }
@@ -1142,19 +1150,26 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             else if (weightedEdge > 5.0) narrative.push(`💰 **Value Play**: We are capturing **${edge.toFixed(2)} points of implied value** here.`);
             else narrative.push(`🎯 **Solid Edge**: Model identifies a **${edge.toFixed(2)} point gap** vs public perception.`);
 
-            // 2. THE MATCHUP
+            // 2. THE MATCHUP (with Ease Bonus Display)
             const formattedEase = (activeEaseVal * 100).toFixed(1) + '%';
+            const easeBonus = (easeAdjustment * 100).toFixed(0);
+            const isAligned = (side === 'OVER' && activeEaseVal > 0) || (side === 'UNDER' && activeEaseVal < 0);
+            const easeBonusStr = easeAdjustment > 0
+                ? (isAligned ? `<span style='color:#4ade80'>(+${easeBonus}% Bonus)</span>`
+                    : `<span style='color:#f87171'>(-${easeBonus}% Penalty)</span>`)
+                : '';
+
             if (activeEaseVal >= 0.20) {
                 if (side === 'OVER') {
-                    narrative.push(`✅ **Smash Spot**: ${oppTeam} defense is bleeding ${displayStat} to this position (+${formattedEase} Ease). High ceiling environment.`);
+                    narrative.push(`✅ **Smash Spot**: ${oppTeam} defense is bleeding ${displayStat} to this position (+${formattedEase} Ease). High ceiling environment. ${easeBonusStr}`);
                 } else {
-                    narrative.push(`⚠️ **Dangerous Matchup**: ${oppTeam} allows high production (+${formattedEase} Ease). Risky spot for an Under.`);
+                    narrative.push(`⚠️ **Dangerous Matchup**: ${oppTeam} allows high production (+${formattedEase} Ease). Risky spot for an Under. ${easeBonusStr}`);
                 }
             } else if (activeEaseVal <= -0.20) {
                 if (side === 'UNDER') {
-                    narrative.push(`🔒 **Defensive Clamp**: ${oppTeam} ranks elite vs ${displayStat} (${formattedEase} Ease). Expect usage to struggle.`);
+                    narrative.push(`🔒 **Defensive Clamp**: ${oppTeam} ranks elite vs ${displayStat} (${formattedEase} Ease). Expect usage to struggle. ${easeBonusStr}`);
                 } else {
-                    narrative.push(`⚠️ **Tough Grind**: ${oppTeam} is elite vs ${displayStat} (${formattedEase} Ease). Player will need volume to hit.`);
+                    narrative.push(`⚠️ **Tough Grind**: ${oppTeam} is elite vs ${displayStat} (${formattedEase} Ease). Player will need volume to hit. ${easeBonusStr}`);
                 }
             } else if (Math.abs(activeEaseVal) < 0.10) {
                 narrative.push(`⚖️ **Neutral Spot**: Matchup is average, but the volume projection (${proj.toFixed(1)}) carries the play.`);

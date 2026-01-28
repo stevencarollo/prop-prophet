@@ -4,6 +4,7 @@ const path = require('path');
 const fetch = require('node-fetch');
 const XLSX = require('xlsx');
 const stringSimilarity = require('string-similarity'); // Ensure installed or replaced
+const nodemailer = require('nodemailer');
 
 require('dotenv').config();
 
@@ -11,6 +12,8 @@ require('dotenv').config();
 const BBM_USER = process.env.BBM_USER;
 const BBM_PASS = process.env.BBM_PASS;
 const MARKET_API_KEY = process.env.MARKET_API_KEY;
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
 
 const DOWNLOAD_DIR = path.join(__dirname, '..');
 const BBM_LOGIN_URL = 'https://basketballmonster.com/login.aspx';
@@ -19,6 +22,9 @@ const BBM_DATA_URL = 'https://basketballmonster.com/dailyprojections.aspx';
 const EASE_DB_FILE = path.join(__dirname, '../ease_rankings.json');
 const OUTPUT_FILE = path.join(__dirname, '../latest_picks_live.js');
 const HISTORY_FILE = path.join(__dirname, '../history/prophet_history.json');
+const SUBSCRIBERS_FILE = path.join(__dirname, '../history/subscribers.json');
+const SMS_SUBSCRIBERS_FILE = path.join(__dirname, '../history/sms_subscribers.json');
+const ALERTS_SENT_FILE = path.join(__dirname, '../history/alerts_sent_today.json');
 
 // --- HISTORY & TRACKING FUNCTIONS ---
 
@@ -1220,7 +1226,84 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
 }
 
 
-// --- MAIN WORKFLOW ---
+// --- NOTIFICATION FUNCTIONS ---
+
+function shouldSendAlert(pick) {
+    if (pick.betRating !== '🔒 PROPHET LOCK') return false;
+
+    // Load or create alerts sent file
+    let sent = {};
+    if (fs.existsSync(ALERTS_SENT_FILE)) {
+        try {
+            sent = JSON.parse(fs.readFileSync(ALERTS_SENT_FILE, 'utf8'));
+        } catch (e) {
+            console.error('Error parsing alerts_sent file:', e);
+        }
+    }
+
+    // Key by Date + Player + Stat + Side + Line
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+    const key = `${today}_${pick.player}_${pick.stat}_${pick.side}_${pick.line}`;
+
+    if (sent[key]) return false; // Already sent today
+
+    // Mark as sent
+    sent[key] = { sentAt: new Date().toISOString(), player: pick.player };
+    fs.writeFileSync(ALERTS_SENT_FILE, JSON.stringify(sent, null, 2), 'utf8');
+    return true;
+}
+
+async function sendAlerts(picks) {
+    if (!picks || picks.length === 0) return;
+
+    // Filter for new LOCKs
+    const newLocks = picks.filter(p => shouldSendAlert(p));
+    if (newLocks.length === 0) {
+        console.log('🔕 No new LOCK alerts to send.');
+        return;
+    }
+
+    console.log(`🔔 Sending ${newLocks.length} new LOCK alerts...`);
+
+    // Load subscribers
+    let emails = [];
+    if (fs.existsSync(SUBSCRIBERS_FILE)) emails = JSON.parse(fs.readFileSync(SUBSCRIBERS_FILE, 'utf8'));
+
+    let smsGateways = [];
+    if (fs.existsSync(SMS_SUBSCRIBERS_FILE)) smsGateways = JSON.parse(fs.readFileSync(SMS_SUBSCRIBERS_FILE, 'utf8'));
+
+    // Consolidate list (SMS gateways are just emails)
+    const allRecipients = [...new Set([...emails, ...smsGateways])].filter(e => e.includes('@'));
+
+    if (allRecipients.length === 0) {
+        console.log('⚠️ No subscribers found found to notify.');
+        return;
+    }
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: EMAIL_USER, pass: EMAIL_PASS }
+    });
+
+    for (const pick of newLocks) {
+        const body = `🚨 PROPHET LOCK ALERT 🚨\n\n${pick.player} (${pick.team}) vs ${pick.opp}\nStat: ${pick.stat.toUpperCase()}\nSide: ${pick.side} ${pick.line}\nEdge: ${pick.edge}\nConfidence: ${pick.confidenceGrade}\n\n"Please merk responsibly."`;
+
+        console.log(`📧 Mailing LOCK: ${pick.player}...`);
+
+        try {
+            await transporter.sendMail({
+                from: `"Prophet Bot" <${EMAIL_USER}>`,
+                to: allRecipients.join(','),
+                subject: `🔒 LOCK: ${pick.player}`,
+                text: body
+            });
+            console.log(`✅ Alert sent for ${pick.player}`);
+        } catch (err) {
+            console.error(`❌ Failed to send alert for ${pick.player}:`, err.message);
+        }
+    }
+}
+
 (async () => {
     try {
         // 1. Download
@@ -1285,6 +1368,9 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
         const content = `window.LAST_UPDATED = "${timestamp}";\nwindow.PROPHET_RECORD = ${JSON.stringify(recordStats, null, 2)};\nwindow.LATEST_PICKS = ${JSON.stringify(picks, null, 2)};`;
         fs.writeFileSync(OUTPUT_FILE, content);
         console.log(`💾 Saved to ${OUTPUT_FILE}`);
+
+        // 6. Notifications
+        await sendAlerts(picks);
 
     } catch (err) {
         console.error('❌ FATAL ERROR:', err);

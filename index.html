@@ -1116,16 +1116,19 @@
                     : "linear-gradient(135deg, #2ecc71, #27ae60)"; // Green for Over
 
                 card.innerHTML = `
-                    <div class="pick-header">
-                        <div style="flex: 1;">
-                            <h3 style="margin:0;">${index + 1}. ${pick.player} <small>(${pick.team} - ${pick.pos})</small></h3>
-                            ${timeHtml}
-                        </div>
-                            ${pick.betRating} | ${pick.score > 9 ? '💎' : ''} ${pick.score} Rating
-                        </div>
+                <div class="pick-header">
+                    <div style="flex: 1;">
+                        <h3 style="margin:0;">${index + 1}. ${pick.player} <small>(${pick.team} - ${pick.pos})</small></h3>
+                        ${timeHtml}
                     </div>
+                    <div>
+                        <span class="tier-badge ${pick.betRating.includes('LOCK') ? 'badge-lock' : pick.betRating.includes('DIAMOND') ? 'badge-diamond' : pick.betRating.includes('ELITE') ? 'badge-elite' : pick.betRating.includes('STRONG') ? 'badge-strong' : 'badge-solid'}">
+                            ${pick.betRating} | ${pick.score} Rating
+                        </span>
+                    </div>
+                </div>
                     
-                    </div>
+                    </div >
                     
                     <div class="pick-stat-row" style="margin-top: 15px; margin-bottom: 20px;">
                          <span style="background: ${sideBg}; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 1.1em; display: inline-block;">
@@ -1186,7 +1189,7 @@
             if (!rec) return;
 
             // Helper to format record
-            const fmt = (r) => `${r.w}-${r.l}-${r.p} (${r.pct}%)`;
+            const fmt = (r) => `${r.w} -${r.l} -${r.p} (${r.pct}%)`;
 
             const setEl = (id, val) => {
                 const el = document.getElementById(id);
@@ -1223,7 +1226,7 @@
                 const color = profit >= 0 ? '#4ade80' : '#f87171'; // Green or Red
                 // Format with commas
                 const val = Math.abs(profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                el.innerHTML = `<span style="color:${color}">${sign}$${val}</span>`;
+                el.innerHTML = `< span style = "color:${color}" > ${sign}$${val}</span > `;
             }
 
             document.getElementById('insights-container').classList.remove('hidden');

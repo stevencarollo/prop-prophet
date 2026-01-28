@@ -1036,7 +1036,7 @@
                             <h3 style="margin:0;">${index + 1}. ${pick.player} <small>(${pick.team} - ${pick.pos})</small></h3>
                             ${timeHtml}
                         </div>
-                            ${pick.betRating} | ${pick.score} Rating
+                            ${pick.betRating} | ${pick.score > 9 ? '💎' : ''} ${pick.score} Rating
                         </div>
                     </div>
                     

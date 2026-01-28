@@ -6349,9 +6349,9 @@
     "team": "UTA",
     "opp": "LAC",
     "stat": "pr",
-    "line": 17.5,
+    "line": 18,
     "side": "OVER",
-    "tier": "💪 STRONG PLAY",
+    "tier": "✅ SOLID PLAY",
     "date": "2026-01-27",
     "result": "PENDING",
     "actual": null
@@ -6403,7 +6403,7 @@
     "stat": "pr",
     "line": 30,
     "side": "OVER",
-    "tier": "💎 DIAMOND",
+    "tier": "✅ SOLID PLAY",
     "date": "2026-01-27",
     "result": "PENDING",
     "actual": null

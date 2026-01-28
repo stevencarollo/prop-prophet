@@ -503,7 +503,7 @@ function parseBBM(buffer) {
             ease: easeKey ? Number(row[easeKey]) || 0 : 0,
             status: statusKey ? String(row[statusKey]).trim() : '',
             injury: injKey ? String(row[injKey]) : '',
-            opp: oppKey ? String(row[oppKey]).replace('@ ', '') : '',
+            opp: oppKey ? String(row[oppKey]).replace(/^(vs|@)\s+/i, '').toUpperCase().trim() : '',
             startTime: startTs,
             gameTotal: gameTotal,
             projections: proj,

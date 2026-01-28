@@ -489,8 +489,10 @@ function parseBBM(buffer) {
 
         let gameTotal = 0;
         if (oddsKey) {
-            const oddStr = String(row[oddsKey]);
-            const match = oddStr.match(/O\/U\s+(\d+(\.\d+)?)/i);
+            const oddStr = String(row[oddsKey]).trim();
+            // Look for spread at the end (e.g. "-15.0" or "+3.5")
+            // Format is usually "O/U 233.5 -15.0"
+            const match = oddStr.match(/([+-]?\d+(\.\d+)?)$/);
             if (match) gameTotal = parseFloat(match[1]);
         }
 

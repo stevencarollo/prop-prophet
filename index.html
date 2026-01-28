@@ -1226,7 +1226,7 @@
                 const color = profit >= 0 ? '#4ade80' : '#f87171'; // Green or Red
                 // Format with commas
                 const val = Math.abs(profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                el.innerHTML = `< span style = "color:${color}" > ${sign}$${val}</span > `;
+                el.innerHTML = `<span style="color:${color}">${sign}$${val}</span>`;
             }
 
             document.getElementById('insights-container').classList.remove('hidden');

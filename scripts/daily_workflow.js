@@ -758,14 +758,13 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
     // Example: 1.0 steal edge is massive (x8), 1.0 point edge is small (x1)
     // --- WEIGHTS TO NORMALIZE EDGE VALUE ---
     // Example: 0.5 steal edge * 6.0 = 3.0 weighted edge. (Score ~7.5) -> Strong Play
-    // --- WEIGHTS TO NORMALIZE EDGE VALUE (Calibrated Jan 28) ---
-    // Based on historical win rates: R(85%), A(70%), B(67%) -> Higher Weights
-    // S(50%), P(51%) -> Lower/Moderate Weights to protect "Lock" sanctity.
+    // --- WEIGHTS TO NORMALIZE EDGE VALUE (Final Polish Jan 28) ---
+    // User Approved: R(2.5x), A(1.5x), P(1.1x), S(3.5x), B(4.0x)
     const STAT_WEIGHTS = {
-        'p': 1.5, 'pr': 1.5, 'pa': 1.5, 'pra': 1.5, 'ra': 1.8, // Combos slightly higher if generic
-        'r': 3.5, 'a': 3.0,
-        '3': 2.5,
-        's': 4.5, 'b': 5.5, 'to': 4.0
+        'p': 1.1, 'pr': 1.0, 'pa': 1.0, 'pra': 1.0, 'ra': 1.2,
+        'r': 2.5, 'a': 1.5,
+        '3': 2.0,
+        's': 3.5, 'b': 4.0, 'to': 3.5
     };
 
     // Iterate Players
@@ -941,7 +940,7 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             }
 
             // --- CONFIDENCE CAPS (The "Realism" Ceiling) ---
-            let maxCap = 0.99; // Default Max (A+)
+            let maxCap = 2.0; // UNCAPPED (Was 0.99) - User Request Jan 28
 
             // 1. Back-to-Back Cap (Max 92% - No Locks)
             if (player.b2b >= 1) maxCap = Math.min(maxCap, 0.92);
@@ -997,6 +996,7 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             // --- L5 HIT RATE LOGIC (NEW) ---
             let l5Bonus = 0;
             let l5Narrative = "";
+            let activeL5Hits = -1; // Track for Gate Logic
 
             // Normalize name key for lookup
             const logKey = Object.keys(gameLogs).find(k => k.toLowerCase() === player.name.toLowerCase()) || player.name;
@@ -1040,7 +1040,11 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                     });
 
                     if (validGames >= 3) { // Require at least 3 games
+                        activeL5Hits = hits; // Expose to outer scope
                         const avgStr = (values.reduce((a, b) => a + b, 0) / validGames).toFixed(1);
+
+                        // ... rest of logic ...
+
 
                         // 0/5 Hits -> Disqualify
                         if (hits === 0 && validGames === 5) {
@@ -1065,7 +1069,7 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                             icon = "➡️";
                             sentiment = "Steady";
                         } else if (hits === 2) {
-                            l5Multiplier = 0.93; // -7% (was -10%)
+                            l5Multiplier = 0.90; // -10% (User Request Jan 28)
                             icon = "⚠️";
                             sentiment = "Shaky Form";
                         } else if (hits === 1) {
@@ -1107,7 +1111,7 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             if (side === 'UNDER' && jMax < 1.0) conf += 0.03;
 
             // Clamp Confidence
-            conf = Math.max(0.01, Math.min(0.99, conf));
+            conf = Math.max(0.01, Math.min(maxCap, conf));
 
             // Confidence Grading (Stricter Thresholds)
             let confGrade = "D";
@@ -1121,7 +1125,7 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             // Final Prophet Points Calculation
             // BALANCED FORMULA: Edge ~50%, Confidence ~50%
             // Linear confidence (not squared) gives more weight to confidence factors
-            const prophetPoints = (weightedEdge * conf * 2.5).toFixed(2);
+            let prophetPoints = (weightedEdge * conf * 2.5).toFixed(2);
 
             // Tier Logic
             const ppt = parseFloat(prophetPoints);
@@ -1146,6 +1150,29 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                 if (betRating.includes("LOCK") || betRating.includes("DIAMOND") || betRating.includes("ELITE")) {
                     betRating = "💪 STRONG PLAY";
                 }
+            }
+
+            // Contradiction Gate (User Request Jan 28)
+            // Cannot be a LOCK if fighting a >30% Ease Trend
+            // OVER vs Ease < -0.30  OR  UNDER vs Ease > 0.30
+            if (betRating.includes("LOCK")) {
+                if ((side === 'OVER' && activeEaseVal <= -0.30) || (side === 'UNDER' && activeEaseVal >= 0.30)) {
+                    betRating = "💎 DIAMOND BOY"; // Downgrade
+                    // narrative.push(`⚠️ **Trend Contradiction**: Fighting the matchup. Capped at Diamond.`); 
+                }
+
+                // Cold/Risky Gate (User Request Jan 28)
+                // If 1/5 hits (-12% penalty), cannot be a LOCK.
+                if (activeL5Hits === 1) {
+                    betRating = "💎 DIAMOND BOY"; // Downgrade
+                }
+            }
+
+            // --- SCORE CORRECTION FOR DOWNGRADES ---
+            // If the raw score suggests a LOCK (>= 10.5) but the Gates downgraded it,
+            // we must CAP the score at 10.49 so it sorts below actual locks.
+            if (parseFloat(prophetPoints) >= 10.5 && !betRating.includes("LOCK")) {
+                prophetPoints = "10.49";
             }
 
             // Narrative Generation

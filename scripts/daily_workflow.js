@@ -1262,8 +1262,8 @@ function shouldSendAlert(pick) {
     if (pick.betRating !== '🔒 PROPHET LOCK') return false;
 
     // User Request Jan 28: Strict Confidence Threshold for Texts
-    // Only text if Confidence is 99% or higher.
-    if (pick.confidence < 0.99) return false;
+    // Only text if Confidence is 95% or higher.
+    if (pick.confidence < 0.95) return false;
 
     // Load or create alerts sent file
     let sent = {};

@@ -73,6 +73,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Full history for proper commits
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -97,6 +98,9 @@ jobs:
           git config --global user.name "Prophet Bot"
           git config --global user.email "bot@prop-prophet.com"
           
+          # Configure git to use token for push
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          
           # Check for install failure
           if [ "${{ steps.install.outcome }}" == "failure" ]; then
             echo "❌ CRITICAL: npm install failed" > last_run_error.txt
@@ -109,8 +113,6 @@ jobs:
           git diff --staged --quiet || git commit -m "🤖 Auto-Update: $(date +'%Y-%m-%d %H:%M PST')"
           git pull --rebase origin main
           git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Workflow Summary
         if: success()

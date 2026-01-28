@@ -901,12 +901,26 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             // Was /8.5 -> Now /12.5 to prevent edge inflation
             let conf = 0.5 + (weightedEdge / 12.5);
 
-            // --- CONTRADICTION PENALTY (Safety) ---
-            // --- CONTRADICTION PENALTY (Safety) ---
-            if (side === 'UNDER' && activeEaseVal > 0.40) {
-                conf -= 0.12;
-            } else if (side === 'OVER' && activeEaseVal < -0.40) {
-                conf -= 0.12;
+            // --- INCREMENTAL EASE BONUS/PENALTY (Jan 27) ---
+            // Starts at ±30% ease, scales up to max ±20% confidence adjustment
+            // Formula: For every 10% ease beyond 30%, add 5% bonus/penalty (max 20%)
+            let easeAdjustment = 0;
+            const easeThreshold = 0.30; // Start applying at ±30%
+            const maxBonus = 0.20; // Max ±20% bonus/penalty
+
+            if (Math.abs(activeEaseVal) > easeThreshold) {
+                // Calculate how far beyond threshold (capped for smooth scaling)
+                const excessEase = Math.min(Math.abs(activeEaseVal) - easeThreshold, 0.40);
+                // Scale: 40% excess = 20% bonus (so each 1% excess = 0.5% bonus)
+                easeAdjustment = (excessEase / 0.40) * maxBonus;
+
+                // Apply as bonus (aligned) or penalty (contradicts)
+                const isAligned = (side === 'OVER' && activeEaseVal > 0) || (side === 'UNDER' && activeEaseVal < 0);
+                if (isAligned) {
+                    conf += easeAdjustment; // Boost
+                } else {
+                    conf -= easeAdjustment; // Penalty
+                }
             }
 
             // --- CONFIDENCE CAPS (The "Realism" Ceiling) ---

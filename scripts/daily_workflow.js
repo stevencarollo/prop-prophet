@@ -877,7 +877,7 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
         const allPicks = await analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs);
 
         // 6. Filter & Format
-        const topPicks = allPicks.filter(p => parseFloat(p.score) > 4.5);
+        const topPicks = allPicks.filter(p => parseFloat(p.score) > 3.0);
 
         // Generate Narratives
         topPicks.forEach(p => {

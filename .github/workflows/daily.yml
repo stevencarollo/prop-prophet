@@ -5,6 +5,9 @@ on:
     # 8:00 AM PST (16:00 UTC) - Early Bird
     - cron: '0 16 * * *'
     
+    # 10:00 AM PST (18:00 UTC) - Mid-Morning
+    - cron: '0 18 * * *'
+    
     # 11:00 AM PST (19:00 UTC) - Morning Recon
     - cron: '0 19 * * *'
     
@@ -46,6 +49,9 @@ on:
     - cron: '0 7 * * *'
 
   workflow_dispatch: # Allow manual trigger from GitHub UI
+
+permissions:
+  contents: write
 
 jobs:
   run-prophet-automation:

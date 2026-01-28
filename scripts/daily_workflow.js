@@ -749,7 +749,7 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
             let posEase = 0;
 
             const oppCode = player.opp.toUpperCase();
-            if (EASE_DB.All && EASE_DB.All.LastTwoWeeks && EASE_DB.All.LastTwoWeeks[oppCode]) {
+            if (EASE_DB.All && EASE_DB.All['2w'] && EASE_DB.All['2w'][oppCode]) {
                 const mapBBM = { 'p': 'pV', '3': '3V', 'r': 'rV', 'a': 'aV', 's': 'sV', 'b': 'bV', 'to': 'toV' };
                 let easeKey = mapBBM[stat];
                 if (!easeKey) {
@@ -766,11 +766,11 @@ async function analyzeMatchups(bbmPlayers, oddsData, easeDb, gameLogs) {
                     return source[keys] || 0;
                 };
 
-                const teamData = EASE_DB.All.LastTwoWeeks[oppCode];
+                const teamData = EASE_DB.All['2w'][oppCode];
                 teamEase = calcAvgEase(teamData, easeKey);
 
-                if (EASE_DB[posCode] && EASE_DB[posCode].LastTwoWeeks && EASE_DB[posCode].LastTwoWeeks[oppCode]) {
-                    const posData = EASE_DB[posCode].LastTwoWeeks[oppCode];
+                if (EASE_DB[posCode] && EASE_DB[posCode]['2w'] && EASE_DB[posCode]['2w'][oppCode]) {
+                    const posData = EASE_DB[posCode]['2w'][oppCode];
                     posEase = calcAvgEase(posData, easeKey);
                 }
             }

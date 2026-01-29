@@ -206,6 +206,10 @@ async function fetchBBMEase() {
         return {};
     }
 
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: EMAIL_USER, pass: EMAIL_PASS }
+    });
     const browser = await puppeteer.launch({
         headless: "new",
         args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -1307,6 +1311,7 @@ async function sendAlerts(picks) {
     if (fs.existsSync(SMS_SUBSCRIBERS_FILE)) smsGateways = JSON.parse(fs.readFileSync(SMS_SUBSCRIBERS_FILE, 'utf8'));
 
     // Consolidate list (SMS gateways are just emails)
+    // Resend requires valid emails, so filter out raw phone numbers
     const allRecipients = [...new Set([...emails, ...smsGateways])].filter(e => e.includes('@'));
 
     if (allRecipients.length === 0) {
@@ -1314,13 +1319,11 @@ async function sendAlerts(picks) {
         return;
     }
 
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user: EMAIL_USER, pass: EMAIL_PASS }
-    });
+    // --- NOTIFICATION LOGIC (Resend API) ---
+    // Switched to Resend for reliability (User Request Jan 28)
 
-    // --- BATCH NOTIFICATION LOGIC (User Request Jan 28) ---
-    // Combined multiple locks into ONE message to prevent spam.
+    const { Resend } = require('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     let batchBody = `🚨 PROPHET LOCK BATCH 🚨\n\n`;
 
@@ -1333,16 +1336,16 @@ async function sendAlerts(picks) {
 
     batchBody += `\n"Please merk responsibly."`;
 
-    console.log(`📧 Mailing BATCH of ${newLocks.length} locks...`);
+    console.log(`📧 Mailing BATCH of ${newLocks.length} locks via Resend...`);
 
     try {
-        await transporter.sendMail({
-            from: `"Prophet Bot" <${EMAIL_USER}>`,
-            to: allRecipients.join(','),
+        const data = await resend.emails.send({
+            from: 'Prophet Bot <onboarding@resend.dev>',
+            to: allRecipients, // Resend accepts array of strings
             subject: `🔒 ${newLocks.length} NEW LOCKS FOUND`,
             text: batchBody
         });
-        console.log(`✅ Batch Alert sent successfully.`);
+        console.log(`✅ Batch Alert sent successfully. ID: ${data.id}`);
     } catch (err) {
         console.error(`❌ Failed to send batch alert:`, err.message);
     }

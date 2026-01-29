@@ -1344,7 +1344,8 @@ async function sendAlerts(picks) {
         await transporter.sendMail({
             from: `"Prophet Locks" <${EMAIL_USER}>`,
             replyTo: EMAIL_USER,
-            to: allRecipients.join(','),
+            to: EMAIL_USER, // Send to self as primary
+            bcc: allRecipients.join(','), // Hide recipients from each other
             subject: `Prophet Alert: ${newLocks.length} Locks`,
             text: batchBody
         });

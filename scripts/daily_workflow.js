@@ -1319,39 +1319,64 @@ async function sendAlerts(picks) {
         return;
     }
 
-    // --- NOTIFICATION LOGIC (Gmail / Nodemailer) ---
-    // Switched to Gmail (meshtubers) for reliability.
+    // --- NOTIFICATION LOGIC (Hybrid: Gmail + Telnyx) ---
 
+    // 1. Send Emails via Gmail (BCC)
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: { user: EMAIL_USER, pass: EMAIL_PASS }
     });
 
     let batchBody = `🚨 PROPHET LOCK BATCH 🚨\n\n`;
-
     newLocks.forEach((pick, index) => {
         batchBody += `${index + 1}. ${pick.player} (${pick.team})\n`;
         batchBody += `${pick.stat.toUpperCase()} ${pick.side} ${pick.line}\n`;
         batchBody += `Conf: ${pick.confidenceGrade} | Edge: ${pick.edge}\n`;
         batchBody += `----------------\n`;
     });
-
     batchBody += `\n"Please merk responsibly."`;
 
     console.log(`📧 Mailing BATCH of ${newLocks.length} locks via Gmail...`);
-
     try {
         await transporter.sendMail({
             from: `"Prophet Locks" <${EMAIL_USER}>`,
             replyTo: EMAIL_USER,
-            to: EMAIL_USER, // Send to self as primary
-            bcc: allRecipients.join(','), // Hide recipients from each other
+            to: EMAIL_USER,
+            bcc: emails.join(','), // Only send to email subscribers
             subject: `Prophet Alert: ${newLocks.length} Locks`,
             text: batchBody
         });
-        console.log(`✅ Batch Alert sent successfully.`);
+        console.log(`✅ Email Batch sent.`);
     } catch (err) {
-        console.error(`❌ Failed to send batch alert:`, err.message);
+        console.error(`❌ Email Failed:`, err.message);
+    }
+
+    // 2. Send SMS via Telnyx (If Key Exists)
+    if (process.env.TELNYX_API_KEY && smsGateways.length > 0) {
+        console.log(`📡 Sending SMS via Telnyx to ${smsGateways.length} numbers...`);
+        try {
+            const telnyx = require('telnyx')(process.env.TELNYX_API_KEY);
+            // Telnyx sends individually
+            for (const number of smsGateways) {
+                // specific hack: clean up the gateway suffix info (remove @vzwpix.com to get raw number)
+                // Actually, user list currently has emails like 310...@vzwpix.com.
+                // We need to extract just the digits.
+                const cleanNum = '+1' + number.replace(/\D/g, '').slice(-10); // +1 + 10 digits
+
+                // Use the number USER BOUGHT:
+                const fromNum = '+13238801102';
+
+                await telnyx.messages.create({
+                    from: fromNum,
+                    to: cleanNum,
+                    text: batchBody
+                });
+                console.log(`   ➔ Sent to ${cleanNum}`);
+            }
+            console.log(`✅ SMS Blast Complete.`);
+        } catch (err) {
+            console.error(`❌ Telnyx SMS Failed:`, err.message);
+        }
     }
 }
 

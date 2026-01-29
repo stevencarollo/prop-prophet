@@ -19,6 +19,7 @@
     "nodemailer": "^7.0.12",
     "puppeteer": "^24.35.0",
     "string-similarity": "^4.0.4",
+    "telnyx": "^5.15.0",
     "twilio": "^5.12.0",
     "xlsx": "^0.18.5"
   },

@@ -1319,11 +1319,13 @@ async function sendAlerts(picks) {
         return;
     }
 
-    // --- NOTIFICATION LOGIC (Resend API) ---
-    // Switched to Resend for reliability (User Request Jan 28)
+    // --- NOTIFICATION LOGIC (Gmail / Nodemailer) ---
+    // Switched to Gmail (meshtubers) for reliability.
 
-    const { Resend } = require('resend');
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: EMAIL_USER, pass: EMAIL_PASS }
+    });
 
     let batchBody = `🚨 PROPHET LOCK BATCH 🚨\n\n`;
 
@@ -1336,16 +1338,17 @@ async function sendAlerts(picks) {
 
     batchBody += `\n"Please merk responsibly."`;
 
-    console.log(`📧 Mailing BATCH of ${newLocks.length} locks via Resend...`);
+    console.log(`📧 Mailing BATCH of ${newLocks.length} locks via Gmail...`);
 
     try {
-        const data = await resend.emails.send({
-            from: 'Prophet Bot <onboarding@resend.dev>',
-            to: allRecipients, // Resend accepts array of strings
-            subject: `🔒 ${newLocks.length} NEW LOCKS FOUND`,
+        await transporter.sendMail({
+            from: `"Prophet Locks" <${EMAIL_USER}>`,
+            replyTo: EMAIL_USER,
+            to: allRecipients.join(','),
+            subject: `Prophet Alert: ${newLocks.length} Locks`,
             text: batchBody
         });
-        console.log(`✅ Batch Alert sent successfully. ID: ${data.id}`);
+        console.log(`✅ Batch Alert sent successfully.`);
     } catch (err) {
         console.error(`❌ Failed to send batch alert:`, err.message);
     }

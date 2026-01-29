@@ -1355,22 +1355,32 @@ async function sendAlerts(picks) {
     if (process.env.TELNYX_API_KEY && smsGateways.length > 0) {
         console.log(`📡 Sending SMS via Telnyx to ${smsGateways.length} numbers...`);
         try {
-            const telnyx = require('telnyx')(process.env.TELNYX_API_KEY);
+            const fetch = require('node-fetch');
             // Telnyx sends individually
             for (const number of smsGateways) {
                 // specific hack: clean up the gateway suffix info (remove @vzwpix.com to get raw number)
-                // Actually, user list currently has emails like 310...@vzwpix.com.
-                // We need to extract just the digits.
                 const cleanNum = '+1' + number.replace(/\D/g, '').slice(-10); // +1 + 10 digits
+                const fromNum = '+13238801102'; // Your Telnyx Number
 
-                // Use the number USER BOUGHT:
-                const fromNum = '+13238801102';
-
-                await telnyx.messages.create({
-                    from: fromNum,
-                    to: cleanNum,
-                    text: batchBody
+                const response = await fetch('https://api.telnyx.com/v2/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${process.env.TELNYX_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        from: fromNum,
+                        to: cleanNum,
+                        text: batchBody
+                    })
                 });
+
+                if (response.ok) {
+                    console.log(`   ➔ Sent to ${cleanNum}`);
+                } else {
+                    const err = await response.json();
+                    console.error(`   ❌ Failed to ${cleanNum}:`, JSON.stringify(err));
+                }
                 console.log(`   ➔ Sent to ${cleanNum}`);
             }
             console.log(`✅ SMS Blast Complete.`);

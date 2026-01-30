@@ -10959,7 +10959,7 @@
     "actual": 18
   },
   {
-    "id": "Kyshawn George-pra-2026-01-28",
+    "id": "Kyshawn George-pra-2026-01-29",
     "player": "Kyshawn George",
     "team": "",
     "opp": "",
@@ -10967,7 +10967,7 @@
     "line": 28.5,
     "side": "OVER",
     "tier": "🔒 PROPHET LOCK",
-    "date": "2026-01-28",
+    "date": "2026-01-29",
     "result": "PENDING",
     "actual": null,
     "alertedAt": "2026-01-29T04:53:45.564Z",
@@ -11019,7 +11019,7 @@
     "retroAdded": true
   },
   {
-    "id": "Zion Williamson-p-2026-01-29",
+    "id": "Zion Williamson-p-2026-01-30",
     "player": "Zion Williamson",
     "team": "",
     "opp": "",
@@ -11027,14 +11027,14 @@
     "line": 22,
     "side": "OVER",
     "tier": "🔒 PROPHET LOCK",
-    "date": "2026-01-29",
+    "date": "2026-01-30",
     "result": "PENDING",
     "actual": null,
     "alertedAt": "2026-01-30T03:15:01.373Z",
     "retroAdded": true
   },
   {
-    "id": "G.G. Jackson-r-2026-01-29",
+    "id": "G.G. Jackson-r-2026-01-30",
     "player": "G.G. Jackson",
     "team": "",
     "opp": "",
@@ -11042,14 +11042,14 @@
     "line": 3.5,
     "side": "OVER",
     "tier": "🔒 PROPHET LOCK",
-    "date": "2026-01-29",
+    "date": "2026-01-30",
     "result": "PENDING",
     "actual": null,
     "alertedAt": "2026-01-30T03:15:01.373Z",
     "retroAdded": true
   },
   {
-    "id": "Zion Williamson-pra-2026-01-29",
+    "id": "Zion Williamson-pra-2026-01-30",
     "player": "Zion Williamson",
     "team": "",
     "opp": "",
@@ -11057,14 +11057,14 @@
     "line": 33.5,
     "side": "OVER",
     "tier": "🔒 PROPHET LOCK",
-    "date": "2026-01-29",
+    "date": "2026-01-30",
     "result": "PENDING",
     "actual": null,
     "alertedAt": "2026-01-30T03:15:01.373Z",
     "retroAdded": true
   },
   {
-    "id": "Deni Avdija-pra-2026-01-29",
+    "id": "Deni Avdija-pra-2026-01-30",
     "player": "Deni Avdija",
     "team": "",
     "opp": "",
@@ -11072,14 +11072,14 @@
     "line": 37,
     "side": "UNDER",
     "tier": "🔒 PROPHET LOCK",
-    "date": "2026-01-29",
+    "date": "2026-01-30",
     "result": "PENDING",
     "actual": null,
     "alertedAt": "2026-01-30T04:56:07.464Z",
     "retroAdded": true
   },
   {
-    "id": "LeBron James-pr-2026-01-29",
+    "id": "LeBron James-pr-2026-01-30",
     "player": "LeBron James",
     "team": "",
     "opp": "",
@@ -11087,7 +11087,7 @@
     "line": 30.5,
     "side": "UNDER",
     "tier": "🔒 PROPHET LOCK",
-    "date": "2026-01-29",
+    "date": "2026-01-30",
     "result": "PENDING",
     "actual": null,
     "alertedAt": "2026-01-30T07:35:07.309Z",

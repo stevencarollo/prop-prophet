@@ -434,7 +434,8 @@
             <!-- RECORD BANNER -->
             <div id="prophet-record-banner" class="record-banner hidden">
                 <div class="record-item">🏆 Season: <span id="rec-season">0-0 (0%)</span></div>
-                <div class="record-item">🔒 Locks: <span id="rec-locks">0-0 (0%)</span></div>
+                <div class="record-item" onclick="toggleSecretLocks()" style="cursor: pointer;"
+                    title="Click for Secret Filter">🔒 Locks: <span id="rec-locks">0-0 (0%)</span></div>
                 <div class="record-item">💎 Diamonds: <span id="rec-diamond">0-0 (0%)</span></div>
             </div>
 
@@ -638,6 +639,7 @@
         let currentPicks = [];
         let currentSort = 'tier';
         let currentGameFilter = 'ALL';
+        let isSecretLocksMode = false;
 
         function populateGameFilter(picks) {
             const select = document.getElementById('game-filter');
@@ -686,6 +688,22 @@
             applySort(currentSort);
         }
 
+        function toggleSecretLocks() {
+            isSecretLocksMode = !isSecretLocksMode;
+            const banner = document.getElementById('rec-locks').closest('.record-item');
+
+            if (isSecretLocksMode) {
+                banner.style.textShadow = "0 0 10px #4ade80";
+                banner.style.color = "#4ade80"; // optional highlight
+                showAlert('success', '🔓 SECRET REVEALED: Showing only 95%+ Confidence Locks.');
+            } else {
+                banner.style.textShadow = "none";
+                banner.style.color = "#e2e8f0"; // reset
+                showAlert('info', 'Secret Mode Deactivated.');
+            }
+            applySort(currentSort);
+        }
+
         function applySort(criteria) {
             currentSort = criteria;
 
@@ -698,6 +716,11 @@
 
             // 1. FILTER
             let list = currentPicks;
+
+            if (isSecretLocksMode) {
+                list = list.filter(p => p.confidence >= 0.95);
+            }
+
             if (currentGameFilter !== 'ALL') {
                 list = list.filter(p => {
                     const matchKey = [p.team, p.opp].sort().join(' vs ');

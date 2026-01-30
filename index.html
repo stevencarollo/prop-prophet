@@ -1218,196 +1218,190 @@
                         minute: '2-digit'
                     }) + ' PST';
 
-                    // Countdown
-                    let countdownStr = '';
-                    if (diffMs > 0) {
-                        const hrs = Math.floor(diffMs / 3600000);
-                        const mins = Math.floor((diffMs % 3600000) / 60000);
-                        countdownStr = `<span style="color:#fcd34d; font-weight:bold;">Starts in ${hrs}h ${mins}m</span>`;
-                    } else {
-                        countdownStr = `<span style="color:#ef4444; font-weight:bold;">LIVE / STARTED</span>`;
-                    }
+                    function displayPicks(picks) {
+                        const container = document.getElementById('picks-container');
+                        const count = document.getElementById('pick-count');
 
-                    // HEADER Time HTML
-                    timeHtml = `<div style="font-size:0.8em; color:#e2e8f0; margin-top:2px;">
-                        ⏰ ${timeStr} • ${countdownStr}
-                    </div>`;
-                }
+                        // Filter Logic 
+                        picks = picks.filter(p => {
+                            if (!p.startTime) return true;
+                            return new Date(p.startTime) > new Date();
+                        });
 
-                card.innerHTML = `
-                    <h3>${index + 1}. ${pick.player} - ${pick.stat.toUpperCase()} ${pick.side}</h3>
-                    <p style="margin: 10px 0;">
-                        <span class="stat-badge">${pick.marketLine}</span>
-                        <span class="edge">+${pick.edge} units</span>
-                    </p>
-                    <p><strong>Proj:</strong> ${pick.projection} | <strong>Line:</strong> ${pick.marketLine}</p>
-                    <p><strong>Ease:</strong> ${pick.ease > 0 ? '+' : ''}${pick.ease}</p>
-                    <p><strong>Interpretation:</strong> <em style="color:#cbd5e1">${pick.interpretation || 'None'}</em></p>
-                    <p><strong>Confidence:</strong> ${(pick.confidence * 100).toFixed(0)}% | <strong>Score:</strong> ${(pick.edge * pick.confidence).toFixed(2)}</p>
-                `;
-                if (!isLock && isElite) {
-                    card.style.border = "2px solid #ffd700";
-                    card.style.boxShadow = "0 0 15px rgba(255, 215, 0, 0.3)";
-                }
+                        container.innerHTML = '';
+                        count.textContent = picks.length;
 
-                // Bet Rating Styling
-                let badgeBg = "linear-gradient(135deg, #636e72, #b2bec3)"; // Default Playable (Gray)
-                if (pick.betRating.includes("LOCK")) badgeBg = "linear-gradient(135deg, #8e44ad, #e056fd)"; // Mystic Purple
-                else if (pick.betRating.includes("DIAMOND")) badgeBg = "linear-gradient(135deg, #00cec9, #74b9ff)"; // Cyan/Blue
-                else if (pick.betRating.includes("ELITE")) badgeBg = "linear-gradient(135deg, #f1c40f, #e67e22)"; // Gold/Orange
-                else if (pick.betRating.includes("STRONG")) badgeBg = "linear-gradient(135deg, #2ecc71, #27ae60)"; // Green
-                else if (pick.betRating.includes("SOLID")) badgeBg = "linear-gradient(135deg, #3498db, #2980b9)"; // Blue
+                        if (picks.length === 0) {
+                            container.innerHTML = '<div class="alert alert-error">No active picks found. All games may have started.</div>';
+                            return;
+                        }
 
-                // Stat Name Mapping
-                // Stat Name Mapping
-                const statMap = {
-                    'p': 'Points', 'r': 'Rebounds', 'a': 'Assists', '3': 'Threes', 's': 'Steals', 'b': 'Blocks', 'to': 'Turnovers',
-                    'pr': 'Pts+Reb', 'pa': 'Pts+Ast', 'ra': 'Reb+Ast', 'pra': 'Pts+Reb+Ast'
-                };
-                const statLabel = statMap[pick.stat] || pick.stat.toUpperCase();
+                        picks.forEach((pick, index) => {
+                            const card = document.createElement('div');
 
-                // Side Color Coding (Red for Under)
-                const isUnder = pick.side === 'UNDER';
-                const sideBg = isUnder
-                    ? "linear-gradient(135deg, #e74c3c, #c0392b)" // Red for Under
-                    : "linear-gradient(135deg, #2ecc71, #27ae60)"; // Green for Over
+                            // Assign tier-specific class
+                            let tierClass = 'tier-solid';
+                            if (pick.betRating.includes("LOCK")) tierClass = 'tier-lock';
+                            else if (pick.betRating.includes("DIAMOND")) tierClass = 'tier-diamond';
+                            else if (pick.betRating.includes("ELITE")) tierClass = 'tier-elite';
+                            else if (pick.betRating.includes("STRONG")) tierClass = 'tier-strong';
 
-                card.innerHTML = `
-                <div class="pick-header">
+                            card.className = `pick-card ${tierClass}`;
+
+                            // Time Logic
+                            let timeHtml = '';
+                            if (pick.startTime) {
+                                const diffMs = new Date(pick.startTime) - new Date();
+                                const hrs = Math.floor(diffMs / 3600000);
+                                const mins = Math.floor((diffMs % 3600000) / 60000);
+
+                                const timeStr = new Date(pick.startTime).toLocaleTimeString('en-US', {
+                                    timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit'
+                                }) + ' PST';
+
+                                const countdownStr = diffMs > 0
+                                    ? `<span style="color:#fcd34d; font-weight:bold;">Starts in ${hrs}h ${mins}m</span>`
+                                    : `<span style="color:#ef4444; font-weight:bold;">LIVE / STARTED</span>`;
+
+                                timeHtml = `<div style="font-size:0.8em; color:#e2e8f0; margin-top:2px;">⏰ ${timeStr} • ${countdownStr}</div>`;
+                            }
+
+                            // Side Color
+                            const isUnder = pick.side === 'UNDER';
+                            const sideBg = isUnder ? "linear-gradient(135deg, #e74c3c, #c0392b)" : "linear-gradient(135deg, #2ecc71, #27ae60)";
+
+                            // Confidence Color
+                            const confColor = (pick.confidence >= 0.9) ? '#4ade80' : '#fbbf24';
+
+                            card.innerHTML = `
+                <div class="pick-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                     <div style="flex: 1;">
-                        <h3 style="margin:0;">${index + 1}. ${pick.player} <small>(${pick.team} - ${pick.pos})</small></h3>
+                        <h3 style="margin:0; font-size: 1.1em;">${index + 1}. ${pick.player} <small style="color:#94a3b8">(${pick.team} - ${pick.pos})</small></h3>
                         ${timeHtml}
                     </div>
-                    <div>
-                        <span class="tier-badge ${pick.betRating.includes('LOCK') ? 'badge-lock' : pick.betRating.includes('DIAMOND') ? 'badge-diamond' : pick.betRating.includes('ELITE') ? 'badge-elite' : pick.betRating.includes('STRONG') ? 'badge-strong' : 'badge-solid'}">
-                            ${pick.betRating} | ${pick.score} Rating
+                    <div style="text-align: right; min-width: 140px;">
+                        <span class="tier-badge ${pick.betRating.includes('LOCK') ? 'badge-lock' : pick.betRating.includes('DIAMOND') ? 'badge-diamond' : pick.betRating.includes('ELITE') ? 'badge-elite' : pick.betRating.includes('STRONG') ? 'badge-strong' : 'badge-solid'}" style="display:inline-block; margin-bottom: 4px;">
+                            ${pick.betRating.includes('LOCK') ? '🔒' : pick.betRating.includes('DIAMOND') ? '💎' : '🔥'} ${pick.betRating.split(' ')[0]} | ${pick.score} Rating
                         </span>
+                        <div style="font-size: 0.85em; font-weight: bold; color: #e2e8f0;">
+                            Confidence: <span style="color: ${confColor}; font-size: 1.1em;">${pick.confidenceGrade || 'A'} (${(pick.confidence * 100).toFixed(0)}%)</span>
+                        </div>
                     </div>
                 </div>
                     
-                    </div >
-                    
-                    <div class="pick-stat-row" style="margin-top: 15px; margin-bottom: 20px;">
-                         <span style="background: ${sideBg}; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 1.1em; display: inline-block;">
-                            ${statLabel} ${pick.side}
-                         </span>
-                         <div style="font-size: 1.1em;">
-                             <span style="font-weight: bold; margin-left: 5px;">${pick.line}</span>
-                             <span style="color: #94a3b8; font-size: 0.9em;">(Proj: ${pick.projection})</span>
-                             <span style="color: #28a745; font-weight: bold; margin-left: 5px;">+${pick.edge} Edge</span>
-                         </div>
+                <div class="pick-stat-row" style="margin-bottom: 20px;">
+                        <span style="background: ${sideBg}; color: white; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 1.1em; display: inline-block;">
+                        ${pick.stat.toUpperCase()} ${pick.side}
+                        </span>
+                        <div style="font-size: 1.1em; margin-top: 8px;">
+                            <span style="font-weight: bold; font-size: 1.3em;">${pick.line}</span>
+                            <span style="color: #94a3b8; font-size: 0.9em; margin-left: 8px;">(Proj: ${pick.projection})</span>
+                            <span style="color: #4ade80; font-weight: bold; margin-left: 10px; background: rgba(74, 222, 128, 0.1); padding: 2px 6px; border-radius: 4px;">+${pick.edge} Edge</span>
+                        </div>
+                </div>
+                
+                <div style="background: #1e293b; color: #ecf0f1; padding: 12px; border-radius: 8px; font-size: 0.95em; border: 1px solid #334155;">
+                    <div style="margin-bottom: 5px; display: flex; justify-content: space-between; border-bottom: 1px solid #475569; padding-bottom: 5px; margin-bottom: 10px;">
+                        <strong>⚔️ VS ${pick.opp || 'OPP'}</strong> 
+                        <span style="color: ${pick.ease > 0 ? '#4ade80' : '#ff5252'}; font-weight: bold;">Ease: ${(pick.ease * 100).toFixed(1)}%</span>
                     </div>
-                    
 
-
-                    <div style="background: #2b2b2b; color: #ecf0f1; padding: 12px; border-radius: 8px; font-size: 0.95em; border: 1px solid #444; box-shadow: inset 0 0 5px rgba(0,0,0,0.5);">
-
-                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between;">
-                            <strong>⚔️ VS ${pick.opp}</strong> 
-                            <span style="color: ${pick.ease > 0 ? '#00e676' : '#ff5252'}; font-weight: bold;">Ease: ${(pick.ease * 100).toFixed(1)}%</span>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <div style="flex: 1; text-align: center; background: #0f172a; padding: 6px; border-radius: 4px;">
+                            <span style="color:#94a3b8; font-size: 0.8em;">Pos Ease</span><br>
+                            <span style="font-weight:bold; color: ${(pick.posEase || 0) > 0 ? '#4ade80' : ((pick.posEase || 0) < 0 ? '#f87171' : '#cbd5e1')}">${((pick.posEase || 0) * 100).toFixed(1)}%</span>
                         </div>
-
-                        ${(pick.posEase !== undefined && pick.teamEase !== undefined) ? `
-                        <div style="display: flex; gap: 10px; margin-bottom: 8px; font-size: 0.9em; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 4px;">
-                            <div style="flex: 1; text-align: center; border-right: 1px solid #444;">
-                                <span style="color:#aaa;">Pos Ease</span><br>
-                                <span style="font-weight:bold; color: ${pick.posEase > 0 ? '#4ade80' : (pick.posEase < 0 ? '#f87171' : '#cbd5e1')}">${(pick.posEase * 100).toFixed(1)}%</span>
-                            </div>
-                            <div style="flex: 1; text-align: center;">
-                                <span style="color:#aaa;">Team Ease</span><br>
-                                <span style="font-weight:bold; color: ${pick.teamEase > 0 ? '#4ade80' : (pick.teamEase < 0 ? '#f87171' : '#cbd5e1')}">${(pick.teamEase * 100).toFixed(1)}%</span>
-                            </div>
-                        </div>
-                        ` : ''}
-
-                        <p style="margin: 0; font-style: italic; opacity: 0.9;">${pick.interpretation}</p>
-                        
-                        <!-- DEEP INSIGHTS -->
-                         <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #555; font-size: 0.9em; line-height: 1.5; color: #d1d5db;">
-                             <div style="color: #60a5fa; font-weight:bold; margin-bottom:4px; font-size: 1.0em;">💡 Prophet's Breakdown:</div>
-                             ${pick.analysis || 'No specific insights available.'}
+                        <div style="flex: 1; text-align: center; background: #0f172a; padding: 6px; border-radius: 4px;">
+                            <span style="color:#94a3b8; font-size: 0.8em;">Team Ease</span><br>
+                            <span style="font-weight:bold; color: ${(pick.teamEase || 0) > 0 ? '#4ade80' : ((pick.teamEase || 0) < 0 ? '#f87171' : '#cbd5e1')}">${((pick.teamEase || 0) * 100).toFixed(1)}%</span>
                         </div>
                     </div>
+
+                    <div style="margin-bottom: 12px; font-size: 0.9em;">
+                        <span style="color:#94a3b8;">Matchup:</span> <em style="color:#e2e8f0">${pick.interpretation || 'None'}</em>
+                    </div>
                     
-                         <div style="margin-top: 10px; font-size: 0.9em; display: flex; justify-content: space-between;">
-                             <span>Confidence:</span>
-                             <span style="color: #f1c40f; font-weight: bold;">
-                                ${pick.confidenceGrade || 'B'} <small>(${(pick.confidence * 100).toFixed(0)}%)</small>
-                             </span>
-                         </div>
+                    <!-- DEEP INSIGHTS -->
+                        <div style="padding-top: 10px; border-top: 1px solid #475569; font-size: 0.9em; line-height: 1.5; color: #d1d5db;">
+                            <div style="color: #60a5fa; font-weight:bold; margin-bottom:4px; font-size: 1.0em;">💡 Prophet's Breakdown:</div>
+                            ${pick.analysis || 'No specific insights available.'}
+                        </div>
+                </div>
                 `;
-                container.appendChild(card);
-            });
-        }
+                            container.appendChild(card);
+                        });
 
-        // NEW: Function to update the record banner from window.PROPHET_RECORD
-        function updateRecordDisplay() {
-            const rec = window.PROPHET_RECORD;
-            if (!rec) return;
+                        updateStats();
+                    }
 
-            // Helper to format record
-            const fmt = (r) => `${r.w} -${r.l} -${r.p} (${r.pct}%)`;
+                    // NEW: Function to update the record banner from window.PROPHET_RECORD
+                    function updateRecordDisplay() {
+                        const rec = window.PROPHET_RECORD;
+                        if (!rec) return;
 
-            const setEl = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = val;
-            };
+                        // Helper to format record
+                        const fmt = (r) => `${r.w} -${r.l} -${r.p} (${r.pct}%)`;
 
-            setEl('rec-season', fmt(rec.season));
-            setEl('rec-locks', fmt(rec.locks));
-            setEl('rec-diamond', fmt(rec.diamond));
+                        const setEl = (id, val) => {
+                            const el = document.getElementById(id);
+                            if (el) el.textContent = val;
+                        };
 
-            // Show the banner if it was hidden
-            const banner = document.getElementById('prophet-record-banner');
-            if (banner) banner.classList.remove('hidden');
-        }
+                        setEl('rec-season', fmt(rec.season));
+                        setEl('rec-locks', fmt(rec.locks));
+                        setEl('rec-diamond', fmt(rec.diamond));
 
-        // Call on load if data exists
-        if (typeof window.PROPHET_RECORD !== 'undefined') {
-            updateRecordDisplay();
-            updateProfitMeter();
-        }
-        // Initialize Wisdom
-        initWisdom();
+                        // Show the banner if it was hidden
+                        const banner = document.getElementById('prophet-record-banner');
+                        if (banner) banner.classList.remove('hidden');
+                    }
 
-        function updateProfitMeter() {
-            const locks = window.PROPHET_RECORD.locks;
-            if (!locks) return;
+                    // Call on load if data exists
+                    if (typeof window.PROPHET_RECORD !== 'undefined') {
+                        updateRecordDisplay();
+                        updateProfitMeter();
+                    }
+                    // Initialize Wisdom
+                    initWisdom();
 
-            // Calc: Wins * 90.91 - Losses * 100
-            const profit = (locks.w * 90.91) - (locks.l * 100);
+                    function updateProfitMeter() {
+                        const locks = window.PROPHET_RECORD.locks;
+                        if (!locks) return;
 
-            const el = document.getElementById('profit-display');
-            if (el) {
-                const sign = profit >= 0 ? '+' : '-';
-                const color = profit >= 0 ? '#4ade80' : '#f87171'; // Green or Red
-                // Format with commas
-                const val = Math.abs(profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                el.innerHTML = `<span style="color:${color}">${sign}$${val}</span>`;
-            }
+                        // Calc: Wins * 90.91 - Losses * 100
+                        const profit = (locks.w * 90.91) - (locks.l * 100);
 
-            document.getElementById('insights-container').classList.remove('hidden');
-        }
+                        const el = document.getElementById('profit-display');
+                        if (el) {
+                            const sign = profit >= 0 ? '+' : '-';
+                            const color = profit >= 0 ? '#4ade80' : '#f87171'; // Green or Red
+                            // Format with commas
+                            const val = Math.abs(profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                            el.innerHTML = `<span style="color:${color}">${sign}$${val}</span>`;
+                        }
 
-        function initWisdom() {
-            const tips = [
-                "In general, trust the early projections. If you see a 'Prophet Lock' or 'Diamond' the night before, it is often the best price you will get. Waiting until tip-off usually means you are betting into a sharper, tougher market.",
-                "Never bet more than 1-2% of your bankroll on a single play. Longevity is the key to profit in this game.",
-                "Volume is your friend. The more +EV bets you place over time, the faster the math works in your favor to overcome variance.",
-                "Don't chase losses. If you have a bad day, stick to the system. The edge will return.",
-                "Always shop for lines. Getting -110 vs -120 adds up to massive profit differences over the course of a season.",
-                "Beware of 'Narrative' bets. The numbers don't care about a player's birthday or 'revenge game'. Trust the data.",
-                "If a player is questionable, wait for confirmation. A late scratch can ruin an entire parlay if you aren't careful.",
-                "The Prophet Model loves 'Unders' on players with inflated lines due to recent hot streaks. Regression to the mean is powerful."
-            ];
+                        document.getElementById('insights-container').classList.remove('hidden');
+                    }
 
-            // Select based on Day of Month
-            const day = new Date().getDate();
-            const tipIndex = day % tips.length;
+                    function initWisdom() {
+                        const tips = [
+                            "In general, trust the early projections. If you see a 'Prophet Lock' or 'Diamond' the night before, it is often the best price you will get. Waiting until tip-off usually means you are betting into a sharper, tougher market.",
+                            "Never bet more than 1-2% of your bankroll on a single play. Longevity is the key to profit in this game.",
+                            "Volume is your friend. The more +EV bets you place over time, the faster the math works in your favor to overcome variance.",
+                            "Don't chase losses. If you have a bad day, stick to the system. The edge will return.",
+                            "Always shop for lines. Getting -110 vs -120 adds up to massive profit differences over the course of a season.",
+                            "Beware of 'Narrative' bets. The numbers don't care about a player's birthday or 'revenge game'. Trust the data.",
+                            "If a player is questionable, wait for confirmation. A late scratch can ruin an entire parlay if you aren't careful.",
+                            "The Prophet Model loves 'Unders' on players with inflated lines due to recent hot streaks. Regression to the mean is powerful."
+                        ];
 
-            const el = document.getElementById('daily-wisdom');
-            if (el) el.innerText = `"${tips[tipIndex]}"`;
-        }
+                        // Select based on Day of Month
+                        const day = new Date().getDate();
+                        const tipIndex = day % tips.length;
+
+                        const el = document.getElementById('daily-wisdom');
+                        if (el) el.innerText = `"${tips[tipIndex]}"`;
+                    }
     </script>
 
     <div style="text-align: center; color: #475569; font-size: 0.8em; margin-top: 50px; cursor: pointer;"
@@ -1416,19 +1410,19 @@
     </div>
 
     <script>
-        // ... previous code ...
+                    // ... previous code ...
 
-        function secretAdminUpdate() {
-            const pass = prompt("🔐 Admin Override: Enter Password to Force Update:");
-            if (pass === 'Reempicks1!') {
-                // Bypass the confirm inside forceUpdate by calling logic directly or just handle the confirm
-                // Actually forceUpdate has a confirm.
-                // Let's modify forceUpdate to accept a 'skipConfirm' arg, or just let him confirm again.
-                forceUpdate();
-            } else if (pass) {
-                alert("❌ Access Denied");
-            }
-        }
+                    function secretAdminUpdate() {
+                        const pass = prompt("🔐 Admin Override: Enter Password to Force Update:");
+                        if (pass === 'Reempicks1!') {
+                            // Bypass the confirm inside forceUpdate by calling logic directly or just handle the confirm
+                            // Actually forceUpdate has a confirm.
+                            // Let's modify forceUpdate to accept a 'skipConfirm' arg, or just let him confirm again.
+                            forceUpdate();
+                        } else if (pass) {
+                            alert("❌ Access Denied");
+                        }
+                    }
     </script>
     <div style="text-align:center; padding: 20px; font-size: 0.8rem; color: #64748b;">
         &copy; 2025 Prop Prophet | System Version: 1.2 (Mobile Spacing Fix)

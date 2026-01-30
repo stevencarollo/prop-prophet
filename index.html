@@ -611,13 +611,19 @@
             </h2>
 
             <!-- SORT CONTROLS -->
+            <!-- SORT CONTROLS -->
             <div class="sort-controls"
-                style="margin-bottom: 20px; display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px;">
+                style="margin-bottom: 20px; display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; align-items: center;">
                 <button onclick="applySort('tier')" class="sort-btn active">🏆 Tier</button>
-                <button onclick="applySort('confidence')" class="sort-btn">💪 Conf</button>
                 <button onclick="applySort('edge')" class="sort-btn">📈 Edge</button>
                 <button onclick="applySort('time')" class="sort-btn">⏰ Time</button>
-                <button onclick="applySort('team')" class="sort-btn">👕 Team</button>
+
+                <select id="game-filter" onchange="applyGameFilter()"
+                    style="background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 6px 12px; border-radius: 20px; font-size: 0.9em; outline: none; cursor: pointer; max-width: 200px;">
+                    <option value="ALL">👕 All Games</option>
+                </select>
+
+                <button onclick="applySort('confidence')" class="sort-btn">💪 Confidence</button>
             </div>
 
             <div id="alerts"></div>
@@ -631,6 +637,51 @@
         let currentUser = null;
         let currentPicks = [];
         let currentSort = 'tier';
+        let currentGameFilter = 'ALL';
+
+        function populateGameFilter(picks) {
+            const select = document.getElementById('game-filter');
+            if (!select) return;
+
+            const games = new Map();
+            picks.forEach(p => {
+                if (!p.team || !p.opp) return;
+                const matchKey = [p.team, p.opp].sort().join(' vs ');
+
+                if (!games.has(matchKey)) {
+                    const timeStr = p.startTime ? new Date(p.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+                    games.set(matchKey, {
+                        label: `${matchKey} ${timeStr ? '(' + timeStr + ')' : ''}`,
+                        time: p.startTime ? new Date(p.startTime).getTime() : 0
+                    });
+                }
+            });
+
+            const sortedGames = Array.from(games.values()).sort((a, b) => a.time - b.time);
+
+            const oldVal = select.value;
+            select.innerHTML = '<option value="ALL">👕 All Games</option>';
+            sortedGames.forEach(g => {
+                const parts = g.label.split(' (');
+                const val = parts[0];
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = g.label;
+                select.appendChild(opt);
+            });
+
+            if (oldVal && Array.from(select.options).some(o => o.value === oldVal)) {
+                select.value = oldVal;
+            } else {
+                currentGameFilter = 'ALL';
+            }
+        }
+
+        function applyGameFilter() {
+            const select = document.getElementById('game-filter');
+            currentGameFilter = select.value;
+            applySort(currentSort);
+        }
 
         function applySort(criteria) {
             currentSort = criteria;
@@ -641,6 +692,15 @@
             if (activeBtn) activeBtn.classList.add('active');
 
             if (!currentPicks || currentPicks.length === 0) return;
+
+            // 1. FILTER
+            let list = currentPicks;
+            if (currentGameFilter !== 'ALL') {
+                list = list.filter(p => {
+                    const matchKey = [p.team, p.opp].sort().join(' vs ');
+                    return matchKey === currentGameFilter;
+                });
+            }
 
             const getVal = (p) => {
                 if (criteria === 'tier') {
@@ -654,15 +714,14 @@
                 if (criteria === 'confidence') return p.confidence || 0;
                 if (criteria === 'edge') return p.edge || 0;
                 if (criteria === 'time') return p.startTime ? new Date(p.startTime).getTime() : 9999999999999;
-                if (criteria === 'team') return p.team || '';
                 return 0;
             };
 
-            currentPicks.sort((a, b) => {
+            list.sort((a, b) => {
                 const va = getVal(a);
                 const vb = getVal(b);
 
-                if (criteria === 'time' || criteria === 'team') {
+                if (criteria === 'time') {
                     if (va < vb) return -1;
                     if (va > vb) return 1;
                     return 0;
@@ -673,7 +732,7 @@
                 return 0;
             });
 
-            displayPicks(currentPicks);
+            displayPicks(list);
         }
 
         async function refreshGuestData() {
@@ -894,6 +953,7 @@
                     // GUEST LOGIC: Auto-load static picks
                     if (typeof window.LATEST_PICKS !== 'undefined' && window.LATEST_PICKS.length > 0) {
                         currentPicks = window.LATEST_PICKS;
+                        populateGameFilter(currentPicks);
                         applySort('tier');
                         showAlert('success', 'Viewing latest published picks.');
                     } else {
@@ -1065,6 +1125,7 @@
                     // Server now does ALL math. We just display results.
                     const serverPicks = data.results || [];
                     currentPicks = serverPicks;
+                    populateGameFilter(currentPicks);
                     applySort(currentSort);
                 }
             } catch (err) {
@@ -1340,7 +1401,7 @@
 
     <div style="text-align: center; color: #475569; font-size: 0.8em; margin-top: 50px; cursor: pointer;"
         onclick="secretAdminUpdate()">
-        Prop Prophet v4.11 (Sorting) - © 2026
+        Prop Prophet v4.12 (Filter) - © 2026
     </div>
 
     <script>

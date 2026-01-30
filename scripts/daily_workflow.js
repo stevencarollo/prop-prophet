@@ -25,8 +25,47 @@ const HISTORY_FILE = path.join(__dirname, '../history/prophet_history.json');
 const SUBSCRIBERS_FILE = path.join(__dirname, '../history/subscribers.json');
 const SMS_SUBSCRIBERS_FILE = path.join(__dirname, '../history/sms_subscribers.json');
 const ALERTS_SENT_FILE = path.join(__dirname, '../history/alerts_sent_today.json');
+const BBM_CHANGES_FILE = path.join(__dirname, '../history/bbm_changes.json');
 
 // --- HISTORY & TRACKING FUNCTIONS ---
+
+// BBM Change Detection
+const crypto = require('crypto');
+const BBM_HASH_FILE = path.join(__dirname, '../history/bbm_last_hash.txt');
+
+function detectBBMChange(newBuffer) {
+    const newHash = crypto.createHash('md5').update(newBuffer).digest('hex');
+    let oldHash = '';
+
+    // Read previous hash
+    if (fs.existsSync(BBM_HASH_FILE)) {
+        oldHash = fs.readFileSync(BBM_HASH_FILE, 'utf8').trim();
+    }
+
+    const changed = newHash !== oldHash;
+    const now = new Date().toISOString();
+
+    // Log change
+    let changes = [];
+    if (fs.existsSync(BBM_CHANGES_FILE)) {
+        try { changes = JSON.parse(fs.readFileSync(BBM_CHANGES_FILE, 'utf8')); } catch (e) { }
+    }
+    changes.push({ time: now, changed, hash: newHash.substring(0, 8) });
+    // Keep last 200 entries
+    if (changes.length > 200) changes = changes.slice(-200);
+    fs.writeFileSync(BBM_CHANGES_FILE, JSON.stringify(changes, null, 2));
+
+    // Save new hash
+    fs.writeFileSync(BBM_HASH_FILE, newHash);
+
+    if (changed) {
+        console.log(`📊 BBM DATA CHANGED (new hash: ${newHash.substring(0, 8)})`);
+    } else {
+        console.log(`📊 BBM Data unchanged (hash: ${newHash.substring(0, 8)})`);
+    }
+
+    return changed;
+}
 
 function loadHistory() {
     if (fs.existsSync(HISTORY_FILE)) {
@@ -397,6 +436,10 @@ async function downloadBBM() {
 
         // Read Buffer
         const fileBuffer = fs.readFileSync(latestFile);
+
+        // TRACK: Did BBM actually change?
+        const dataChanged = detectBBMChange(fileBuffer);
+        console.log(`   → Data changed since last run: ${dataChanged}`);
 
         // Cleanup
         // fs.unlinkSync(latestFile); // Optional: keep for debug? No, CI cleans up.

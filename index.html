@@ -652,8 +652,11 @@
                     const timeStr = p.startTime ? new Date(p.startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
                     games.set(matchKey, {
                         label: `${matchKey} ${timeStr ? '(' + timeStr + ')' : ''}`,
-                        time: p.startTime ? new Date(p.startTime).getTime() : 0
+                        time: p.startTime ? new Date(p.startTime).getTime() : 0,
+                        count: 1
                     });
+                } else {
+                    games.get(matchKey).count++;
                 }
             });
 
@@ -663,10 +666,10 @@
             select.innerHTML = '<option value="ALL">👕 All Games</option>';
             sortedGames.forEach(g => {
                 const parts = g.label.split(' (');
-                const val = parts[0];
+                const val = parts[0].trim();
                 const opt = document.createElement('option');
                 opt.value = val;
-                opt.textContent = g.label;
+                opt.textContent = `${g.label} [${g.count}]`;
                 select.appendChild(opt);
             });
 

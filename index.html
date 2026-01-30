@@ -1026,7 +1026,14 @@
                         <strong>Team Ease:</strong> <span style="color:${(pick.teamEase || 0) > 0 ? '#4ade80' : ((pick.teamEase || 0) < 0 ? '#f87171' : '#cbd5e1')}">${((pick.teamEase || 0) * 100).toFixed(1)}%</span>
                     </p>
                     <p><strong>Interpretation:</strong> <em style="color:#cbd5e1">${pick.interpretation ? pick.interpretation.split('|')[0] : 'None'}</em></p>
-                    <p><strong>Confidence:</strong> ${(pick.confidence * 100).toFixed(0)}% | <strong>Score:</strong> ${(pick.edge * pick.confidence).toFixed(2)}</p>
+                    <div style="display: flex; gap: 10px; margin-top: 8px;">
+                        <span style="background: #334155; padding: 5px 10px; border-radius: 6px; font-size: 0.9em;">
+                            🛡️ <strong>Conf:</strong> ${(pick.confidence * 100).toFixed(0)}%
+                        </span>
+                        <span style="background: #0f766e; color: #ccfbf1; padding: 5px 10px; border-radius: 6px; font-size: 0.9em; border: 1px solid #14b8a6;">
+                            ⭐ <strong>Score:</strong> ${(pick.edge * pick.confidence).toFixed(2)}
+                        </span>
+                    </div>
                 `;
                 container.appendChild(card);
             });

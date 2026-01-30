@@ -1379,7 +1379,7 @@ async function sendAlerts(picks) {
                 contents: { "en": `🚨 ${newLocks.length} New LOCKS Available! Check Dashboard.` },
                 headings: { "en": "Prop Prophet Alert" },
                 included_segments: ["Total Subscriptions"], // Sends to All Active Subscribers
-                url: "https://v3-prophet.netlify.app" // Opens app on click
+                url: "https://prop-prophet.vercel.app/" // Opens app on click
             };
 
             const response = await fetch('https://onesignal.com/api/v1/notifications', {

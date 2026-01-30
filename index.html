@@ -305,20 +305,24 @@
 
             // UPDATE DEBUG BANNER
             const banner = document.getElementById('os-debug');
+
+            // Check Status
+            const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+            const permission = Notification.permission; // 'default', 'granted', 'denied'
+
             if (banner) {
-                banner.innerText = "Push SDK: Loaded! (Wait 3s for Prompt)";
-                banner.style.background = "#ca8a04"; // Yellow
+                banner.innerText = `SDK: Loaded | Perm: ${permission} | Sub: ${isSubscribed}`;
+                banner.style.background = (permission === 'granted' || isSubscribed) ? "#10b981" : "#ca8a04";
             }
 
-            // Force Prompt
-            setTimeout(() => {
-                console.log("🔔 Triggering OneSignal Prompt...");
-                OneSignal.Slidedown.promptPush();
-                if (banner) {
-                    banner.innerText = "Push SDK: Prompt Triggered!";
-                    banner.style.background = "#10b981"; // Green
-                }
-            }, 2500);
+            // Force Prompt if not subscribed
+            if (!isSubscribed && permission === 'default') {
+                setTimeout(() => {
+                    console.log("🔔 Triggering OneSignal Prompt...");
+                    OneSignal.Slidedown.promptPush();
+                    if (banner) banner.innerText += " (Prompting...)";
+                }, 2500);
+            }
         });
     </script>
     <!-- Load Data (Cache Busted via Filename Change) -->

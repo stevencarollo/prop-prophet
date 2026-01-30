@@ -296,12 +296,18 @@
         OneSignalDeferred.push(function (OneSignal) {
             OneSignal.init({
                 appId: "3ae11d49-8390-4714-96f2-f89c82efa5fe",
-                safari_web_id: "web.onesignal.auto.69837648-5c4d-4569-8d69-c4825d19488f", // Optional but good for Safari
+                safari_web_id: "web.onesignal.auto.69837648-5c4d-4569-8d69-c4825d19488f",
                 notifyButton: {
-                    enable: true, /* Set to false to hide */
+                    enable: true,
                 },
                 allowLocalhostAsSecureOrigin: true,
             });
+
+            // Force Prompt
+            setTimeout(() => {
+                console.log("🔔 Triggering OneSignal Prompt...");
+                OneSignal.Slidedown.promptPush();
+            }, 2500);
         });
     </script>
     <!-- Load Data (Cache Busted via Filename Change) -->

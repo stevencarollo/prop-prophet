@@ -10968,8 +10968,8 @@
     "side": "OVER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-29",
-    "result": "LOSS",
-    "actual": 18,
+    "result": "WIN",
+    "actual": 33,
     "alertedAt": "2026-01-29T04:53:45.564Z",
     "retroAdded": true
   },

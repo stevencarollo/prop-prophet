@@ -1369,6 +1369,38 @@ async function sendAlerts(picks) {
         }
         console.log(`✅ SMS Blast Complete.`);
     }
+    // 3. Send Push Notification via OneSignal
+    if (process.env.ONESIGNAL_APP_ID && process.env.ONESIGNAL_API_KEY) {
+        console.log('🔔 Sending Push Notification via OneSignal...');
+        try {
+            const fetch = require('node-fetch');
+            const pushBody = {
+                app_id: process.env.ONESIGNAL_APP_ID,
+                contents: { "en": `🚨 ${newLocks.length} New LOCKS Available! Check Dashboard.` },
+                headings: { "en": "Prop Prophet Alert" },
+                included_segments: ["Total Subscriptions"], // Sends to All Active Subscribers
+                url: "https://v3-prophet.netlify.app" // Opens app on click
+            };
+
+            const response = await fetch('https://onesignal.com/api/v1/notifications', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${process.env.ONESIGNAL_API_KEY}`
+                },
+                body: JSON.stringify(pushBody)
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log(`✅ Push Sent! Recipients: ${data.recipients}`);
+            } else {
+                console.error('❌ Push Failed:', JSON.stringify(data));
+            }
+        } catch (err) {
+            console.error('❌ Push Error:', err.message);
+        }
+    }
 }
 
 (async () => {

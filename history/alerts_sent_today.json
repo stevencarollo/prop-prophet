@@ -18,5 +18,17 @@
   "2026-01-29_Ryan Rollins_p_UNDER_22.5": {
     "sentAt": "2026-01-29T21:19:51.355Z",
     "player": "Ryan Rollins"
+  },
+  "2026-01-29_Zion Williamson_p_OVER_22": {
+    "sentAt": "2026-01-30T03:15:01.373Z",
+    "player": "Zion Williamson"
+  },
+  "2026-01-29_G.G. Jackson_r_OVER_3.5": {
+    "sentAt": "2026-01-30T03:15:01.373Z",
+    "player": "G.G. Jackson"
+  },
+  "2026-01-29_Zion Williamson_pra_OVER_33.5": {
+    "sentAt": "2026-01-30T03:15:01.373Z",
+    "player": "Zion Williamson"
   }
 }

@@ -1346,6 +1346,44 @@ async function sendAlerts(picks) {
 
     console.log(`🔔 Sending ${newLocks.length} new LOCK alerts...`);
 
+    // FREEZE LOCKS: Immediately save to history at alert time
+    // This ensures the exact line/pick is tracked for results,
+    // even if lines move later in the day.
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+    let history = [];
+    if (fs.existsSync(HISTORY_FILE)) {
+        try { history = JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8')); } catch (e) { }
+    }
+
+    newLocks.forEach(lock => {
+        const frozenPick = {
+            id: `${lock.player.replace(/\s+/g, '')}-${lock.stat}-${today}`,
+            player: lock.player,
+            team: lock.team || '',
+            opp: lock.opp || '',
+            stat: lock.stat,
+            line: lock.line,
+            side: lock.side,
+            tier: '🔒 PROPHET LOCK',
+            date: today,
+            result: 'PENDING',
+            actual: null,
+            alertedAt: new Date().toISOString(),
+            confidence: lock.confidence,
+            score: lock.prophetPoints
+        };
+
+        // Check if already exists
+        const existingIdx = history.findIndex(h => h.id === frozenPick.id);
+        if (existingIdx === -1) {
+            history.push(frozenPick);
+            console.log(`   ❄️ Frozen LOCK: ${lock.player} ${lock.stat} ${lock.side} ${lock.line}`);
+        }
+    });
+
+    fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf8');
+    console.log(`   📝 Saved ${newLocks.length} LOCKs to history (frozen at alert time)`);
+
     // Load subscribers
     let emails = [];
     if (fs.existsSync(SUBSCRIBERS_FILE)) emails = JSON.parse(fs.readFileSync(SUBSCRIBERS_FILE, 'utf8'));

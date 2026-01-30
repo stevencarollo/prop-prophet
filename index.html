@@ -289,40 +289,27 @@
             white-space: nowrap;
         }
     </style>
-    <!-- OneSignal Push SDK -->
+    <!-- OneSignal Push SDK (OFFICIAL) -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
         window.OneSignalDeferred = window.OneSignalDeferred || [];
-        OneSignalDeferred.push(function (OneSignal) {
-            OneSignal.init({
+        OneSignalDeferred.push(async function (OneSignal) {
+            await OneSignal.init({
                 appId: "3ae11d49-8390-4714-96f2-f89c82efa5fe",
-                safari_web_id: "web.onesignal.auto.69837648-5c4d-4569-8d69-c4825d19488f",
-                notifyButton: {
-                    enable: true,
-                },
-                allowLocalhostAsSecureOrigin: true,
             });
 
-            // UPDATE DEBUG BANNER
+            // DEBUG BANNER UPDATE
             const banner = document.getElementById('os-debug');
-
-            // Check Status
-            const isSubscribed = OneSignal.User.PushSubscription.optedIn;
-            const permission = Notification.permission; // 'default', 'granted', 'denied'
-
+            const permission = Notification.permission;
             if (banner) {
-                banner.innerText = `SDK: Loaded | Perm: ${permission} | Sub: ${isSubscribed}`;
-                banner.style.background = (permission === 'granted' || isSubscribed) ? "#10b981" : "#ca8a04";
+                banner.innerText = `SDK Ready | Perm: ${permission} (TAP TO ALLOW)`;
+                banner.style.background = permission === 'granted' ? "#10b981" : "#ca8a04";
             }
 
-            // Force Prompt if not subscribed
-            if (!isSubscribed && permission === 'default') {
-                setTimeout(() => {
-                    console.log("🔔 Triggering Native Prompt...");
-                    OneSignal.Notifications.requestPermission();
-                    if (banner) banner.innerText += " (Native Pending...)";
-                }, 2500);
-            }
+            // Auto-prompt after 2s
+            setTimeout(() => {
+                OneSignal.Notifications.requestPermission();
+            }, 2000);
         });
     </script>
     <!-- Load Data (Cache Busted via Filename Change) -->

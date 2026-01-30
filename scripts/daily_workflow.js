@@ -20,7 +20,7 @@ const BBM_LOGIN_URL = 'https://basketballmonster.com/login.aspx';
 const BBM_DATA_URL = 'https://basketballmonster.com/dailyprojections.aspx';
 
 const EASE_DB_FILE = path.join(__dirname, '../ease_rankings.json');
-const OUTPUT_FILE = path.join(__dirname, '../latest_picks_live.js');
+const OUTPUT_FILE = path.join(__dirname, '../latest_picks.js');
 const HISTORY_FILE = path.join(__dirname, '../history/prophet_history.json');
 const SUBSCRIBERS_FILE = path.join(__dirname, '../history/subscribers.json');
 const SMS_SUBSCRIBERS_FILE = path.join(__dirname, '../history/sms_subscribers.json');

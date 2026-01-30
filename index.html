@@ -1131,7 +1131,7 @@
                     </div>
                     <div style="text-align: right; min-width: 140px;">
                         <span class="tier-badge ${pick.betRating.includes('LOCK') ? 'badge-lock' : pick.betRating.includes('DIAMOND') ? 'badge-diamond' : pick.betRating.includes('ELITE') ? 'badge-elite' : pick.betRating.includes('STRONG') ? 'badge-strong' : 'badge-solid'}" style="display:inline-block; margin-bottom: 4px;">
-                            ${pick.betRating.includes('LOCK') ? '🔒' : pick.betRating.includes('DIAMOND') ? '💎' : '🔥'} ${pick.betRating.split(' ')[0]} | ${pick.score} Rating
+                            ${pick.betRating.includes('LOCK') ? '🔒 PROPHET LOCK' : pick.betRating.includes('DIAMOND') ? '💎 DIAMOND' : pick.betRating.includes('ELITE') ? '🔥 ELITE' : '🔥 ' + pick.betRating.split(' ')[0]} | ${pick.score} Rating
                         </span>
                         <div style="font-size: 0.85em; font-weight: bold; color: #e2e8f0;">
                             Confidence: <span style="color: ${confColor}; font-size: 1.1em;">${pick.confidenceGrade || 'A'} (${(pick.confidence * 100).toFixed(0)}%)</span>
@@ -1259,7 +1259,7 @@
 
     <div style="text-align: center; color: #475569; font-size: 0.8em; margin-top: 50px; cursor: pointer;"
         onclick="secretAdminUpdate()">
-        Prop Prophet v4.8 (Global Fix) - © 2026
+        Prop Prophet v4.9 (Badge Fix) - © 2026
     </div>
 
     <script>

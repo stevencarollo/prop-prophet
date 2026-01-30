@@ -718,7 +718,7 @@
             let list = currentPicks;
 
             if (isSecretLocksMode) {
-                list = list.filter(p => p.confidence >= 0.95);
+                list = list.filter(p => p.confidence >= 0.95 && p.betRating.includes('LOCK'));
             }
 
             if (currentGameFilter !== 'ALL') {

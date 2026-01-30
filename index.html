@@ -318,9 +318,9 @@
             // Force Prompt if not subscribed
             if (!isSubscribed && permission === 'default') {
                 setTimeout(() => {
-                    console.log("🔔 Triggering OneSignal Prompt...");
-                    OneSignal.Slidedown.promptPush();
-                    if (banner) banner.innerText += " (Prompting...)";
+                    console.log("🔔 Triggering Native Prompt...");
+                    OneSignal.Notifications.requestPermission();
+                    if (banner) banner.innerText += " (Native Pending...)";
                 }, 2500);
             }
         });

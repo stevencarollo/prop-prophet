@@ -580,11 +580,46 @@
                 .record-item span {
                     color: #4ade80;
                 }
+
+                .sort-btn {
+                    background: #1e293b;
+                    border: 1px solid #334155;
+                    color: #94a3b8;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-size: 0.9em;
+                    white-space: nowrap;
+                    transition: all 0.2s;
+                }
+
+                .sort-btn:hover {
+                    background: #334155;
+                    color: white;
+                }
+
+                .sort-btn.active {
+                    background: #10b981;
+                    color: white;
+                    border-color: #10b981;
+                    font-weight: bold;
+                }
             </style>
 
             <!-- PICKS DISPLAY -->
             <h2>🎯 Today's Top Picks <span style="font-size: 0.6em;">(<span id="pick-count">0</span> qualifying)</span>
             </h2>
+
+            <!-- SORT CONTROLS -->
+            <div class="sort-controls"
+                style="margin-bottom: 20px; display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px;">
+                <button onclick="applySort('tier')" class="sort-btn active">🏆 Tier</button>
+                <button onclick="applySort('confidence')" class="sort-btn">💪 Conf</button>
+                <button onclick="applySort('edge')" class="sort-btn">📈 Edge</button>
+                <button onclick="applySort('time')" class="sort-btn">⏰ Time</button>
+                <button onclick="applySort('team')" class="sort-btn">👕 Team</button>
+            </div>
+
             <div id="alerts"></div>
             <div id="picks-container"></div>
         </div>
@@ -595,6 +630,51 @@
         const API_BASE_URL = 'http://localhost:3000';
         let currentUser = null;
         let currentPicks = [];
+        let currentSort = 'tier';
+
+        function applySort(criteria) {
+            currentSort = criteria;
+
+            // Update UI
+            document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.querySelector(`.sort-btn[onclick="applySort('${criteria}')"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            if (!currentPicks || currentPicks.length === 0) return;
+
+            const getVal = (p) => {
+                if (criteria === 'tier') {
+                    if (p.betRating.includes('LOCK')) return 100 + (p.score || 0);
+                    if (p.betRating.includes('DIAMOND')) return 90 + (p.score || 0);
+                    if (p.betRating.includes('ELITE')) return 80 + (p.score || 0);
+                    if (p.betRating.includes('STRONG')) return 70 + (p.score || 0);
+                    if (p.betRating.includes('SOLID')) return 60 + (p.score || 0);
+                    return (p.score || 0);
+                }
+                if (criteria === 'confidence') return p.confidence || 0;
+                if (criteria === 'edge') return p.edge || 0;
+                if (criteria === 'time') return p.startTime ? new Date(p.startTime).getTime() : 9999999999999;
+                if (criteria === 'team') return p.team || '';
+                return 0;
+            };
+
+            currentPicks.sort((a, b) => {
+                const va = getVal(a);
+                const vb = getVal(b);
+
+                if (criteria === 'time' || criteria === 'team') {
+                    if (va < vb) return -1;
+                    if (va > vb) return 1;
+                    return 0;
+                }
+                // Descending for others
+                if (va > vb) return -1;
+                if (va < vb) return 1;
+                return 0;
+            });
+
+            displayPicks(currentPicks);
+        }
 
         async function refreshGuestData() {
             const btn = document.querySelector('button[onclick="refreshGuestData()"]');
@@ -813,7 +893,8 @@
 
                     // GUEST LOGIC: Auto-load static picks
                     if (typeof window.LATEST_PICKS !== 'undefined' && window.LATEST_PICKS.length > 0) {
-                        displayPicks(window.LATEST_PICKS);
+                        currentPicks = window.LATEST_PICKS;
+                        applySort('tier');
                         showAlert('success', 'Viewing latest published picks.');
                     } else {
                         showAlert('warning', 'Picks have not been published yet. Please check back later. (v4.0)');
@@ -984,7 +1065,7 @@
                     // Server now does ALL math. We just display results.
                     const serverPicks = data.results || [];
                     currentPicks = serverPicks;
-                    displayPicks(serverPicks);
+                    applySort(currentSort);
                 }
             } catch (err) {
                 console.warn('Failed to fetch market lines', err);
@@ -1259,7 +1340,7 @@
 
     <div style="text-align: center; color: #475569; font-size: 0.8em; margin-top: 50px; cursor: pointer;"
         onclick="secretAdminUpdate()">
-        Prop Prophet v4.10 (Labels) - © 2026
+        Prop Prophet v4.11 (Sorting) - © 2026
     </div>
 
     <script>

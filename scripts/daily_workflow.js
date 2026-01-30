@@ -1408,14 +1408,19 @@ async function sendAlerts(picks) {
         auth: { user: EMAIL_USER, pass: EMAIL_PASS }
     });
 
-    let batchBody = `🚨 PROPHET LOCK BATCH 🚨\n\n`;
+    let batchBody = `🔒 PROPHET LOCK ALERT 🔒\n\n`;
     newLocks.forEach((pick, index) => {
-        batchBody += `${index + 1}. ${pick.player} (${pick.team})\n`;
-        batchBody += `${pick.stat.toUpperCase()} ${pick.side} ${pick.line}\n`;
-        batchBody += `Conf: ${pick.confidenceGrade} | Edge: ${pick.edge}\n`;
-        batchBody += `----------------\n`;
+        const confPct = Math.round((pick.confidence || 0) * 100);
+        const proj = pick.projection || 'N/A';
+        batchBody += `━━━━━━━━━━━━━━━━━━━━\n`;
+        batchBody += `${index + 1}. ${pick.player} (${pick.team} vs ${pick.opp || '?'})\n`;
+        batchBody += `   📊 ${pick.stat.toUpperCase()} ${pick.side} ${pick.line}\n`;
+        batchBody += `   📈 Proj: ${proj} | Line: ${pick.line}\n`;
+        batchBody += `   ⚡ Edge: ${pick.edge} | Conf: ${confPct}% ${pick.confidenceGrade || ''}\n`;
     });
-    batchBody += `\n"Please merk responsibly."`;
+    batchBody += `━━━━━━━━━━━━━━━━━━━━\n`;
+    batchBody += `\n🎯 BOL! - Prophet\n`;
+    batchBody += `prop-prophet.vercel.app`;
 
     console.log(`📧 Mailing BATCH of ${newLocks.length} locks via Gmail...`);
     try {
@@ -1432,16 +1437,27 @@ async function sendAlerts(picks) {
         console.error(`❌ Email Failed:`, err.message);
     }
 
-    // 2. Send SMS via Gmail (MMS Gateways) - REVERTED from Telnyx due to 10DLC
+    // 2. Send SMS via Gmail (MMS Gateways) - Compact format for 160 char limit
     if (smsGateways.length > 0) {
         console.log(`📡 Sending SMS via Gmail MMS to ${smsGateways.length} numbers...`);
+
+        // Build compact SMS body (fits in ~2 segments)
+        let smsBody = `🔒 PROPHET LOCK\n`;
+        newLocks.forEach((pick) => {
+            const confPct = Math.round((pick.confidence || 0) * 100);
+            const statUp = pick.stat.toUpperCase();
+            const sideShort = pick.side === 'OVER' ? 'O' : 'U';
+            smsBody += `${pick.player.split(' ').pop()} ${statUp} ${sideShort}${pick.line} (${confPct}%)\n`;
+        });
+        smsBody += `BOL! 🏀`;
+
         for (const gatewayEmail of smsGateways) {
             try {
                 await transporter.sendMail({
-                    from: `"Prophet Locks" <${EMAIL_USER}>`,
+                    from: `"Prophet" <${EMAIL_USER}>`,
                     to: gatewayEmail,
                     subject: "", // Keep subject empty for cleaner texts
-                    text: batchBody
+                    text: smsBody
                 });
                 console.log(`   ➔ Sent MMS to ${gatewayEmail}`);
             } catch (err) {
@@ -1455,10 +1471,18 @@ async function sendAlerts(picks) {
         console.log('🔔 Sending Push Notification via OneSignal...');
         try {
             const fetch = require('node-fetch');
+
+            // Build push message with pick details
+            let pushContent = newLocks.map(pick => {
+                const confPct = Math.round((pick.confidence || 0) * 100);
+                const sideShort = pick.side === 'OVER' ? 'O' : 'U';
+                return `${pick.player.split(' ').pop()} ${pick.stat.toUpperCase()} ${sideShort}${pick.line} (${confPct}%)`;
+            }).join(' | ');
+
             const pushBody = {
                 app_id: process.env.ONESIGNAL_APP_ID,
-                contents: { "en": `🚨 ${newLocks.length} New LOCKS Available! Check Dashboard.` },
-                headings: { "en": "Prop Prophet Alert" },
+                contents: { "en": `🔒 ${pushContent}` },
+                headings: { "en": `Prophet Lock Alert (${newLocks.length})` },
                 included_segments: ["Total Subscriptions"], // Sends to All Active Subscribers
                 url: "https://prop-prophet.vercel.app/" // Opens app on click
             };

@@ -303,10 +303,21 @@
                 allowLocalhostAsSecureOrigin: true,
             });
 
+            // UPDATE DEBUG BANNER
+            const banner = document.getElementById('os-debug');
+            if (banner) {
+                banner.innerText = "Push SDK: Loaded! (Wait 3s for Prompt)";
+                banner.style.background = "#ca8a04"; // Yellow
+            }
+
             // Force Prompt
             setTimeout(() => {
                 console.log("🔔 Triggering OneSignal Prompt...");
                 OneSignal.Slidedown.promptPush();
+                if (banner) {
+                    banner.innerText = "Push SDK: Prompt Triggered!";
+                    banner.style.background = "#10b981"; // Green
+                }
             }, 2500);
         });
     </script>
@@ -315,8 +326,14 @@
 </head>
 
 <body>
+    <!-- DEBUG BANNER -->
+    <div id="os-debug"
+        style="background: red; color: white; padding: 10px; text-align: center; font-weight: bold; position: fixed; top: 0; width: 100%; z-index: 9999;">
+        Push SDK: Initializing...
+    </div>
+
     <!-- LOGIN PAGE -->
-    <div id="login-page" class="login-box">
+    <div id="login-page" class="login-box" style="margin-top: 60px;">
         <h2>🏀 Prop Prophet v3.0</h2>
         <h3 style="margin-bottom: 1.5rem;">Login</h3>
         <input type="text" id="username" placeholder="Username">

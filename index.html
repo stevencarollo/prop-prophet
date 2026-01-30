@@ -1030,6 +1030,47 @@
                 `;
                 container.appendChild(card);
             });
+
+            // Update stats display from PROPHET_RECORD
+            updateStats();
+        }
+
+        function updateStats() {
+            const record = window.PROPHET_RECORD;
+            if (!record) return;
+
+            // Show record banner and insights
+            const banner = document.getElementById('prophet-record-banner');
+            const insights = document.getElementById('insights-container');
+            if (banner) banner.classList.remove('hidden');
+            if (insights) insights.style.display = 'flex';
+
+            // Update Record Banner
+            const recSeason = document.getElementById('rec-season');
+            const recLocks = document.getElementById('rec-locks');
+            const recDiamond = document.getElementById('rec-diamond');
+
+            if (recSeason && record.season) {
+                recSeason.textContent = `${record.season.w}-${record.season.l} (${record.season.pct}%)`;
+            }
+            if (recLocks && record.locks) {
+                recLocks.textContent = `${record.locks.w}-${record.locks.l} (${record.locks.pct}%)`;
+            }
+            if (recDiamond && record.diamond) {
+                recDiamond.textContent = `${record.diamond.w}-${record.diamond.l} (${record.diamond.pct}%)`;
+            }
+
+            // Update Prophet Meter (Profit from LOCKs at -110 odds)
+            if (record.locks) {
+                const wins = record.locks.w || 0;
+                const losses = record.locks.l || 0;
+                const profit = (wins * 90.91) - (losses * 100);
+                const profitEl = document.getElementById('profit-display');
+                if (profitEl) {
+                    profitEl.textContent = (profit >= 0 ? '+' : '') + '$' + profit.toFixed(2);
+                    profitEl.style.color = profit >= 0 ? '#4ade80' : '#f87171';
+                }
+            }
         }
 
         // Simple parser for pasted BBM text client-side fallback

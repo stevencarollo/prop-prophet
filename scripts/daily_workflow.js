@@ -1351,42 +1351,23 @@ async function sendAlerts(picks) {
         console.error(`❌ Email Failed:`, err.message);
     }
 
-    // 2. Send SMS via Telnyx (If Key Exists)
-    if (process.env.TELNYX_API_KEY && smsGateways.length > 0) {
-        console.log(`📡 Sending SMS via Telnyx to ${smsGateways.length} numbers...`);
-        try {
-            const fetch = require('node-fetch');
-            // Telnyx sends individually
-            for (const number of smsGateways) {
-                // specific hack: clean up the gateway suffix info (remove @vzwpix.com to get raw number)
-                const cleanNum = '+1' + number.replace(/\D/g, '').slice(-10); // +1 + 10 digits
-                const fromNum = '+13238801102'; // Your Telnyx Number
-
-                const response = await fetch('https://api.telnyx.com/v2/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${process.env.TELNYX_API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        from: fromNum,
-                        to: cleanNum,
-                        text: batchBody
-                    })
+    // 2. Send SMS via Gmail (MMS Gateways) - REVERTED from Telnyx due to 10DLC
+    if (smsGateways.length > 0) {
+        console.log(`📡 Sending SMS via Gmail MMS to ${smsGateways.length} numbers...`);
+        for (const gatewayEmail of smsGateways) {
+            try {
+                await transporter.sendMail({
+                    from: `"Prophet Locks" <${EMAIL_USER}>`,
+                    to: gatewayEmail,
+                    subject: "", // Keep subject empty for cleaner texts
+                    text: batchBody
                 });
-
-                if (response.ok) {
-                    console.log(`   ➔ Sent to ${cleanNum}`);
-                } else {
-                    const err = await response.json();
-                    console.error(`   ❌ Failed to ${cleanNum}:`, JSON.stringify(err));
-                }
-                console.log(`   ➔ Sent to ${cleanNum}`);
+                console.log(`   ➔ Sent MMS to ${gatewayEmail}`);
+            } catch (err) {
+                console.error(`   ❌ Failed MMS to ${gatewayEmail}:`, err.message);
             }
-            console.log(`✅ SMS Blast Complete.`);
-        } catch (err) {
-            console.error(`❌ Telnyx SMS Failed:`, err.message);
         }
+        console.log(`✅ SMS Blast Complete.`);
     }
 }
 

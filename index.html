@@ -298,18 +298,21 @@
                 appId: "3ae11d49-8390-4714-96f2-f89c82efa5fe",
             });
 
-            // DEBUG BANNER UPDATE
+            // Banner Control
             const banner = document.getElementById('os-debug');
             const permission = Notification.permission;
-            if (banner) {
-                banner.innerText = `SDK Ready | Perm: ${permission} (TAP TO ALLOW)`;
-                banner.style.background = permission === 'granted' ? "#10b981" : "#ca8a04";
+
+            // Hide banner if already subscribed
+            if (permission === 'granted' && banner) {
+                banner.style.display = 'none';
             }
 
-            // Auto-prompt after 2s
-            setTimeout(() => {
-                OneSignal.Notifications.requestPermission();
-            }, 2000);
+            // Auto-prompt after 2s (only if not yet granted)
+            if (permission === 'default') {
+                setTimeout(() => {
+                    OneSignal.Notifications.requestPermission();
+                }, 2000);
+            }
         });
     </script>
     <!-- Load Data (Cache Busted via Filename Change) -->
@@ -317,11 +320,10 @@
 </head>
 
 <body>
-    <!-- DEBUG BANNER -->
-    <!-- DEBUG BANNER (Clickable) -->
+    <!-- PUSH NOTIFICATION BANNER (Auto-hides when subscribed) -->
     <div id="os-debug" onclick="OneSignal.Notifications.requestPermission()"
-        style="background: red; color: white; padding: 20px; text-align: center; font-weight: bold; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 2147483647; cursor: pointer; border-top: 4px solid white; font-size: 16px;">
-        Push SDK: Initializing... (TAP HERE TO FIX)
+        style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 15px; text-align: center; font-weight: bold; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999; cursor: pointer; font-size: 14px; box-shadow: 0 -4px 12px rgba(0,0,0,0.3);">
+        🔔 Tap here to enable Push Notifications
     </div>
 
     <!-- LOGIN PAGE -->

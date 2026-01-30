@@ -994,101 +994,7 @@
 
         // Removed client-side CalculatePicks - Logic moved to server v1.0 spec
 
-        function displayPicks(picks) {
-            const container = document.getElementById('picks-container');
-            const count = document.getElementById('pick-count');
 
-            // Guest restrictions
-            if (currentUser === 'guest') {
-                picks = picks.slice(0, 5); // Max 5 for guest
-            }
-
-            container.innerHTML = '';
-            count.textContent = picks.length;
-
-            if (picks.length === 0) {
-                container.innerHTML = '<div class="alert alert-error">No +EV picks found. (Check terminal logs for matching details).</div>';
-                return;
-            }
-
-            picks.forEach((pick, index) => {
-                const card = document.createElement('div');
-                card.className = 'pick-card';
-                card.innerHTML = `
-                    <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 10px; margin-bottom: 12px; border-radius: 4px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <span style="color: #10b981; font-weight: bold; font-size: 1.1em;">🔒 PROPHET LOCK</span>
-                            <span style="background: #0f766e; color: #ccfbf1; padding: 3px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #14b8a6;">
-                                ${(pick.edge * pick.confidence).toFixed(2)} Rating
-                            </span>
-                        </div>
-                        <div style="font-size: 0.95em; color: #e2e8f0;">
-                            <strong>Confidence:</strong> <span style="color: ${(pick.confidence >= 0.9) ? '#4ade80' : '#fbbf24'}">${(pick.confidence * 100).toFixed(0)}% (${pick.confidenceGrade || 'A'})</span>
-                        </div>
-                    </div>
-
-                    <h3>${index + 1}. ${pick.player} - ${pick.stat.toUpperCase()} ${pick.side}</h3>
-                    
-                    <p style="margin: 10px 0;">
-                        <span class="stat-badge">${pick.marketLine}</span>
-                        <span class="edge">+${pick.edge} units</span>
-                    </p>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9em; margin-bottom: 10px;">
-                        <div><strong>Proj:</strong> ${pick.projection}</div>
-                        <div><strong>Line:</strong> ${pick.marketLine}</div>
-                        <div><strong>Pos Ease:</strong> <span style="color:${(pick.posEase || 0) > 0 ? '#4ade80' : ((pick.posEase || 0) < 0 ? '#f87171' : '#cbd5e1')}">${((pick.posEase || 0) * 100).toFixed(1)}%</span></div>
-                        <div><strong>Team Ease:</strong> <span style="color:${(pick.teamEase || 0) > 0 ? '#4ade80' : ((pick.teamEase || 0) < 0 ? '#f87171' : '#cbd5e1')}">${((pick.teamEase || 0) * 100).toFixed(1)}%</span></div>
-                    </div>
-                    
-                    <p style="font-size: 0.9em; border-top: 1px solid #334155; padding-top: 8px;">
-                        <em style="color:#94a3b8">"${pick.interpretation ? pick.interpretation.split('|')[0] : 'Standard value play'}"</em>
-                    </p>
-                `;
-                container.appendChild(card);
-            });
-
-            // Update stats display from PROPHET_RECORD
-            updateStats();
-        }
-
-        function updateStats() {
-            const record = window.PROPHET_RECORD;
-            if (!record) return;
-
-            // Show record banner and insights
-            const banner = document.getElementById('prophet-record-banner');
-            const insights = document.getElementById('insights-container');
-            if (banner) banner.classList.remove('hidden');
-            if (insights) insights.style.display = 'flex';
-
-            // Update Record Banner
-            const recSeason = document.getElementById('rec-season');
-            const recLocks = document.getElementById('rec-locks');
-            const recDiamond = document.getElementById('rec-diamond');
-
-            if (recSeason && record.season) {
-                recSeason.textContent = `${record.season.w}-${record.season.l} (${record.season.pct}%)`;
-            }
-            if (recLocks && record.locks) {
-                recLocks.textContent = `${record.locks.w}-${record.locks.l} (${record.locks.pct}%)`;
-            }
-            if (recDiamond && record.diamond) {
-                recDiamond.textContent = `${record.diamond.w}-${record.diamond.l} (${record.diamond.pct}%)`;
-            }
-
-            // Update Prophet Meter (Profit from LOCKs at -110 odds)
-            if (record.locks) {
-                const wins = record.locks.w || 0;
-                const losses = record.locks.l || 0;
-                const profit = (wins * 90.91) - (losses * 100);
-                const profitEl = document.getElementById('profit-display');
-                if (profitEl) {
-                    profitEl.textContent = (profit >= 0 ? '+' : '') + '$' + profit.toFixed(2);
-                    profitEl.style.color = profit >= 0 ? '#4ade80' : '#f87171';
-                }
-            }
-        }
 
         // Simple parser for pasted BBM text client-side fallback
         function parseBBMFromText(bbmText) {
@@ -1162,17 +1068,11 @@
             url.searchParams.set('t', Date.now());
             window.location.href = url.toString();
         }
-
         function displayPicks(picks) {
             const container = document.getElementById('picks-container');
             const count = document.getElementById('pick-count');
 
-            // Guest restrictions (REMOVED - Full Access)
-            // if (currentUser === 'guest') {
-            //    picks = picks.slice(0, 5);
-            // }
-
-            // Filter Logic (User Request: "Important NOT to show games that have already started")
+            // Filter Logic 
             picks = picks.filter(p => {
                 if (!p.startTime) return true;
                 return new Date(p.startTime) > new Date();
@@ -1186,13 +1086,11 @@
                 return;
             }
 
-
-
             picks.forEach((pick, index) => {
                 const card = document.createElement('div');
 
-                // Assign tier-specific class based on betRating
-                let tierClass = 'tier-solid'; // Default
+                // Assign tier-specific class
+                let tierClass = 'tier-solid';
                 if (pick.betRating.includes("LOCK")) tierClass = 'tier-lock';
                 else if (pick.betRating.includes("DIAMOND")) tierClass = 'tier-diamond';
                 else if (pick.betRating.includes("ELITE")) tierClass = 'tier-elite';
@@ -1200,80 +1098,32 @@
 
                 card.className = `pick-card ${tierClass}`;
 
-                // Elite/Lock Styling Check (legacy - kept for reference)
-                const isLock = pick.betRating.includes("LOCK");
-                const isElite = pick.interpretation && pick.interpretation.includes('[ELITE]');
-
                 // Time Logic
                 let timeHtml = '';
                 if (pick.startTime) {
-                    const start = new Date(pick.startTime);
-                    const now = new Date();
-                    const diffMs = start - now;
+                    const diffMs = new Date(pick.startTime) - new Date();
+                    const hrs = Math.floor(diffMs / 3600000);
+                    const mins = Math.floor((diffMs % 3600000) / 60000);
 
-                    // Format PST Time
-                    const timeStr = start.toLocaleTimeString('en-US', {
-                        timeZone: 'America/Los_Angeles',
-                        hour: 'numeric',
-                        minute: '2-digit'
+                    const timeStr = new Date(pick.startTime).toLocaleTimeString('en-US', {
+                        timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit'
                     }) + ' PST';
 
-                    function displayPicks(picks) {
-                        const container = document.getElementById('picks-container');
-                        const count = document.getElementById('pick-count');
+                    const countdownStr = diffMs > 0
+                        ? `<span style="color:#fcd34d; font-weight:bold;">Starts in ${hrs}h ${mins}m</span>`
+                        : `<span style="color:#ef4444; font-weight:bold;">LIVE / STARTED</span>`;
 
-                        // Filter Logic 
-                        picks = picks.filter(p => {
-                            if (!p.startTime) return true;
-                            return new Date(p.startTime) > new Date();
-                        });
+                    timeHtml = `<div style="font-size:0.8em; color:#e2e8f0; margin-top:2px;">⏰ ${timeStr} • ${countdownStr}</div>`;
+                }
 
-                        container.innerHTML = '';
-                        count.textContent = picks.length;
+                // Side Color
+                const isUnder = pick.side === 'UNDER';
+                const sideBg = isUnder ? "linear-gradient(135deg, #e74c3c, #c0392b)" : "linear-gradient(135deg, #2ecc71, #27ae60)";
 
-                        if (picks.length === 0) {
-                            container.innerHTML = '<div class="alert alert-error">No active picks found. All games may have started.</div>';
-                            return;
-                        }
+                // Confidence Color
+                const confColor = (pick.confidence >= 0.9) ? '#4ade80' : '#fbbf24';
 
-                        picks.forEach((pick, index) => {
-                            const card = document.createElement('div');
-
-                            // Assign tier-specific class
-                            let tierClass = 'tier-solid';
-                            if (pick.betRating.includes("LOCK")) tierClass = 'tier-lock';
-                            else if (pick.betRating.includes("DIAMOND")) tierClass = 'tier-diamond';
-                            else if (pick.betRating.includes("ELITE")) tierClass = 'tier-elite';
-                            else if (pick.betRating.includes("STRONG")) tierClass = 'tier-strong';
-
-                            card.className = `pick-card ${tierClass}`;
-
-                            // Time Logic
-                            let timeHtml = '';
-                            if (pick.startTime) {
-                                const diffMs = new Date(pick.startTime) - new Date();
-                                const hrs = Math.floor(diffMs / 3600000);
-                                const mins = Math.floor((diffMs % 3600000) / 60000);
-
-                                const timeStr = new Date(pick.startTime).toLocaleTimeString('en-US', {
-                                    timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit'
-                                }) + ' PST';
-
-                                const countdownStr = diffMs > 0
-                                    ? `<span style="color:#fcd34d; font-weight:bold;">Starts in ${hrs}h ${mins}m</span>`
-                                    : `<span style="color:#ef4444; font-weight:bold;">LIVE / STARTED</span>`;
-
-                                timeHtml = `<div style="font-size:0.8em; color:#e2e8f0; margin-top:2px;">⏰ ${timeStr} • ${countdownStr}</div>`;
-                            }
-
-                            // Side Color
-                            const isUnder = pick.side === 'UNDER';
-                            const sideBg = isUnder ? "linear-gradient(135deg, #e74c3c, #c0392b)" : "linear-gradient(135deg, #2ecc71, #27ae60)";
-
-                            // Confidence Color
-                            const confColor = (pick.confidence >= 0.9) ? '#4ade80' : '#fbbf24';
-
-                            card.innerHTML = `
+                card.innerHTML = `
                 <div class="pick-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                     <div style="flex: 1;">
                         <h3 style="margin:0; font-size: 1.1em;">${index + 1}. ${pick.player} <small style="color:#94a3b8">(${pick.team} - ${pick.pos})</small></h3>
@@ -1327,102 +1177,105 @@
                             ${pick.analysis || 'No specific insights available.'}
                         </div>
                 </div>
-                `;
-                            container.appendChild(card);
-                        });
+            `;
+                container.appendChild(card);
+            });
 
-                        updateStats();
-                    }
+            updateStats();
+        }
 
-                    // NEW: Function to update the record banner from window.PROPHET_RECORD
-                    function updateRecordDisplay() {
-                        const rec = window.PROPHET_RECORD;
-                        if (!rec) return;
+        function updateStats() {
+            const rec = window.PROPHET_RECORD;
+            if (!rec) return;
 
-                        // Helper to format record
-                        const fmt = (r) => `${r.w} -${r.l} -${r.p} (${r.pct}%)`;
+            // Helper to format record
+            const fmt = (r) => `${r.w}-${r.l} (${r.pct}%)`;
 
-                        const setEl = (id, val) => {
-                            const el = document.getElementById(id);
-                            if (el) el.textContent = val;
-                        };
+            const setEl = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
 
-                        setEl('rec-season', fmt(rec.season));
-                        setEl('rec-locks', fmt(rec.locks));
-                        setEl('rec-diamond', fmt(rec.diamond));
+            if (rec.season) setEl('rec-season', fmt(rec.season));
+            if (rec.locks) setEl('rec-locks', fmt(rec.locks));
+            if (rec.diamond) setEl('rec-diamond', fmt(rec.diamond));
 
-                        // Show the banner if it was hidden
-                        const banner = document.getElementById('prophet-record-banner');
-                        if (banner) banner.classList.remove('hidden');
-                    }
+            // Show the banner if it was hidden
+            const banner = document.getElementById('prophet-record-banner');
+            if (banner) banner.classList.remove('hidden');
 
-                    // Call on load if data exists
-                    if (typeof window.PROPHET_RECORD !== 'undefined') {
-                        updateRecordDisplay();
-                        updateProfitMeter();
-                    }
-                    // Initialize Wisdom
-                    initWisdom();
+            // Show insights container
+            const insights = document.getElementById('insights-container');
+            if (insights) insights.style.display = 'flex';
 
-                    function updateProfitMeter() {
-                        const locks = window.PROPHET_RECORD.locks;
-                        if (!locks) return;
+            updateProfitMeter();
+        }
 
-                        // Calc: Wins * 90.91 - Losses * 100
-                        const profit = (locks.w * 90.91) - (locks.l * 100);
+        function updateProfitMeter() {
+            if (!window.PROPHET_RECORD || !window.PROPHET_RECORD.locks) return;
+            const locks = window.PROPHET_RECORD.locks;
 
-                        const el = document.getElementById('profit-display');
-                        if (el) {
-                            const sign = profit >= 0 ? '+' : '-';
-                            const color = profit >= 0 ? '#4ade80' : '#f87171'; // Green or Red
-                            // Format with commas
-                            const val = Math.abs(profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                            el.innerHTML = `<span style="color:${color}">${sign}$${val}</span>`;
-                        }
+            // Calc: Wins * 90.91 - Losses * 100
+            const profit = (locks.w * 90.91) - (locks.l * 100);
 
-                        document.getElementById('insights-container').classList.remove('hidden');
-                    }
+            const el = document.getElementById('profit-display');
+            if (el) {
+                const sign = profit >= 0 ? '+' : '-';
+                const color = profit >= 0 ? '#4ade80' : '#f87171'; // Green or Red
+                // Format with commas
+                const val = Math.abs(profit).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                el.innerHTML = `<span style="color:${color}">${sign}$${val}</span>`;
+            }
+        }
 
-                    function initWisdom() {
-                        const tips = [
-                            "In general, trust the early projections. If you see a 'Prophet Lock' or 'Diamond' the night before, it is often the best price you will get. Waiting until tip-off usually means you are betting into a sharper, tougher market.",
-                            "Never bet more than 1-2% of your bankroll on a single play. Longevity is the key to profit in this game.",
-                            "Volume is your friend. The more +EV bets you place over time, the faster the math works in your favor to overcome variance.",
-                            "Don't chase losses. If you have a bad day, stick to the system. The edge will return.",
-                            "Always shop for lines. Getting -110 vs -120 adds up to massive profit differences over the course of a season.",
-                            "Beware of 'Narrative' bets. The numbers don't care about a player's birthday or 'revenge game'. Trust the data.",
-                            "If a player is questionable, wait for confirmation. A late scratch can ruin an entire parlay if you aren't careful.",
-                            "The Prophet Model loves 'Unders' on players with inflated lines due to recent hot streaks. Regression to the mean is powerful."
-                        ];
+        function initWisdom() {
+            const tips = [
+                "In general, trust the early projections. If you see a 'Prophet Lock' or 'Diamond' the night before, it is often the best price you will get. Waiting until tip-off usually means you are betting into a sharper, tougher market.",
+                "Never bet more than 1-2% of your bankroll on a single play. Longevity is the key to profit in this game.",
+                "Volume is your friend. The more +EV bets you place over time, the faster the math works in your favor to overcome variance.",
+                "Don't chase losses. If you have a bad day, stick to the system. The edge will return.",
+                "Always shop for lines. Getting -110 vs -120 adds up to massive profit differences over the course of a season.",
+                "Beware of 'Narrative' bets. The numbers don't care about a player's birthday or 'revenge game'. Trust the data.",
+                "If a player is questionable, wait for confirmation. A late scratch can ruin an entire parlay if you aren't careful.",
+                "The Prophet Model loves 'Unders' on players with inflated lines due to recent hot streaks. Regression to the mean is powerful."
+            ];
 
-                        // Select based on Day of Month
-                        const day = new Date().getDate();
-                        const tipIndex = day % tips.length;
+            // Select based on Day of Month
+            const day = new Date().getDate();
+            const tipIndex = day % tips.length;
 
-                        const el = document.getElementById('daily-wisdom');
-                        if (el) el.innerText = `"${tips[tipIndex]}"`;
-                    }
+            const el = document.getElementById('daily-wisdom');
+            if (el) el.innerText = `"${tips[tipIndex]}"`;
+        }
+
+        // Call on load if data exists
+        if (typeof window.PROPHET_RECORD !== 'undefined') {
+            updateStats();
+        }
+
+        // Initialize Wisdom on load
+        initWisdom();
     </script>
 
     <div style="text-align: center; color: #475569; font-size: 0.8em; margin-top: 50px; cursor: pointer;"
         onclick="secretAdminUpdate()">
-        Prop Prophet v4.0 - © 2026
+        Prop Prophet v4.8 (Global Fix) - © 2026
     </div>
 
     <script>
-                    // ... previous code ...
+        // ... previous code ...
 
-                    function secretAdminUpdate() {
-                        const pass = prompt("🔐 Admin Override: Enter Password to Force Update:");
-                        if (pass === 'Reempicks1!') {
-                            // Bypass the confirm inside forceUpdate by calling logic directly or just handle the confirm
-                            // Actually forceUpdate has a confirm.
-                            // Let's modify forceUpdate to accept a 'skipConfirm' arg, or just let him confirm again.
-                            forceUpdate();
-                        } else if (pass) {
-                            alert("❌ Access Denied");
-                        }
-                    }
+        function secretAdminUpdate() {
+            const pass = prompt("🔐 Admin Override: Enter Password to Force Update:");
+            if (pass === 'Reempicks1!') {
+                // Bypass the confirm inside forceUpdate by calling logic directly or just handle the confirm
+                // Actually forceUpdate has a confirm.
+                // Let's modify forceUpdate to accept a 'skipConfirm' arg, or just let him confirm again.
+                forceUpdate();
+            } else if (pass) {
+                alert("❌ Access Denied");
+            }
+        }
     </script>
     <div style="text-align:center; padding: 20px; font-size: 0.8rem; color: #64748b;">
         &copy; 2025 Prop Prophet | System Version: 1.2 (Mobile Spacing Fix)

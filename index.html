@@ -1268,6 +1268,14 @@
                 // Confidence Color
                 const confColor = (pick.confidence >= 0.9) ? '#4ade80' : '#fbbf24';
 
+                const STAT_MAP = {
+                    'p': 'Points', 'r': 'Rebounds', 'a': 'Assists',
+                    '3': 'Threes', 's': 'Steals', 'b': 'Blocks', 'to': 'Turnovers',
+                    'pr': 'Pts + Reb', 'pa': 'Pts + Ast', 'ra': 'Reb + Ast',
+                    'pra': 'Pts + Reb + Ast'
+                };
+                const statLabel = STAT_MAP[pick.stat] || pick.stat.toUpperCase();
+
                 card.innerHTML = `
                 <div class="pick-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                     <div style="flex: 1;">
@@ -1286,7 +1294,7 @@
                     
                 <div class="pick-stat-row" style="margin-bottom: 20px;">
                         <span style="background: ${sideBg}; color: white; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 1.1em; display: inline-block;">
-                        ${pick.stat.toUpperCase()} ${pick.side}
+                        ${statLabel} ${pick.side}
                         </span>
                         <div style="font-size: 1.1em; margin-top: 8px;">
                             <span style="font-weight: bold; font-size: 1.3em;">${pick.line}</span>

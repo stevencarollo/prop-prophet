@@ -1250,7 +1250,14 @@
             count.textContent = picks.length;
 
             if (picks.length === 0) {
-                container.innerHTML = '<div class="alert alert-error">No active picks found. All games may have started.</div>';
+                container.innerHTML = `
+                    <div class="alert alert-info" style="text-align: center;">
+                        <strong>No active picks found currently.</strong><br>
+                        All games may have started, or the filter is too strict.<br><br>
+                        🔔 <strong>Don't miss the next drop!</strong><br>
+                        Scroll down and <strong>Enable Push Notifications</strong> to get instant alerts for the latest Prophet Select picks.
+                    </div>
+                `;
                 return;
             }
 

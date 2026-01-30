@@ -3584,8 +3584,8 @@
     "side": "UNDER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-24",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 37
   },
   {
     "id": "LauriMarkkanen-pr-2026-01-24",
@@ -4455,8 +4455,8 @@
     "side": "UNDER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-25",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 37
   },
   {
     "id": "JamalMurray-pa-2026-01-25",
@@ -4468,8 +4468,8 @@
     "side": "UNDER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-25",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 33
   },
   {
     "id": "VictorWembanyama-pra-2026-01-25",
@@ -5443,8 +5443,8 @@
     "side": "UNDER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-26",
-    "result": "PENDING",
-    "actual": null
+    "result": "WIN",
+    "actual": 33
   },
   {
     "id": "JaylenBrown-s-2026-01-26",
@@ -10968,8 +10968,8 @@
     "side": "OVER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-29",
-    "result": "PENDING",
-    "actual": null,
+    "result": "LOSS",
+    "actual": 18,
     "alertedAt": "2026-01-29T04:53:45.564Z",
     "retroAdded": true
   },
@@ -10983,8 +10983,8 @@
     "side": "UNDER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-29",
-    "result": "PENDING",
-    "actual": null,
+    "result": "WIN",
+    "actual": 24,
     "alertedAt": "2026-01-29T16:53:06.322Z",
     "retroAdded": true
   },
@@ -10998,8 +10998,8 @@
     "side": "UNDER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-29",
-    "result": "PENDING",
-    "actual": null,
+    "result": "WIN",
+    "actual": 21,
     "alertedAt": "2026-01-29T18:30:41.068Z",
     "retroAdded": true
   },
@@ -11013,8 +11013,8 @@
     "side": "UNDER",
     "tier": "🔒 PROPHET LOCK",
     "date": "2026-01-29",
-    "result": "PENDING",
-    "actual": null,
+    "result": "WIN",
+    "actual": 13,
     "alertedAt": "2026-01-29T21:19:51.355Z",
     "retroAdded": true
   },

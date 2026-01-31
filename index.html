@@ -1480,6 +1480,17 @@
     <div style="text-align:center; padding: 20px; font-size: 0.8rem; color: #64748b;">
         &copy; 2025 Prop Prophet | System Version: 1.2 (Mobile Spacing Fix)
     </div>
+    <!-- Load Picks Data -->
+    <script src="latest_picks.js"></script>
+
+    <script>
+        // Auto-load picks on page load
+        if (typeof window.LATEST_PICKS !== 'undefined' && window.LATEST_PICKS.length > 0) {
+            currentPicks = window.LATEST_PICKS;
+            populateGameFilter(currentPicks);
+            applySort('tier');
+        }
+    </script>
 </body>
 
 </html>

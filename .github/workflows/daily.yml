@@ -112,7 +112,7 @@ jobs:
           touch last_run_error.txt
           
           # Stage files (ignore errors for missing files)
-          git add latest_picks_live.js history/prophet_history.json history/alerts_sent_today.json ease_rankings.json last_run_error.txt 2>/dev/null || true
+          git add latest_picks.js history/prophet_history.json history/alerts_sent_today.json ease_rankings.json last_run_error.txt 2>/dev/null || true
           
           # Check if there are changes to commit
           if git diff --staged --quiet; then
@@ -120,9 +120,12 @@ jobs:
             exit 0
           fi
           
+          # Pull latest changes to avoid conflicts
+          git pull --rebase origin main
+
           # Commit and push
           git commit -m "🤖 Auto-Update: $(date +'%Y-%m-%d %H:%M PST')"
-          git push origin main --force-with-lease
+          git push origin main
       
       - name: Workflow Summary
         if: success()

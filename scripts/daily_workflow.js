@@ -1476,8 +1476,21 @@ async function sendAlerts(picks) {
             let pushContent = newLocks.map(pick => {
                 const confPct = Math.round((pick.confidence || 0) * 100);
                 const sideShort = pick.side === 'OVER' ? 'O' : 'U';
-                return `${pick.player.split(' ').pop()} ${pick.stat.toUpperCase()} ${sideShort}${pick.line} (${confPct}%)`;
-            }).join(' | ');
+                const edge = pick.edge || '0';
+
+                // Format game time in PST
+                let timeStr = '';
+                if (pick.startTime) {
+                    const gameTime = new Date(pick.startTime);
+                    timeStr = gameTime.toLocaleTimeString('en-US', {
+                        timeZone: 'America/Los_Angeles',
+                        hour: 'numeric',
+                        minute: '2-digit'
+                    });
+                }
+
+                return `${pick.player.split(' ').pop()} ${pick.stat.toUpperCase()} ${sideShort}${pick.line} | Edge: +${edge} | ${confPct}%${timeStr ? ` | ${timeStr} PST` : ''}`;
+            }).join('\n');
 
             const pushBody = {
                 app_id: process.env.ONESIGNAL_APP_ID,

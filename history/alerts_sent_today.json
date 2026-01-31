@@ -42,5 +42,13 @@
   "2026-01-29_LeBron James_pr_UNDER_30.5": {
     "sentAt": "2026-01-30T07:35:07.309Z",
     "player": "LeBron James"
+  },
+  "2026-01-30_Kasparas Jakucionis_r_OVER_2.5": {
+    "sentAt": "2026-01-31T04:06:28.576Z",
+    "player": "Kasparas Jakucionis"
+  },
+  "2026-01-30_Kasparas Jakucionis_p_OVER_5.5": {
+    "sentAt": "2026-01-31T04:06:28.576Z",
+    "player": "Kasparas Jakucionis"
   }
 }

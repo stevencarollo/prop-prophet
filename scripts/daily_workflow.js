@@ -1537,6 +1537,17 @@ async function sendAlerts(picks) {
             for (const pick of newLocks) {
                 const confPct = Math.round((pick.confidence || 0) * 100);
                 const edge = pick.edge || '0';
+                const posEase = pick.posEase ? (pick.posEase * 100).toFixed(0) : 'N/A';
+                const teamEase = pick.teamEase ? (pick.teamEase * 100).toFixed(0) : 'N/A';
+
+                // Map stat abbreviations to full names
+                const STAT_MAP = {
+                    'p': 'Points', 'r': 'Rebounds', 'a': 'Assists',
+                    '3': 'Threes', 's': 'Steals', 'b': 'Blocks', 'to': 'Turnovers',
+                    'pr': 'Pts + Reb', 'pa': 'Pts + Ast', 'ra': 'Reb + Ast',
+                    'pra': 'Pts + Reb + Ast'
+                };
+                const statLabel = STAT_MAP[pick.stat] || pick.stat.toUpperCase();
 
                 // Format game time in PST
                 let timeStr = '';
@@ -1552,12 +1563,11 @@ async function sendAlerts(picks) {
                 const tweetText = `🔒 PROPHET LOCK ALERT
 
 ${pick.player} (${pick.team} vs ${pick.opp})
-${pick.stat.toUpperCase()} ${pick.side} ${pick.line}
+${statLabel} ${pick.side} ${pick.line}
 
 📊 Edge: +${edge} | Confidence: ${confPct}%
-${timeStr ? `⏰ ${timeStr} PST` : ''}
-
-#NBABets #PropBets #GamblingTwitter #NBA`;
+📈 Pos Ease: ${posEase}% | Team Ease: ${teamEase}%
+${timeStr ? `⏰ ${timeStr} PST` : ''}`;
 
                 try {
                     await twitterClient.v2.tweet(tweetText);

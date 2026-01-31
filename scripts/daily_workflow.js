@@ -1519,6 +1519,62 @@ async function sendAlerts(picks) {
             console.error('❌ Push Error:', err.message);
         }
     }
+
+    // 4. Post to Twitter/X
+    if (process.env.TWITTER_API_KEY && process.env.TWITTER_ACCESS_TOKEN) {
+        console.log('🐦 Posting to Twitter/X...');
+        try {
+            const { TwitterApi } = require('twitter-api-v2');
+
+            const twitterClient = new TwitterApi({
+                appKey: process.env.TWITTER_API_KEY,
+                appSecret: process.env.TWITTER_API_SECRET,
+                accessToken: process.env.TWITTER_ACCESS_TOKEN,
+                accessSecret: process.env.TWITTER_ACCESS_SECRET,
+            });
+
+            // Post each lock as a separate tweet
+            for (const pick of newLocks) {
+                const confPct = Math.round((pick.confidence || 0) * 100);
+                const edge = pick.edge || '0';
+
+                // Format game time in PST
+                let timeStr = '';
+                if (pick.startTime) {
+                    const gameTime = new Date(pick.startTime);
+                    timeStr = gameTime.toLocaleTimeString('en-US', {
+                        timeZone: 'America/Los_Angeles',
+                        hour: 'numeric',
+                        minute: '2-digit'
+                    });
+                }
+
+                const tweetText = `🔒 PROPHET LOCK ALERT
+
+${pick.player} (${pick.team} vs ${pick.opp})
+${pick.stat.toUpperCase()} ${pick.side} ${pick.line}
+
+📊 Edge: +${edge} | Confidence: ${confPct}%
+${timeStr ? `⏰ ${timeStr} PST` : ''}
+
+#NBABets #PropBets #GamblingTwitter #NBA`;
+
+                try {
+                    await twitterClient.v2.tweet(tweetText);
+                    console.log(`   ✅ Tweeted: ${pick.player} ${pick.stat}`);
+                } catch (tweetErr) {
+                    console.error(`   ❌ Tweet Failed: ${tweetErr.message}`);
+                }
+
+                // Small delay between tweets to avoid rate limits
+                await new Promise(r => setTimeout(r, 2000));
+            }
+
+            console.log('✅ Twitter posting complete.');
+        } catch (err) {
+            console.error('❌ Twitter Error:', err.message);
+        }
+    }
 }
 
 (async () => {

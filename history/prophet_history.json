@@ -12075,5 +12075,35 @@
     "actual": null,
     "alertedAt": "2026-01-31T05:00:17.406Z",
     "confidence": 0.95185125
+  },
+  {
+    "id": "KasparasJakucionis-r-2026-01-31",
+    "player": "Kasparas Jakucionis",
+    "team": "MIA",
+    "opp": "CHI",
+    "stat": "r",
+    "line": 2.5,
+    "side": "OVER",
+    "tier": "🔒 PROPHET LOCK",
+    "date": "2026-01-31",
+    "result": "PENDING",
+    "actual": null,
+    "alertedAt": "2026-01-31T08:03:45.113Z",
+    "confidence": 1.1255333333333335
+  },
+  {
+    "id": "KasparasJakucionis-pra-2026-01-31",
+    "player": "Kasparas Jakucionis",
+    "team": "MIA",
+    "opp": "CHI",
+    "stat": "pra",
+    "line": 12.5,
+    "side": "OVER",
+    "tier": "🔒 PROPHET LOCK",
+    "date": "2026-01-31",
+    "result": "PENDING",
+    "actual": null,
+    "alertedAt": "2026-01-31T08:03:45.113Z",
+    "confidence": 0.9657849999999999
   }
 ]

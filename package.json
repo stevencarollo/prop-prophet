@@ -21,6 +21,7 @@
     "string-similarity": "^4.0.4",
     "telnyx": "^5.15.0",
     "twilio": "^5.12.0",
+    "twitter-api-v2": "^1.29.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

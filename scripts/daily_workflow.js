@@ -1489,7 +1489,7 @@ async function sendAlerts(picks) {
                     });
                 }
 
-                return `${pick.player.split(' ').pop()} ${pick.stat.toUpperCase()} ${sideShort}${pick.line} | Edge: +${edge} | ${confPct}%${timeStr ? ` | ${timeStr} PST` : ''}`;
+                return `${pick.player.split(' ').pop()} (${pick.team} vs ${pick.opp}) ${pick.stat.toUpperCase()} ${sideShort}${pick.line} | Edge: +${edge} | ${confPct}%${timeStr ? ` | ${timeStr} PST` : ''}`;
             }).join('\n');
 
             const pushBody = {

@@ -1250,14 +1250,31 @@
             count.textContent = picks.length;
 
             if (picks.length === 0) {
-                container.innerHTML = `
-                    <div class="alert alert-info" style="text-align: center;">
-                        <strong>No active picks found currently.</strong><br>
-                        All games may have started, or the filter is too strict.<br><br>
-                        🔔 <strong>Don't miss the next drop!</strong><br>
-                        Scroll down and <strong>Enable Push Notifications</strong> to get instant alerts for the latest Prophet Select picks.
-                    </div>
-                `;
+                let html = '';
+
+                // Context-aware empty state
+                if (typeof isSecretLocksMode !== 'undefined' && isSecretLocksMode) {
+                    html = `
+                        <div class="alert alert-warning" style="text-align: center;">
+                            <div style="font-size: 1.2em; margin-bottom: 10px;">🔒 <strong>No 'Prophet Locks' Found</strong></div>
+                            There are no picks currently meeting the <strong>95% Confidence</strong> threshold.<br><br>
+                            <button onclick="toggleSecretLocks()" style="background: #10b981; color: white; border:none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                                🔓 Show All Picks
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    html = `
+                        <div class="alert alert-info" style="text-align: center;">
+                            <strong>No active picks found currently.</strong><br>
+                            All games may have started, or the filter is too strict.<br><br>
+                            🔔 <strong>Don't miss the next drop!</strong><br>
+                            Scroll down and <strong>Enable Push Notifications</strong> to get instant alerts for the latest Prophet Select picks.
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
                 return;
             }
 
